@@ -28,6 +28,44 @@ export interface BlogPost {
 	author: string;
 }
 
+export interface HeroSlide {
+	id: string;
+	title: string;
+	subtitle: string;
+	image: string;
+	href: string;
+	ctaLabel: string;
+}
+
+// ─── Hero Slides ─────────────────────────────────────────────────────────────
+
+export const HERO_SLIDES: HeroSlide[] = [
+	{
+		id: "1",
+		title: "SMART PC TITAN",
+		subtitle: "PC Gaming cao cấp — RTX 4090 | i9-14900K",
+		image: "/hero/slide-pc-gaming.png",
+		href: "/san-pham/smart-pc-titan-rtx-4090",
+		ctaLabel: "Đặt Hàng Ngay",
+	},
+	{
+		id: "2",
+		title: "NVIDIA RTX 4090",
+		subtitle: "Card đồ hoạ mạnh nhất thế giới — Sẵn hàng tại Smart PC",
+		image: "/hero/slide-gpu.png",
+		href: "/san-pham/nvidia-rtx-4090",
+		ctaLabel: "Mua Ngay",
+	},
+	{
+		id: "3",
+		title: "GAMING SETUP",
+		subtitle: "Trọn bộ setup gaming từ A-Z — Tư vấn miễn phí",
+		image: "/hero/slide-setup.png",
+		href: "/pc-laptop/pc-gaming",
+		ctaLabel: "Khám Phá",
+	},
+];
+
 // ─── Mock Categories ─────────────────────────────────────────────────────────
 
 export const CATEGORIES: Category[] = [

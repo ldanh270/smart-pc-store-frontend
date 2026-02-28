@@ -3,7 +3,7 @@ import {
 	GAMING_PCS,
 	HOT_ACCESSORIES,
 } from "@/configs/mock-data";
-import HeroBanner from "@/components/home/HeroBanner";
+import HeroSlider from "@/components/home/HeroSlider";
 import CategoryGrid from "@/components/home/CategoryGrid";
 import ProductShowcase from "@/components/home/ProductShowcase";
 import PromoBanner from "@/components/home/PromoBanner";
@@ -12,7 +12,7 @@ import BlogPreview from "@/components/home/BlogPreview";
 export default function HomePage() {
 	return (
 		<main>
-			<HeroBanner />
+			<HeroSlider />
 
 			<CategoryGrid />
 
