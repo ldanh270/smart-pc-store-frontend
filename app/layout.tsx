@@ -20,6 +20,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
 	title: "Smart PC Store | Hi-end PC & Gaming Gear",
 	description: "Smart PC Store is a high-end PC and gaming gear store.",
+	icons: { icon: "/logo.svg" },
 };
 
 export default function RootLayout({
