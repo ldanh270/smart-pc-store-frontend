@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
+import { Eye, EyeOff, User, Lock, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,23 +18,24 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useRouter } from "next/navigation";
 
 // ── Zod Schema ──────────────────────────────────────────────────────────────
 const loginSchema = z.object({
-	email: z
+	username: z
 		.string()
-		.min(1, { message: "Email là bắt buộc" })
-		.email({ message: "Email không hợp lệ" }),
+		.min(1, { message: "Tên đăng nhập là bắt buộc" }),
 	password: z
 		.string()
 		.min(1, { message: "Mật khẩu là bắt buộc" })
-		.min(8, { message: "Mật khẩu phải có ít nhất 8 ký tự" }),
+		.min(6, { message: "Mật khẩu phải có ít nhất 6 ký tự" }),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 // ── Google Icon SVG ─────────────────────────────────────────────────────────
-function GoogleIcon() {
+const GoogleIcon = () => {
 	return (
 		<svg
 			width="20"
@@ -66,20 +67,28 @@ function GoogleIcon() {
 export default function LoginForm() {
 	const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+  const {login} = useAuthStore();
+  const router = useRouter();
 
 	const form = useForm<LoginFormValues>({
 		resolver: zodResolver(loginSchema),
 		defaultValues: {
-			email: "",
+			username: "",
 			password: "",
 		},
 	});
 
-	function onSubmit(values: LoginFormValues) {
+	async function onSubmit(values: LoginFormValues) {
 		setIsSubmitting(true);
-		// TODO: Implement actual login logic
-		console.log("Login values:", values);
-		setTimeout(() => setIsSubmitting(false), 2000);
+
+    const {username, password} = values;
+    const success = await login(username, password);
+
+    if (success) {
+      router.push("/");
+    }
+
+		setIsSubmitting(false);
 	}
 
 	return (
@@ -89,24 +98,24 @@ export default function LoginForm() {
 				className="space-y-5"
 				id="login-form"
 			>
-				{/* Email Field */}
+				{/* Username Field */}
 				<FormField
 					control={form.control}
-					name="email"
+					name="username"
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel className="font-sans text-sm font-medium text-foreground">
-								Email
+								Tên đăng nhập
 							</FormLabel>
 							<FormControl>
 								<div className="relative">
-									<Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+									<User className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
 									<Input
-										id="login-email"
-										type="email"
-										placeholder="you@example.com"
+										id="login-username"
+										type="text"
+										placeholder="Nhập tên đăng nhập"
 										className="pl-10"
-										autoComplete="email"
+										autoComplete="username"
 										{...field}
 									/>
 								</div>

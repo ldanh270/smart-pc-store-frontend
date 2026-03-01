@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Eye, EyeOff, Mail, Lock, User, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,10 +23,14 @@ import {
 // ── Zod Schema ──────────────────────────────────────────────────────────────
 const signupSchema = z
 	.object({
-		fullName: z
+		username: z
 			.string()
-			.min(1, { message: "Họ và tên là bắt buộc" })
-			.min(2, { message: "Họ và tên phải có ít nhất 2 ký tự" }),
+			.min(1, { message: "Tên đăng nhập là bắt buộc" })
+			.min(3, { message: "Tên đăng nhập phải có ít nhất 3 ký tự" }),
+		displayName: z
+			.string()
+			.min(1, { message: "Tên hiển thị là bắt buộc" })
+			.min(2, { message: "Tên hiển thị phải có ít nhất 2 ký tự" }),
 		email: z
 			.string()
 			.min(1, { message: "Email là bắt buộc" })
@@ -45,7 +51,7 @@ const signupSchema = z
 type SignupFormValues = z.infer<typeof signupSchema>;
 
 // ── Google Icon SVG ─────────────────────────────────────────────────────────
-function GoogleIcon() {
+const GoogleIcon = () => {
 	return (
 		<svg
 			width="20"
@@ -80,21 +86,29 @@ export default function SignupForm() {
 		useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
+	const router = useRouter();
+	const { signup } = useAuthStore();
+
 	const form = useForm<SignupFormValues>({
 		resolver: zodResolver(signupSchema),
 		defaultValues: {
-			fullName: "",
+			username: "",
+			displayName: "",
 			email: "",
 			password: "",
 			confirmPassword: "",
 		},
 	});
 
-	function onSubmit(values: SignupFormValues) {
+	async function onSubmit(values: SignupFormValues) {
 		setIsSubmitting(true);
-		// TODO: Implement actual signup logic
-		console.log("Signup values:", values);
-		setTimeout(() => setIsSubmitting(false), 2000);
+		
+		const success = await signup(values.username, values.email, values.displayName, values.password);
+		if (success) {
+			router.push("/login");
+		}
+		
+		setIsSubmitting(false);
 	}
 
 	return (
@@ -104,20 +118,47 @@ export default function SignupForm() {
 				className="space-y-4"
 				id="signup-form"
 			>
-				{/* Full Name Field */}
+				{/* Username Field */}
 				<FormField
 					control={form.control}
-					name="fullName"
+					name="username"
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel className="font-sans text-sm font-medium text-foreground">
-								Họ và tên
+								Tên đăng nhập
 							</FormLabel>
 							<FormControl>
 								<div className="relative">
 									<User className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
 									<Input
-										id="signup-fullname"
+										id="signup-username"
+										type="text"
+										placeholder="Nhập tên đăng nhập"
+										className="pl-10"
+										autoComplete="username"
+										{...field}
+									/>
+								</div>
+							</FormControl>
+							<FormMessage className="text-destructive" />
+						</FormItem>
+					)}
+				/>
+
+				{/* Display Name Field */}
+				<FormField
+					control={form.control}
+					name="displayName"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel className="font-sans text-sm font-medium text-foreground">
+								Tên hiển thị
+							</FormLabel>
+							<FormControl>
+								<div className="relative">
+									<User className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+									<Input
+										id="signup-displayname"
 										type="text"
 										placeholder="Nguyễn Văn A"
 										className="pl-10"

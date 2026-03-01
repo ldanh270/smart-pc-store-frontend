@@ -4,13 +4,14 @@ import Link from "next/link";
 import { Phone, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CONTACTS } from "@/configs/Contacts";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuthStore } from "@/stores/useAuthStore";
 import AuthButtons from "./AuthButtons";
 import UserMenu from "./UserMenu";
 import CartButton from "./CartButton";
 
 export default function TopBar() {
-	const { isLoggedIn } = useAuth();
+	const accessToken = useAuthStore((state) => state.accessToken);
+	const isLoggedIn = !!accessToken;
 
 	return (
 		<div className="bg-background">

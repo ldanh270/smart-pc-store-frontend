@@ -1,6 +1,7 @@
+import NavBar from "@/components/header/NavBar";
+import TopBar from "@/components/header/TopBar";
 import { Separator } from "@/components/ui/separator";
-import TopBar from "./header/TopBar";
-import NavBar from "./header/NavBar";
+
 
 export default function Header() {
 	return (
