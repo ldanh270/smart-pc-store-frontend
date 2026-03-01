@@ -1,27 +1,152 @@
-import axios from "axios";
+import axios, { type AxiosRequestConfig } from "axios";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_MODE === "development" ? process.env.NEXT_PUBLIC_API_URL : "/api",
   withCredentials: true,
 });
 
-// Automatically attach Bearer token from persisted auth store
+// ─── Helpers to read/write persisted auth store ─────────────────────────────
+
+function getAuthState() {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem("auth-storage");
+    if (!raw) return null;
+    return JSON.parse(raw)?.state ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function setAccessToken(accessToken: string) {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = localStorage.getItem("auth-storage");
+    if (!raw) return;
+    const store = JSON.parse(raw);
+    store.state.accessToken = accessToken;
+    localStorage.setItem("auth-storage", JSON.stringify(store));
+  } catch {
+    // Silently ignore
+  }
+}
+
+function clearAuth() {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = localStorage.getItem("auth-storage");
+    if (!raw) return;
+    const store = JSON.parse(raw);
+    store.state.accessToken = null;
+    store.state.refreshToken = null;
+    store.state.user = null;
+    localStorage.setItem("auth-storage", JSON.stringify(store));
+  } catch {
+    // Silently ignore
+  }
+}
+
+// ─── Request Interceptor: Attach Bearer Token ───────────────────────────────
+
 api.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    try {
-      const raw = localStorage.getItem("auth-storage");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        const token = parsed?.state?.accessToken;
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-      }
-    } catch {
-      // Silently ignore parse errors
-    }
+  const auth = getAuthState();
+  if (auth?.accessToken) {
+    config.headers.Authorization = `Bearer ${auth.accessToken}`;
   }
   return config;
 });
+
+// ─── Response Interceptor: Auto Refresh on 401 ─────────────────────────────
+
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (token: string) => void;
+  reject: (error: unknown) => void;
+}> = [];
+
+function processQueue(error: unknown, token: string | null) {
+  failedQueue.forEach((prom) => {
+    if (token) {
+      prom.resolve(token);
+    } else {
+      prom.reject(error);
+    }
+  });
+  failedQueue = [];
+}
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
+
+    // Only handle 401 and skip if already retried or is an auth endpoint
+    const isAuthEndpoint = originalRequest.url?.includes("/auth/");
+    if (error.response?.status !== 401 || originalRequest._retry || isAuthEndpoint) {
+      return Promise.reject(error);
+    }
+
+    // Queue this request if a refresh is already in progress
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        failedQueue.push({
+          resolve: (token: string) => {
+            originalRequest.headers = {
+              ...originalRequest.headers,
+              Authorization: `Bearer ${token}`,
+            };
+            resolve(api(originalRequest));
+          },
+          reject,
+        });
+      });
+    }
+
+    originalRequest._retry = true;
+    isRefreshing = true;
+
+    const auth = getAuthState();
+
+    if (!auth?.accessToken) {
+      clearAuth();
+      isRefreshing = false;
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
+      return Promise.reject(error);
+    }
+
+    try {
+      // Backend reads refresh token from cookie — no body needed
+      const { data } = await axios.post(
+        `${api.defaults.baseURL}/auth/refresh`,
+        {},
+        { withCredentials: true }
+      );
+
+      const newAccessToken: string = data.accessToken;
+
+      // Update only the access token (refresh token stays in cookie)
+      setAccessToken(newAccessToken);
+      processQueue(null, newAccessToken);
+
+      // Retry original request with new token
+      originalRequest.headers = {
+        ...originalRequest.headers,
+        Authorization: `Bearer ${newAccessToken}`,
+      };
+      return api(originalRequest);
+    } catch (refreshError) {
+      processQueue(refreshError, null);
+      clearAuth();
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+    }
+  }
+);
 
 export default api;

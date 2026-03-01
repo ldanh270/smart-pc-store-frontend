@@ -1,16 +1,5 @@
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-export interface Product {
-	id: string;
-	name: string;
-	slug: string;
-	price: number;
-	originalPrice?: number;
-	image: string;
-	category: string;
-	badge?: string;
-}
-
 export interface Category {
 	label: string;
 	href: string;
@@ -119,124 +108,6 @@ export const CATEGORIES: Category[] = [
 	},
 ];
 
-// ─── Mock Products ───────────────────────────────────────────────────────────
-
-export const NEW_PRODUCTS: Product[] = [
-	{
-		id: "1",
-		name: "Intel Core i9-14900K",
-		slug: "intel-core-i9-14900k",
-		price: 14990000,
-		originalPrice: 16490000,
-		image: "/products/placeholder.svg",
-		category: "CPU",
-		badge: "Mới",
-	},
-	{
-		id: "2",
-		name: "NVIDIA RTX 4070 Ti SUPER",
-		slug: "nvidia-rtx-4070-ti-super",
-		price: 21990000,
-		image: "/products/placeholder.svg",
-		category: "GPU",
-		badge: "Hot",
-	},
-	{
-		id: "3",
-		name: "G.Skill Trident Z5 RGB 32GB",
-		slug: "gskill-trident-z5-rgb-32gb",
-		price: 3890000,
-		originalPrice: 4290000,
-		image: "/products/placeholder.svg",
-		category: "RAM",
-	},
-	{
-		id: "4",
-		name: "Samsung 990 PRO 2TB NVMe",
-		slug: "samsung-990-pro-2tb",
-		price: 5490000,
-		image: "/products/placeholder.svg",
-		category: "SSD",
-		badge: "Mới",
-	},
-];
-
-export const GAMING_PCS: Product[] = [
-	{
-		id: "5",
-		name: "Smart PC Titan — RTX 4090",
-		slug: "smart-pc-titan-rtx-4090",
-		price: 89990000,
-		image: "/products/placeholder.svg",
-		category: "PC Gaming",
-		badge: "Best Seller",
-	},
-	{
-		id: "6",
-		name: "Smart PC Storm — RTX 4070",
-		slug: "smart-pc-storm-rtx-4070",
-		price: 32990000,
-		originalPrice: 35990000,
-		image: "/products/placeholder.svg",
-		category: "PC Gaming",
-	},
-	{
-		id: "7",
-		name: "Smart PC Spark — RTX 4060",
-		slug: "smart-pc-spark-rtx-4060",
-		price: 22990000,
-		image: "/products/placeholder.svg",
-		category: "PC Gaming",
-	},
-	{
-		id: "8",
-		name: "Smart PC Office Pro",
-		slug: "smart-pc-office-pro",
-		price: 12990000,
-		image: "/products/placeholder.svg",
-		category: "PC Văn Phòng",
-	},
-];
-
-export const HOT_ACCESSORIES: Product[] = [
-	{
-		id: "9",
-		name: "Logitech G PRO X Superlight 2",
-		slug: "logitech-g-pro-x-superlight-2",
-		price: 3290000,
-		image: "/products/placeholder.svg",
-		category: "Chuột",
-		badge: "Hot",
-	},
-	{
-		id: "10",
-		name: "Keychron Q1 Max",
-		slug: "keychron-q1-max",
-		price: 4890000,
-		originalPrice: 5290000,
-		image: "/products/placeholder.svg",
-		category: "Bàn Phím",
-	},
-	{
-		id: "11",
-		name: "Sony WH-1000XM5",
-		slug: "sony-wh-1000xm5",
-		price: 7490000,
-		image: "/products/placeholder.svg",
-		category: "Tai Nghe",
-	},
-	{
-		id: "12",
-		name: "LG UltraGear 27GP850-B",
-		slug: "lg-ultragear-27gp850-b",
-		price: 9990000,
-		originalPrice: 11490000,
-		image: "/products/placeholder.svg",
-		category: "Màn Hình",
-		badge: "Sale",
-	},
-];
-
 // ─── Mock Blog Posts ─────────────────────────────────────────────────────────
 
 export const BLOG_POSTS: BlogPost[] = [
@@ -272,11 +143,3 @@ export const BLOG_POSTS: BlogPost[] = [
 	},
 ];
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-export function formatPrice(price: number): string {
-	return new Intl.NumberFormat("vi-VN", {
-		style: "currency",
-		currency: "VND",
-	}).format(price);
-}

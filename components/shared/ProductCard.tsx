@@ -1,6 +1,14 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { type Product, formatPrice } from "@/configs/mock-data";
+import { useState } from "react";
+import { type Product } from "@/types/product";
+import { formatPrice } from "@/lib/utils";
+import { useCartStore } from "@/stores/useCartStore";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { ShoppingCart, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ProductCardProps {
 	product: Product;
@@ -10,10 +18,29 @@ export default function ProductCard({ product }: ProductCardProps) {
 	const hasDiscount =
 		product.originalPrice && product.originalPrice > product.price;
 
+	const [isAdding, setIsAdding] = useState(false);
+	const addItem = useCartStore((state) => state.addItem);
+	const accessToken = useAuthStore((state) => state.accessToken);
+	const isLoggedIn = !!accessToken;
+
+	const handleAddToCart = async (e: React.MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+
+		if (!isLoggedIn) {
+			toast.info("Vui lòng đăng nhập để thêm vào giỏ hàng");
+			return;
+		}
+
+		setIsAdding(true);
+		await addItem(Number(product.id), 1);
+		setIsAdding(false);
+	};
+
 	return (
 		<Link
 			href={`/san-pham/${product.slug}`}
-			className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-all hover:shadow-lg hover:-translate-y-0.5"
+			className="group relative flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-all hover:shadow-lg hover:-translate-y-0.5"
 		>
 			{/* Image */}
 			<div className="relative aspect-square overflow-hidden bg-secondary">
@@ -31,6 +58,23 @@ export default function ProductCard({ product }: ProductCardProps) {
 						{product.badge}
 					</span>
 				)}
+
+				{/* Hover: Add to Cart overlay */}
+				<button
+					onClick={handleAddToCart}
+					disabled={isAdding}
+					className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-2 bg-primary/90 px-3 py-2.5 text-sm font-semibold text-primary-foreground opacity-0 backdrop-blur-sm transition-all duration-300 group-hover:opacity-100 hover:bg-primary disabled:opacity-70"
+					aria-label="Thêm vào giỏ hàng"
+				>
+					{isAdding ? (
+						<Loader2 className="h-4 w-4 animate-spin" />
+					) : (
+						<>
+							<ShoppingCart className="h-4 w-4" />
+							Thêm vào giỏ
+						</>
+					)}
+				</button>
 			</div>
 
 			{/* Info */}

@@ -1,4 +1,4 @@
-import { type Product } from "@/configs/mock-data";
+import { type Product } from "@/types/product";
 import SectionHeader from "@/components/shared/SectionHeader";
 import ProductCard from "@/components/shared/ProductCard";
 

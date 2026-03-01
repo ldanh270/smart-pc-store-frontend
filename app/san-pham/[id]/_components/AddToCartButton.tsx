@@ -1,0 +1,99 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCartStore } from "@/stores/useCartStore";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart, Loader2, LogIn, Zap } from "lucide-react";
+import Link from "next/link";
+
+interface AddToCartButtonProps {
+	productId: number;
+	quantity: number;
+	isInStock: boolean;
+}
+
+export default function AddToCartButton({
+	productId,
+	quantity,
+	isInStock,
+}: AddToCartButtonProps) {
+	const [isAdding, setIsAdding] = useState(false);
+	const [isBuying, setIsBuying] = useState(false);
+	const addItem = useCartStore((state) => state.addItem);
+	const accessToken = useAuthStore((state) => state.accessToken);
+	const isLoggedIn = !!accessToken;
+	const router = useRouter();
+
+	if (!isLoggedIn) {
+		return (
+			<Button asChild className="h-12 w-full gap-2 text-base font-semibold">
+				<Link href="/login">
+					<LogIn className="h-5 w-5" />
+					Đăng nhập để mua hàng
+				</Link>
+			</Button>
+		);
+	}
+
+	const handleAddToCart = async () => {
+		setIsAdding(true);
+		await addItem(productId, quantity);
+		setIsAdding(false);
+	};
+
+	const handleBuyNow = async () => {
+		setIsBuying(true);
+		const success = await addItem(productId, quantity);
+		if (success) {
+			router.push("/gio-hang");
+		}
+		setIsBuying(false);
+	};
+
+	const isDisabled = !isInStock || isAdding || isBuying;
+
+	return (
+		<div className="flex gap-3">
+			<Button
+				onClick={handleAddToCart}
+				disabled={isDisabled}
+				variant="outline"
+				className="h-12 flex-1 gap-2 text-base font-semibold"
+			>
+				{isAdding ? (
+					<>
+						<Loader2 className="h-5 w-5 animate-spin" />
+						Đang thêm...
+					</>
+				) : !isInStock ? (
+					"Hết hàng"
+				) : (
+					<>
+						<ShoppingCart className="h-5 w-5" />
+						Thêm vào giỏ
+					</>
+				)}
+			</Button>
+
+			<Button
+				onClick={handleBuyNow}
+				disabled={isDisabled}
+				className="h-12 flex-1 gap-2 text-base font-semibold"
+			>
+				{isBuying ? (
+					<>
+						<Loader2 className="h-5 w-5 animate-spin" />
+						Đang xử lý...
+					</>
+				) : (
+					<>
+						<Zap className="h-5 w-5" />
+						Mua Ngay
+					</>
+				)}
+			</Button>
+		</div>
+	);
+}
