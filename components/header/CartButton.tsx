@@ -1,9 +1,21 @@
+"use client";
+
+import { useEffect } from "react";
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
+import { useCartStore } from "@/stores/useCartStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function CartButton() {
-	// TODO: Replace with real cart count from cart context/store
-	const cartCount = 0;
+	const totalItems = useCartStore((state) => state.totalItems);
+	const fetchCart = useCartStore((state) => state.fetchCart);
+	const accessToken = useAuthStore((state) => state.accessToken);
+
+	useEffect(() => {
+		if (accessToken) {
+			fetchCart();
+		}
+	}, [accessToken, fetchCart]);
 
 	return (
 		<Link
@@ -15,7 +27,7 @@ export default function CartButton() {
 			<div className="relative ml-1">
 				<ShoppingBag className="size-5" />
 				<span className="absolute -right-2 -top-1.5 flex size-4.5 items-center justify-center rounded-full bg-foreground text-[10px] font-bold text-background transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-					{cartCount > 99 ? "99+" : cartCount}
+					{totalItems > 99 ? "99+" : totalItems}
 				</span>
 			</div>
 		</Link>
