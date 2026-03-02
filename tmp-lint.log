@@ -1,0 +1,24 @@
+
+> smart-pc-store-frontend@0.1.0 lint
+> eslint
+
+
+C:\Users\ducan\Personal\Code\team-projects\smart-pc-store-frontend\components\admin\suppliers\SupplierFormDialog.tsx
+  67:50  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ducan\Personal\Code\team-projects\smart-pc-store-frontend\components\ui\sidebar.tsx
+  611:26  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\ducan\Personal\Code\team-projects\smart-pc-store-frontend\components\ui\sidebar.tsx:611:26
+  609 |   // Random width between 50 to 90%.
+  610 |   const width = React.useMemo(() => {
+> 611 |     return `${Math.floor(Math.random() * 40) + 50}%`
+      |                          ^^^^^^^^^^^^^ Cannot call impure function
+  612 |   }, [])
+  613 |
+  614 |   return (  react-hooks/purity
+
+Γ£û 2 problems (2 errors, 0 warnings)
+

@@ -12,10 +12,58 @@ export interface BackendProduct {
 	status: boolean;
 }
 
+// ─── Admin Product (includes category name from joined data) ────────────────
+
+export interface AdminProduct {
+	id: number;
+	productName: string;
+	description: string | null;
+	imageUrl: string | null;
+	currentPrice: number;
+	quantity: number;
+	categoryId: number;
+	categoryName?: string;
+	supplierId: number;
+	status: boolean;
+}
+
+// ─── API Response Wrappers ──────────────────────────────────────────────────
+
+export interface ApiResponse<T> {
+	status: number;
+	message: string;
+	data: T;
+}
+
 export interface ApiListResponse<T> {
 	status: number;
 	message: string;
 	data: T[];
+}
+
+// ─── Product Create/Update DTO ──────────────────────────────────────────────
+
+export interface ProductCreateDto {
+	productName: string;
+	description?: string;
+	imageUrl?: string;
+	currentPrice: number;
+	quantity: number;
+	supplierId: number;
+	categoryId: number;
+	status?: boolean;
+}
+
+// ─── Product Query Params ───────────────────────────────────────────────────
+
+export interface ProductQueryParams {
+	name?: string;
+	categoryId?: number;
+	status?: boolean;
+	minPrice?: number;
+	maxPrice?: number;
+	page?: number;
+	size?: number;
 }
 
 // ─── UI-Ready Product Type ──────────────────────────────────────────────────

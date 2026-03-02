@@ -1,4 +1,5 @@
 import axios, { type AxiosRequestConfig } from "axios";
+import { toast } from "sonner";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_MODE === "development" ? process.env.NEXT_PUBLIC_API_URL : "/api",
@@ -78,11 +79,25 @@ function processQueue(error: unknown, token: string | null) {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    // Global toast notifications for specific error codes
+    const status = error.response?.status;
+    if (status) {
+      if ([400, 403, 404, 409].includes(status)) {
+        const message = error.response?.data?.message || error.response?.data?.error || `Error: ${status}`;
+        toast.error(message);
+      }
+    }
+
     const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
 
     // Only handle 401 and skip if already retried or is an auth endpoint
     const isAuthEndpoint = originalRequest.url?.includes("/auth/");
-    if (error.response?.status !== 401 || originalRequest._retry || isAuthEndpoint) {
+    // Also skip 401 for login requests if they fail explicitly so that react-hook-form can handle it
+    if (status !== 401 || originalRequest._retry || isAuthEndpoint) {
+      if (status === 401) {
+        const message = error.response?.data?.message || "Unauthorized";
+        toast.error(message);
+      }
       return Promise.reject(error);
     }
 

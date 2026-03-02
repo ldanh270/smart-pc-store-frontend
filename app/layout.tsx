@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import { AuthProvider } from "@/contexts/AuthContext";
+import LayoutShell from "@/components/layout/LayoutShell";
 import "./globals.css";
 
 // Main font (Inter) - Used for UI, Title, Description
@@ -38,9 +37,7 @@ export default function RootLayout({
 		>
 			<body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
 				<AuthProvider>
-					<Header />
-					{children}
-					<Footer />
+					<LayoutShell>{children}</LayoutShell>
 				</AuthProvider>
 			</body>
 		</html>

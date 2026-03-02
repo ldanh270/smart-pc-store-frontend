@@ -38,8 +38,10 @@ export const useAuthStore = create<AuthState>()(
             try {
               const payload = JSON.parse(atob(accessToken.split('.')[1]));
               user = {
+                id: payload.id || payload.sub,
                 name: payload.displayName || payload.name || payload.sub || username,
                 email: payload.email || "",
+                role: payload.role || "user",
               };
             } catch (e) {
               console.error("Failed to parse JWT", e);
@@ -47,6 +49,14 @@ export const useAuthStore = create<AuthState>()(
           }
 
           set({ accessToken, refreshToken, user });
+
+          // Sync auth state to cookies for Next.js middleware check
+          if (typeof document !== 'undefined') {
+            document.cookie = `access_token=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
+            if (user?.role) {
+              document.cookie = `user_role=${user.role}; path=/; max-age=86400; SameSite=Lax`;
+            }
+          }
 
           toast.success("Đăng nhập thành công!");
           return true;
@@ -61,6 +71,10 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         set({ accessToken: null, refreshToken: null, user: null });
+        if (typeof document !== 'undefined') {
+          document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          document.cookie = 'user_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        }
         toast.success("Đăng xuất thành công!");
       }
     }),
