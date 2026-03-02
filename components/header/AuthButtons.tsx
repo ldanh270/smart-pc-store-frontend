@@ -10,7 +10,7 @@ export default function AuthButtons() {
 				size="sm"
 				asChild
 			>
-				<Link href="/login">
+				<Link href="/dang-nhap">
 					<LogIn className="size-4" />
 					Đăng Nhập
 				</Link>
@@ -21,7 +21,7 @@ export default function AuthButtons() {
 				size="sm"
 				asChild
 			>
-				<Link href="/signup">
+				<Link href="/dang-ky">
 					<UserPlus className="size-4" />
 					Đăng Ký
 				</Link>
