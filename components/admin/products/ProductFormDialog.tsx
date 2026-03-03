@@ -31,8 +31,10 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useEffect } from "react";
 import type { AdminProduct } from "@/types/product";
-import { MOCK_CATEGORIES } from "@/configs/mock-admin-data";
+import { useCategoryStore } from "@/stores/useCategoryStore";
+import { useSupplierStore } from "@/stores/useSupplierStore";
 
 // ─── Schema ─────────────────────────────────────────────────────────────────
 
@@ -78,6 +80,15 @@ export default function ProductFormDialog({
 	onSubmit,
 }: ProductFormDialogProps) {
 	const isEditing = !!product;
+	const { categories, fetchCategories } = useCategoryStore();
+	const { suppliers, fetchSuppliers } = useSupplierStore();
+
+	useEffect(() => {
+		if (open) {
+			if (categories.length === 0) fetchCategories();
+			if (suppliers.length === 0) fetchSuppliers();
+		}
+	}, [open, categories.length, suppliers.length, fetchCategories, fetchSuppliers]);
 
 	const form = useForm<ProductFormValues>({
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -95,7 +106,7 @@ export default function ProductFormDialog({
 	});
 
 	function handleSubmit(values: ProductFormValues) {
-		const category = MOCK_CATEGORIES.find(
+		const category = categories.find(
 			(c) => c.id === values.categoryId,
 		);
 		onSubmit({
@@ -227,7 +238,7 @@ export default function ProductFormDialog({
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
-												{MOCK_CATEGORIES.map((cat) => (
+												{categories.map((cat) => (
 													<SelectItem
 														key={cat.id}
 														value={String(cat.id)}
@@ -241,23 +252,63 @@ export default function ProductFormDialog({
 									</FormItem>
 								)}
 							/>
+
+							{/* Supplier Selection */}
 							<FormField
 								control={form.control}
-								name="imageUrl"
+								name="supplierId"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>URL Hình Ảnh</FormLabel>
-										<FormControl>
-											<Input
-												placeholder="/products/cpu.jpg"
-												{...field}
-											/>
-										</FormControl>
+										<FormLabel>Nhà Cung Cấp</FormLabel>
+										<Select
+											onValueChange={(val) =>
+												field.onChange(Number(val))
+											}
+											defaultValue={
+												field.value
+													? String(field.value)
+													: undefined
+											}
+										>
+											<FormControl>
+												<SelectTrigger>
+													<SelectValue placeholder="Chọn nhà cung cấp" />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												{suppliers.map((sup) => (
+													<SelectItem
+														key={sup.id}
+														value={String(sup.id)}
+													>
+														{sup.name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
 										<FormMessage />
 									</FormItem>
 								)}
 							/>
 						</div>
+
+						{/* Image URL (Full Width) */}
+						<FormField
+							control={form.control}
+							name="imageUrl"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>URL Hình Ảnh</FormLabel>
+									<FormControl>
+										<Input
+											placeholder="/products/cpu.jpg"
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 
 						{/* Status */}
 						<FormField

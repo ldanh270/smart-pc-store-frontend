@@ -31,15 +31,26 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+	Pagination,
+	PaginationContent,
+	PaginationItem,
+	PaginationNext,
+	PaginationPrevious,
+} from "@/components/ui/pagination";
 import type { AdminProduct } from "@/types/product";
 import { useProductStore } from "@/stores/useProductStore";
+import { useCategoryStore } from "@/stores/useCategoryStore";
+import { useSupplierStore } from "@/stores/useSupplierStore";
 import ProductFormDialog from "./ProductFormDialog";
 import DeleteProductDialog from "./DeleteProductDialog";
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function ProductTable() {
-	const { products, loading, fetchProducts, createProduct, updateProduct, deleteProduct } = useProductStore();
+	const { products, loading, fetchProducts, createProduct, updateProduct, deleteProduct, lastParams } = useProductStore();
+	const { categories, fetchCategories } = useCategoryStore();
+	const { suppliers, fetchSuppliers } = useSupplierStore();
 	
 	const [searchQuery, setSearchQuery] = useState("");
 	const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -49,11 +60,37 @@ export default function ProductTable() {
 	// ─── Fetch Products from Backend ────────────────────────────────────
 
 	useEffect(() => {
+		if (categories.length === 0) fetchCategories();
+		if (suppliers.length === 0) fetchSuppliers();
+	}, [categories.length, suppliers.length, fetchCategories, fetchSuppliers]);
+
+	// ─── Fetch Products from Backend ────────────────────────────────────
+
+	useEffect(() => {
 		const debounce = setTimeout(() => {
-			fetchProducts({ name: searchQuery || undefined });
+			fetchProducts({ name: searchQuery || undefined, page: 1 });
 		}, 300);
 		return () => clearTimeout(debounce);
 	}, [searchQuery, fetchProducts]);
+
+	// ─── Pagination ─────────────────────────────────────────────────────
+
+	const currentPage = lastParams?.page || 1;
+	const pageSize = lastParams?.size || 10;
+	// Simple heuristic: if we received as many items as pageSize, there *might* be a next page
+	const hasNextPage = products.length === pageSize;
+
+	function handlePreviousPage() {
+		if (currentPage > 1) {
+			fetchProducts({ page: currentPage - 1 });
+		}
+	}
+
+	function handleNextPage() {
+		if (hasNextPage) {
+			fetchProducts({ page: currentPage + 1 });
+		}
+	}
 
 	// ─── Handlers (API-backed via Store) ────────────────────────────────
 
@@ -142,8 +179,6 @@ export default function ProductTable() {
 				</div>
 			</div>
 
-
-
 			{/* Table */}
 			<div className="rounded-lg border border-border">
 				<Table>
@@ -158,6 +193,9 @@ export default function ProductTable() {
 							</TableHead>
 							<TableHead className="hidden text-center lg:table-cell">
 								Danh Mục
+							</TableHead>
+							<TableHead className="hidden text-center lg:table-cell">
+								Nhà Cung Cấp
 							</TableHead>
 							<TableHead className="text-center">
 								Trạng Thái
@@ -181,7 +219,7 @@ export default function ProductTable() {
 						) : products.length === 0 ? (
 							<TableRow>
 								<TableCell
-									colSpan={8}
+									colSpan={9}
 									className="py-12 text-center text-muted-foreground"
 								>
 									Không tìm thấy sản phẩm nào.
@@ -234,9 +272,15 @@ export default function ProductTable() {
 									</TableCell>
 									<TableCell className="hidden text-center lg:table-cell">
 										<Badge variant="secondary">
-											{product.categoryName ??
+											{categories.find((c) => c.id === product.categoryId)?.name ??
 												`Category ${product.categoryId}`}
 										</Badge>
+									</TableCell>
+									<TableCell className="hidden text-center lg:table-cell">
+										<span className="text-sm">
+											{suppliers.find((s) => s.id === product.supplierId)?.name ??
+												`Supplier ${product.supplierId}`}
+										</span>
 									</TableCell>
 									<TableCell className="text-center">
 										<Badge
@@ -317,6 +361,37 @@ export default function ProductTable() {
 						)}
 					</TableBody>
 				</Table>
+			</div>
+
+			{/* Pagination */}
+			<div className="flex items-center justify-between px-2">
+				<p className="text-sm text-muted-foreground">
+					Đang hiển thị trang {currentPage}
+				</p>
+				<Pagination className="mx-0 w-auto">
+					<PaginationContent>
+						<PaginationItem>
+							<PaginationPrevious
+								onClick={handlePreviousPage}
+								className={
+									currentPage <= 1
+										? "pointer-events-none opacity-50"
+										: "cursor-pointer"
+								}
+							/>
+						</PaginationItem>
+						<PaginationItem>
+							<PaginationNext
+								onClick={handleNextPage}
+								className={
+									!hasNextPage
+										? "pointer-events-none opacity-50"
+										: "cursor-pointer"
+								}
+							/>
+						</PaginationItem>
+					</PaginationContent>
+				</Pagination>
 			</div>
 
 			{/* Dialogs */}

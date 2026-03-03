@@ -7,11 +7,10 @@ export function middleware(request: NextRequest) {
   // Protect /admin routes
   if (pathname.startsWith('/admin')) {
     const accessToken = request.cookies.get('access_token')?.value;
-    const userRole = request.cookies.get('user_role')?.value;
+    const userRole = request.cookies.get('role')?.value;
 
-    // If no access token, redirect to login
     if (!accessToken) {
-      return NextResponse.redirect(new URL('/login', request.url));
+      return NextResponse.redirect(new URL('/dang-nhap', request.url));
     }
 
     // Check if the user's role is admin
@@ -23,8 +22,8 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Redirect authenticated users away from /login or /dang-nhap
-  if (pathname.startsWith('/login') || pathname.startsWith('/dang-nhap')) {
+  // Redirect authenticated users away from /dang-nhap
+  if (pathname.startsWith('/dang-nhap')) {
     const accessToken = request.cookies.get('access_token')?.value;
     const userRole = request.cookies.get('user_role')?.value;
 
@@ -40,5 +39,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/login', '/dang-nhap'],
+  matcher: ['/admin/:path*', '/dang-nhap'],
 };

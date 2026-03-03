@@ -85,7 +85,15 @@ export default function LoginForm() {
     const success = await login(username, password);
 
     if (success) {
-      router.push("/");
+      const user = useAuthStore.getState().user;
+      const userRole = user?.role;
+      
+      if (userRole === 'ADMIN' || userRole === 'admin' || userRole?.includes('ADMIN')) {
+        router.push("/admin"); 
+      } else {
+        router.push("/");
+      }
+      router.refresh();
     }
 
 		setIsSubmitting(false);

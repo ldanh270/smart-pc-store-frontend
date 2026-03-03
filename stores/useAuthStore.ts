@@ -31,9 +31,11 @@ export const useAuthStore = create<AuthState>()(
       login: async (username: string, password: string) => {
         try {
           set({ loading: true });
-          const {accessToken, refreshToken, user: serverUser} = await authService.login(username, password);
+          const data = await authService.login(username, password);
+          const accessToken = data.accessToken || data.token;
+          const refreshToken = data.refreshToken;
 
-          let user = serverUser || null;
+          let user = data.user || null;
           if (!user && accessToken) {
             try {
               const payload = JSON.parse(atob(accessToken.split('.')[1]));
