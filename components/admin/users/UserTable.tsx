@@ -1,7 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { Search, MoreHorizontal, Pencil, Trash2, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+	MoreHorizontal,
+	Pencil,
+	Trash2,
+	Plus,
+	Loader2,
+	RefreshCw,
+} from "lucide-react";
 import {
 	Table,
 	TableBody,
@@ -12,82 +19,73 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { User } from "@/types/user";
-import UserFormDialog from "./UserFormDialog";
+import { useUserStore } from "@/stores/useUserStore";
+import UserFormDialog, { type UserFormValues } from "./UserFormDialog";
 import DeleteUserDialog from "./DeleteUserDialog";
 
-// ─── Props ──────────────────────────────────────────────────────────────────
+export default function UserTable() {
+	const { users, loading, fetchUsers, createUser, updateUser, deleteUser } =
+		useUserStore();
 
-interface UserTableProps {
-	initialUsers: User[];
-}
-
-// ─── Component ──────────────────────────────────────────────────────────────
-
-export default function UserTable({ initialUsers }: UserTableProps) {
-	const [users, setUsers] = useState<User[]>(initialUsers);
-	const [searchQuery, setSearchQuery] = useState("");
 	const [isCreateOpen, setIsCreateOpen] = useState(false);
 	const [editingUser, setEditingUser] = useState<User | null>(null);
 	const [deletingUser, setDeletingUser] = useState<User | null>(null);
 
-	// Filter users by search
-	const filteredUsers = users.filter(
-		(user) =>
-			user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			user.displayName
-				.toLowerCase()
-				.includes(searchQuery.toLowerCase()) ||
-			user.email.toLowerCase().includes(searchQuery.toLowerCase()),
-	);
+	useEffect(() => {
+		fetchUsers();
+	}, [fetchUsers]);
 
-	// Handlers
-	function handleCreateUser(newUser: Omit<User, "id" | "createdAt">) {
-		const created: User = {
-			...newUser,
-			id: Math.max(...users.map((u) => u.id), 0) + 1,
-			createdAt: new Date().toISOString().split("T")[0],
-		};
-		setUsers((prev) => [created, ...prev]);
-		setIsCreateOpen(false);
+	// ─── Handlers ────────────────────────────────────────────────────────
+
+	async function handleCreateUser(data: UserFormValues) {
+		const success = await createUser(data as Parameters<typeof createUser>[0]);
+		if (success) setIsCreateOpen(false);
 	}
 
-	function handleEditUser(updated: User) {
-		setUsers((prev) =>
-			prev.map((u) => (u.id === updated.id ? updated : u)),
+	async function handleEditUser(data: UserFormValues) {
+		if (!editingUser) return;
+		const success = await updateUser(
+			editingUser.id,
+			data as Parameters<typeof updateUser>[1],
 		);
-		setEditingUser(null);
+		if (success) setEditingUser(null);
 	}
 
-	function handleDeleteUser(id: number) {
-		setUsers((prev) => prev.filter((u) => u.id !== id));
-		setDeletingUser(null);
+	async function handleDeleteUser(id: number) {
+		const success = await deleteUser(id);
+		if (success) setDeletingUser(null);
 	}
+
+	// ─── Render ──────────────────────────────────────────────────────────
 
 	return (
 		<div className="space-y-4">
 			{/* Toolbar */}
-			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-				<div className="relative max-w-sm flex-1">
-					<Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-					<Input
-						placeholder="Tìm kiếm người dùng..."
-						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
-						className="pl-9"
-					/>
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+				<div className="flex gap-2">
+					<Button
+						variant="outline"
+						size="icon"
+						onClick={() => fetchUsers()}
+						disabled={loading}
+					>
+						<RefreshCw
+							className={`size-4 ${loading ? "animate-spin" : ""}`}
+						/>
+					</Button>
+					<Button onClick={() => setIsCreateOpen(true)}>
+						<Plus className="mr-2 size-4" />
+						Thêm Người Dùng
+					</Button>
 				</div>
-				<Button onClick={() => setIsCreateOpen(true)}>
-					<Plus className="mr-2 size-4" />
-					Thêm Người Dùng
-				</Button>
 			</div>
 
 			{/* Table */}
@@ -98,23 +96,26 @@ export default function UserTable({ initialUsers }: UserTableProps) {
 							<TableHead className="w-16">ID</TableHead>
 							<TableHead>Username</TableHead>
 							<TableHead>Tên Hiển Thị</TableHead>
+							<TableHead>Email</TableHead>
 							<TableHead className="hidden md:table-cell">
-								Email
+								Điện Thoại
 							</TableHead>
-							<TableHead className="hidden lg:table-cell">
-								SĐT
-							</TableHead>
-							<TableHead className="text-center">
-								Vai Trò
-							</TableHead>
-							<TableHead className="text-center">
-								Trạng Thái
-							</TableHead>
+							<TableHead className="text-center">Vai Trò</TableHead>
+							<TableHead className="text-center">Trạng Thái</TableHead>
 							<TableHead className="w-16" />
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{filteredUsers.length === 0 ? (
+						{loading ? (
+							<TableRow>
+								<TableCell colSpan={8} className="py-12 text-center">
+									<Loader2 className="mx-auto size-6 animate-spin text-muted-foreground" />
+									<p className="mt-2 text-sm text-muted-foreground">
+										Đang tải người dùng...
+									</p>
+								</TableCell>
+							</TableRow>
+						) : users.length === 0 ? (
 							<TableRow>
 								<TableCell
 									colSpan={8}
@@ -124,7 +125,7 @@ export default function UserTable({ initialUsers }: UserTableProps) {
 								</TableCell>
 							</TableRow>
 						) : (
-							filteredUsers.map((user) => (
+							users.map((user) => (
 								<TableRow key={user.id}>
 									<TableCell className="font-mono text-sm">
 										{user.id}
@@ -132,14 +133,12 @@ export default function UserTable({ initialUsers }: UserTableProps) {
 									<TableCell className="font-medium">
 										{user.username}
 									</TableCell>
-									<TableCell>
-										{user.displayName}
-									</TableCell>
-									<TableCell className="hidden text-sm text-muted-foreground md:table-cell">
+									<TableCell>{user.displayName}</TableCell>
+									<TableCell className="text-sm">
 										{user.email}
 									</TableCell>
-									<TableCell className="hidden font-mono text-sm lg:table-cell">
-										{user.phone ?? "—"}
+									<TableCell className="hidden md:table-cell">
+										{user.phone || "-"}
 									</TableCell>
 									<TableCell className="text-center">
 										<Badge
@@ -157,19 +156,17 @@ export default function UserTable({ initialUsers }: UserTableProps) {
 									<TableCell className="text-center">
 										<Badge
 											variant={
-												user.status === "active"
+												user.status === "Active"
 													? "outline"
 													: "destructive"
 											}
 											className={
-												user.status === "active"
+												user.status === "Active"
 													? "border-emerald-500/50 text-emerald-600"
 													: ""
 											}
 										>
-											{user.status === "active"
-												? "Hoạt động"
-												: "Vô hiệu"}
+											{user.status ?? "Active"}
 										</Badge>
 									</TableCell>
 									<TableCell>
@@ -192,6 +189,7 @@ export default function UserTable({ initialUsers }: UserTableProps) {
 													<Pencil className="mr-2 size-4" />
 													Chỉnh sửa
 												</DropdownMenuItem>
+												<DropdownMenuSeparator />
 												<DropdownMenuItem
 													className="text-destructive"
 													onClick={() =>
@@ -224,11 +222,7 @@ export default function UserTable({ initialUsers }: UserTableProps) {
 					if (!open) setEditingUser(null);
 				}}
 				user={editingUser ?? undefined}
-				onSubmit={(data) => {
-					if (editingUser) {
-						handleEditUser({ ...editingUser, ...data });
-					}
-				}}
+				onSubmit={handleEditUser}
 			/>
 
 			<DeleteUserDialog

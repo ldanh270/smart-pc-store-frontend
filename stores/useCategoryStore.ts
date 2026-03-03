@@ -34,6 +34,7 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
       set({ loading: true });
       await categoryService.createCategory(data);
       toast.success("Thêm danh mục thành công!");
+      // Re-fetch to get the server-assigned ID and data
       await get().fetchCategories();
       return true;
     } catch {
@@ -47,8 +48,16 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
     try {
       set({ loading: true });
       await categoryService.updateCategory(id, data);
+
+      // Optimistic: update local state from input data (don't rely on response body)
+      set((state) => ({
+        categories: state.categories.map((c) =>
+          c.id === id
+            ? { ...c, name: data.categoryName, description: data.description ?? null, status: data.status ?? c.status }
+            : c,
+        ),
+      }));
       toast.success("Cập nhật danh mục thành công!");
-      await get().fetchCategories();
       return true;
     } catch {
       return false;
@@ -61,8 +70,12 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
     try {
       set({ loading: true });
       await categoryService.deleteCategory(id);
+
+      // Optimistic: remove from local state immediately
+      set((state) => ({
+        categories: state.categories.filter((c) => c.id !== id),
+      }));
       toast.success("Xóa danh mục thành công!");
-      await get().fetchCategories();
       return true;
     } catch {
       return false;

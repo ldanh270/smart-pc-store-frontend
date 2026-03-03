@@ -10,30 +10,31 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-interface DeleteUserDialogProps {
+interface DeleteCategoryDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	userName: string;
+	categoryName: string;
 	onConfirm: () => void;
 }
 
-export default function DeleteUserDialog({
+export default function DeleteCategoryDialog({
 	open,
 	onOpenChange,
-	userName,
+	categoryName,
 	onConfirm,
-}: DeleteUserDialogProps) {
+}: DeleteCategoryDialogProps) {
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="sm:max-w-[425px]">
+			<DialogContent className="sm:max-w-106.25">
 				<DialogHeader>
-					<DialogTitle>Xóa người dùng?</DialogTitle>
+					<DialogTitle>Xóa danh mục?</DialogTitle>
 					<DialogDescription>
-						Bạn có chắc chắn muốn xóa người dùng{" "}
+						Bạn có chắc chắn muốn xóa danh mục{" "}
 						<span className="font-semibold text-foreground">
-							{userName}
+							{categoryName}
 						</span>
-						? Hành động này không thể hoàn tác.
+						? Hành động này không thể hoàn tác và có thể ảnh hưởng đến
+						các sản phẩm thuộc danh mục này.
 					</DialogDescription>
 				</DialogHeader>
 				<DialogFooter>
