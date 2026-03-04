@@ -5,6 +5,7 @@ export interface BackendCategory {
   categoryName: string;
   description: string | null;
   status: boolean;
+  parentId?: number | null;
 }
 
 export interface Category {
@@ -12,6 +13,7 @@ export interface Category {
   name: string;
   description: string | null;
   status: boolean;
+  parentId?: number | null;
 }
 
 export interface CategoryCreateDto {
@@ -26,5 +28,6 @@ export function mapBackendCategory(bc: BackendCategory): Category {
     name: bc.categoryName,
     description: bc.description,
     status: bc.status,
+    parentId: bc.parentId ?? null,
   };
 }
