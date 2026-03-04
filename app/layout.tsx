@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { AuthProvider } from "@/contexts/AuthContext";
 import LayoutShell from "@/components/layout/LayoutShell";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 // Main font (Inter) - Used for UI, Title, Description
@@ -39,6 +40,7 @@ export default function RootLayout({
 				<AuthProvider>
 					<LayoutShell>{children}</LayoutShell>
 				</AuthProvider>
+				<Toaster richColors position="top-right" />
 			</body>
 		</html>
 	);

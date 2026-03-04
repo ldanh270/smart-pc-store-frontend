@@ -4,6 +4,16 @@ import { toast } from "sonner";
 import { authService } from "@/services/authService";
 import { AuthState } from "@/types/store";
 
+/** Extract a human-readable message from an API error. */
+function getErrorMessage(error: unknown, fallback: string): string {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const data = (error as any)?.response?.data;
+  if (typeof data === "string" && data.length > 0) return data;
+  if (typeof data?.message === "string") return data.message;
+  if (typeof data?.error === "string") return data.error;
+  return fallback;
+}
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
@@ -20,8 +30,7 @@ export const useAuthStore = create<AuthState>()(
           toast.success("Đăng kí thành công! Bạn sẽ được chuyển hướng đến trang đăng nhập");
           return true;
         } catch (error) {
-          console.error("ERROR useAuthStore - signup: " + error);
-          toast.error("Đăng kí không thành công");
+          toast.error(getErrorMessage(error, "Đăng kí không thành công"));
           return false;
         } finally {
           set({ loading: false });
@@ -60,8 +69,7 @@ export const useAuthStore = create<AuthState>()(
           toast.success("Đăng nhập thành công!");
           return true;
         } catch (error) {
-          console.error("ERROR useAuthStore - login: " + error);
-          toast.error("Đăng nhập không thành công");
+          toast.error(getErrorMessage(error, "Đăng nhập không thành công"));
           return false;
         } finally {
           set({ loading: false });

@@ -80,8 +80,10 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     // Global toast notifications for specific error codes
+    // Skip auth endpoints — the auth store handles those errors itself.
     const status = error.response?.status;
-    if (status) {
+    const isAuthEndpoint = error.config?.url?.includes("/auth/");
+    if (status && !isAuthEndpoint) {
       if ([400, 403, 404, 409].includes(status)) {
         const message = error.response?.data?.message || error.response?.data?.error || `Error: ${status}`;
         toast.error(message);
@@ -91,10 +93,8 @@ api.interceptors.response.use(
     const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
 
     // Only handle 401 and skip if already retried or is an auth endpoint
-    const isAuthEndpoint = originalRequest.url?.includes("/auth/");
-    // Also skip 401 for login requests if they fail explicitly so that react-hook-form can handle it
     if (status !== 401 || originalRequest._retry || isAuthEndpoint) {
-      if (status === 401) {
+      if (status === 401 && !isAuthEndpoint) {
         const message = error.response?.data?.message || "Unauthorized";
         toast.error(message);
       }

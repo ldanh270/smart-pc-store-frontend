@@ -105,7 +105,7 @@ export default function SignupForm() {
 		
 		const success = await signup(values.username, values.email, values.displayName, values.password);
 		if (success) {
-			router.push("/login");
+			router.push("/dang-nhap");
 		}
 		
 		setIsSubmitting(false);

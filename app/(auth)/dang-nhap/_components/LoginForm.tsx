@@ -81,20 +81,13 @@ export default function LoginForm() {
 	async function onSubmit(values: LoginFormValues) {
 		setIsSubmitting(true);
 
-    const {username, password} = values;
-    const success = await login(username, password);
+		const { username, password } = values;
+		const success = await login(username, password);
 
-    if (success) {
-      const user = useAuthStore.getState().user;
-      const userRole = user?.role;
-      
-      if (userRole === 'ADMIN' || userRole === 'admin' || userRole?.includes('ADMIN')) {
-        router.push("/admin"); 
-      } else {
-        router.push("/");
-      }
-      router.refresh();
-    }
+		if (success) {
+			router.push("/");
+			router.refresh();
+		}
 
 		setIsSubmitting(false);
 	}
