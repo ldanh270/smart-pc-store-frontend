@@ -52,12 +52,9 @@ export const useAuthStore = create<AuthState>()(
 
           set({ accessToken, refreshToken, user });
 
-          // Sync auth state to cookies for Next.js middleware check
+          // Sync access token to cookie for Next.js middleware
           if (typeof document !== 'undefined') {
             document.cookie = `access_token=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
-            if (user?.role) {
-              document.cookie = `user_role=${user.role}; path=/; max-age=86400; SameSite=Lax`;
-            }
           }
 
           toast.success("Đăng nhập thành công!");
@@ -75,7 +72,6 @@ export const useAuthStore = create<AuthState>()(
         set({ accessToken: null, refreshToken: null, user: null });
         if (typeof document !== 'undefined') {
           document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-          document.cookie = 'user_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         }
         toast.success("Đăng xuất thành công!");
       }
