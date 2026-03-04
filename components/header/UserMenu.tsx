@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
 
 import { useAuthStore } from "@/stores/useAuthStore";
 
@@ -29,6 +30,16 @@ export default function UserMenu() {
 					>
 						XIN CHÀO, {user?.name?.toUpperCase() || "BẠN"}
 					</Link>
+
+					{user?.role === "admin" && (
+						<Link
+							href="/admin"
+							className="flex items-center gap-2 rounded-sm px-3 py-2 text-sm text-popover-foreground transition-colors hover:bg-accent hover:text-accent-foreground uppercase"
+						>
+							<ShieldCheck className="size-3.5" />
+							QUẢN TRỊ
+						</Link>
+					)}
 
 					<button
 						onClick={logout}

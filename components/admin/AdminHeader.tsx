@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { LogOut, Settings, User, Bell, Search } from "lucide-react";
+import { LogOut, Settings, User, Bell, Search, Store } from "lucide-react";
 
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
@@ -82,6 +82,16 @@ export default function AdminHeader() {
 
 			{/* Spacer */}
 			<div className="flex-1" />
+
+			{/* Store Link */}
+			<Button variant="ghost" size="sm" asChild>
+				<Link href="/" className="gap-2 text-muted-foreground">
+					<Store className="size-4" />
+					<span className="hidden md:inline">Về trang mua bán</span>
+				</Link>
+			</Button>
+
+			<Separator orientation="vertical" className="h-4" />
 
 			{/* Search */}
 			<div className="relative hidden md:block">
