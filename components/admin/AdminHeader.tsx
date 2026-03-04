@@ -2,7 +2,9 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { LogOut, Settings, User, Bell, Search, Store } from "lucide-react";
+import { LogOut, Bell, Search, Store } from "lucide-react";
+
+import { useAuthStore } from "@/stores/useAuthStore";
 
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
@@ -41,6 +43,7 @@ const ROUTE_LABELS: Record<string, string> = {
 export default function AdminHeader() {
 	const pathname = usePathname();
 	const segments = pathname.split("/").filter(Boolean);
+	const { user, logout } = useAuthStore();
 
 	const breadcrumbs = segments.map((segment, index) => ({
 		label: ROUTE_LABELS[segment] ?? segment,
@@ -83,15 +86,6 @@ export default function AdminHeader() {
 			{/* Spacer */}
 			<div className="flex-1" />
 
-			{/* Store Link */}
-			<Button variant="ghost" size="sm" asChild>
-				<Link href="/" className="gap-2 text-muted-foreground">
-					<Store className="size-4" />
-					<span className="hidden md:inline">Về trang mua bán</span>
-				</Link>
-			</Button>
-
-			<Separator orientation="vertical" className="h-4" />
 
 			{/* Search */}
 			<div className="relative hidden md:block">
@@ -116,39 +110,35 @@ export default function AdminHeader() {
 						<Avatar className="size-7">
 							<AvatarImage src="" />
 							<AvatarFallback className="bg-primary/20 text-xs font-semibold text-primary">
-								AD
+								{user?.name?.charAt(0).toUpperCase() ?? "A"}
 							</AvatarFallback>
 						</Avatar>
 						<span className="hidden text-sm font-medium md:block">
-							Admin
+							{user?.name ?? "Admin"}
 						</span>
 					</button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end" className="w-48">
 					<DropdownMenuLabel>
-						<span className="block text-sm font-medium">Admin</span>
+						<span className="block text-sm font-medium">{user?.name ?? "Admin"}</span>
 						<span className="block text-xs text-muted-foreground">
-							admin@smartpc.vn
+							{user?.email ?? ""}
 						</span>
 					</DropdownMenuLabel>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem>
-						<User className="mr-2 size-4" />
-						Hồ Sơ
-					</DropdownMenuItem>
-					<DropdownMenuItem>
-						<Settings className="mr-2 size-4" />
-						Cài Đặt
+					<DropdownMenuItem asChild>
+						<Link href="/">
+							<Store className="mr-2 size-4" />
+							Về Trang Mua Bán
+						</Link>
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem asChild>
-						<Link
-							href="/"
-							className="text-destructive focus:text-destructive"
-						>
-							<LogOut className="mr-2 size-4" />
-							Đăng Xuất
-						</Link>
+					<DropdownMenuItem
+						className="text-destructive focus:text-destructive cursor-pointer"
+						onClick={() => { logout(); window.location.href = "/dang-nhap"; }}
+					>
+						<LogOut className="mr-2 size-4" />
+						Đăng Xuất
 					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>

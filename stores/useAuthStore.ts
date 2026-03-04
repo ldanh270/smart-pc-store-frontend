@@ -44,8 +44,15 @@ export const useAuthStore = create<AuthState>()(
           const accessToken = data.accessToken || data.token;
           const refreshToken = data.refreshToken;
 
-          let user = data.user || null;
-          if (!user && accessToken) {
+          let user = null;
+          if (data.user) {
+            user = {
+              id: data.user.id,
+              name: data.user.displayName || data.user.name || username,
+              email: data.user.email || "",
+              role: data.user.role || "user",
+            };
+          } else if (accessToken) {
             try {
               const payload = JSON.parse(atob(accessToken.split('.')[1]));
               user = {
