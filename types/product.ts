@@ -77,6 +77,8 @@ export interface Product {
 	image: string;
 	category: string;
 	badge?: string;
+	stockStatus?: string;
+	quantity?: number;
 }
 
 // ─── Mapper ─────────────────────────────────────────────────────────────────
