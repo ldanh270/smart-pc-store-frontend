@@ -40,8 +40,13 @@ export default function CartSummary() {
 					size="lg"
 					className="w-full font-sans text-sm font-bold uppercase tracking-wider"
 					disabled={totalItems === 0}
+					asChild={totalItems > 0}
 				>
-					Thanh Toán Ngay
+					{totalItems > 0 ? (
+						<Link href="/thanh-toan">Thanh Toán Ngay</Link>
+					) : (
+						<span>Thanh Toán Ngay</span>
+					)}
 				</Button>
 				<Button
 					variant="outline"

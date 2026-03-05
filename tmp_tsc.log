@@ -1,2 +1,0 @@
-.next/types/validator.ts(51,39): error TS2307: Cannot find module '../../app/(auth)/signup/page.js' or its corresponding type declarations.
-components/admin/suppliers/DeleteSupplierDialog.tsx(12,8): error TS2307: Cannot find module '@/components/ui/alert-dialog' or its corresponding type declarations.
