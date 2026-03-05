@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getRoleFromJwt } from '@/lib/jwt';
 
-// ─── Middleware ───────────────────────────────────────────────────────────────
+// ─── Proxy ───────────────────────────────────────────────────────────────
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('access_token')?.value;
   const role = getRoleFromJwt(token);

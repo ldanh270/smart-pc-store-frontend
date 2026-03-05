@@ -11,6 +11,5 @@ export const STATIC_NAV_START: NavItem[] = [
 
 // Static items that appear after the dynamic categories
 export const STATIC_NAV_END: NavItem[] = [
-	{ label: "Tin Tức", href: "/tin-tuc" },
 	{ label: "Về Chúng Tôi", href: "/ve-chung-toi" },
 ];

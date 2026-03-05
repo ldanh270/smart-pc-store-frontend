@@ -1,26 +1,31 @@
 import { fetchProducts } from "@/lib/api/products";
+import { fetchAllCategories } from "@/lib/api/categories";
+import { mapBackendCategory } from "@/types/category";
 import HeroSlider from "@/components/home/HeroSlider";
 import CategoryGrid from "@/components/home/CategoryGrid";
 import ProductShowcase from "@/components/home/ProductShowcase";
 import PromoBanner from "@/components/home/PromoBanner";
-import BlogPreview from "@/components/home/BlogPreview";
 
 export default async function HomePage() {
-	const allProducts = await fetchProducts({ size: 20 });
+	const [allProducts, backendCategories] = await Promise.all([
+		fetchProducts({ size: 20 }),
+		fetchAllCategories(),
+	]);
+
+	const categories = backendCategories
+		.map(mapBackendCategory)
+		.filter((c) => c.parentId != null);
 
 	// Split products into sections
-	// First 4 products → "Sản Phẩm Mới"
-	// Next 4 products → "PC Gaming Nổi Bật"
-	// Next 4 products → "Phụ Kiện Hot"
 	const newProducts = allProducts.slice(0, 4);
 	const gamingPCs = allProducts.slice(4, 8);
 	const hotAccessories = allProducts.slice(8, 12);
 
 	return (
 		<main>
-			<HeroSlider />
+			<HeroSlider products={newProducts} />
 
-			<CategoryGrid />
+			<CategoryGrid categories={categories} />
 
 			<ProductShowcase
 				title="Sản Phẩm Mới"
@@ -45,7 +50,6 @@ export default async function HomePage() {
 				viewAllHref="/phu-kien"
 			/>
 
-			<BlogPreview />
 		</main>
 	);
 }

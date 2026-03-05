@@ -1,29 +1,46 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { HERO_SLIDES } from "@/configs/mock-data";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
+import type { Product } from "@/types/product";
 
 const SLIDE_INTERVAL_MS = 5000;
 const SWIPE_THRESHOLD_PX = 50;
 
-export default function HeroSlider() {
+interface HeroSliderProps {
+	products?: Product[];
+}
+
+export default function HeroSlider({ products = [] }: HeroSliderProps) {
 	const [currentSlide, setCurrentSlide] = useState(0);
 	const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
 	const dragStartX = useRef<number | null>(null);
 	const isDragging = useRef(false);
+
+	// ─── Dynamic Slides ──────────────────────────────────────────────────
+
+	const slides = useMemo(() => {
+		return products.slice(0, 5).map((p) => ({
+			id: p.id,
+			image: p.image,
+			title: p.name,
+			subtitle: `Khám phá siêu phẩm với giá ${formatPrice(p.price)}`,
+			href: `/san-pham/${p.slug}`,
+			ctaLabel: "Đặt hàng ngay",
+		}));
+	}, [products]);
 
 	// ─── Navigation helpers ──────────────────────────────────────────────
 
 	const resetAutoPlay = useCallback(() => {
 		if (autoPlayRef.current) clearInterval(autoPlayRef.current);
 		autoPlayRef.current = setInterval(() => {
-			setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+			setCurrentSlide((prev) => (prev + 1) % slides.length);
 		}, SLIDE_INTERVAL_MS);
-	}, []);
+	}, [slides.length]);
 
 	const goToSlide = useCallback(
 		(index: number) => {
@@ -34,16 +51,16 @@ export default function HeroSlider() {
 	);
 
 	const goNext = useCallback(() => {
-		setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+		setCurrentSlide((prev) => (prev + 1) % slides.length);
 		resetAutoPlay();
-	}, [resetAutoPlay]);
+	}, [resetAutoPlay, slides.length]);
 
 	const goPrev = useCallback(() => {
 		setCurrentSlide(
-			(prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length
+			(prev) => (prev - 1 + slides.length) % slides.length
 		);
 		resetAutoPlay();
-	}, [resetAutoPlay]);
+	}, [resetAutoPlay, slides.length]);
 
 	// ─── Auto-play ───────────────────────────────────────────────────────
 
@@ -92,7 +109,9 @@ export default function HeroSlider() {
 
 	// ─── Render ──────────────────────────────────────────────────────────
 
-	const slide = HERO_SLIDES[currentSlide];
+	if (!slides || slides.length === 0) return null;
+
+	const slide = slides[currentSlide];
 
 	return (
 		<section
@@ -105,7 +124,7 @@ export default function HeroSlider() {
 			onTouchCancel={handleDragCancel}
 		>
 			{/* Slides */}
-			{HERO_SLIDES.map((s, index) => (
+			{slides.map((s, index) => (
 				<div
 					key={s.id}
 					className={cn(
@@ -152,7 +171,7 @@ export default function HeroSlider() {
 
 			{/* Dot Indicators */}
 			<div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 gap-2">
-				{HERO_SLIDES.map((s, index) => (
+				{slides.map((s, index) => (
 					<button
 						key={s.id}
 						onClick={() => goToSlide(index)}
