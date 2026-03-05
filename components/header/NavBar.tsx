@@ -4,21 +4,10 @@ import { useEffect, useState } from "react";
 import { categoryService } from "@/services/categoryService";
 import { STATIC_NAV_START, STATIC_NAV_END, type NavItem } from "@/configs/Routes";
 import type { Category } from "@/types/category";
+import { generateCategorySlug } from "@/types/category";
 import NavLink from "./NavLink";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-
-/** Convert a Vietnamese string into a URL-friendly slug. */
-function toSlug(str: string): string {
-	return str
-		.normalize("NFD")
-		.replace(/[\u0300-\u036f]/g, "") // strip diacritics
-		.replace(/đ/g, "d")
-		.replace(/Đ/g, "D")
-		.toLowerCase()
-		.replace(/[^a-z0-9]+/g, "-")
-		.replace(/(^-|-$)/g, "");
-}
 
 /**
  * Build a nested NavItem tree from the flat category list.
@@ -43,15 +32,14 @@ function buildCategoryTree(categories: Category[]): NavItem[] {
 
 	// Convert to NavItem tree
 	return roots.map((root) => {
-		const slug = toSlug(root.name);
 		const children = childrenMap.get(root.id) ?? [];
 
 		return {
 			label: root.name.toUpperCase(),
-			href: `/danh-muc/${slug}`,
+			href: `/danh-muc/${generateCategorySlug(root.name)}`,
 			children: children.map((child) => ({
 				label: child.name.toUpperCase(),
-				href: `/danh-muc/${slug}/${toSlug(child.name)}`,
+				href: `/danh-muc/${generateCategorySlug(child.name)}`,
 			})),
 		};
 	});
