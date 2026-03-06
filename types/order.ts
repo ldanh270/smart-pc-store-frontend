@@ -19,3 +19,13 @@ export interface TransactionCheckResult {
   found: boolean;
   message: string;
 }
+
+export interface OrderQueryParams {
+  status?: OrderStatus;
+  page?: number;
+  size?: number;
+}
+
+export interface OrderUpdateDto {
+  status?: OrderStatus;
+}
