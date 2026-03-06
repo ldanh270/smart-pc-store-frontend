@@ -29,7 +29,7 @@ export default function AddToCartButton({
 	if (!isLoggedIn) {
 		return (
 			<Button asChild className="h-12 w-full gap-2 text-base font-semibold">
-				<Link href="/login">
+				<Link href="/dang-nhap">
 					<LogIn className="h-5 w-5" />
 					Đăng nhập để mua hàng
 				</Link>

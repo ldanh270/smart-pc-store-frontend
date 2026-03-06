@@ -22,8 +22,10 @@ export function decodeJwtPayload(token: string): JwtPayload | null {
     const json = atob(base64);
     const payload = JSON.parse(json) as JwtPayload;
 
-    // Reject expired tokens
-    if (payload.exp && payload.exp * 1000 < Date.now()) return null;
+    // Optionally, you COULD reject expired tokens here, but keeping it allows
+    // the UI to show authorized elements long enough to trigger an API call, 
+    // which then gracefully handles the 401 auto-refresh via Axios.
+    // if (payload.exp && payload.exp * 1000 < Date.now()) return null;
 
     return payload;
   } catch {

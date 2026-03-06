@@ -118,15 +118,6 @@ export default function SearchDialog() {
 							<X className="size-4" />
 						</Button>
 					)}
-					<Button
-						type="button"
-						variant="ghost"
-						size="icon"
-						className="absolute right-4 size-8 text-muted-foreground"
-						onClick={() => setIsOpen(false)}
-					>
-						<X className="size-4" />
-					</Button>
 				</form>
 
 				{/* Results Area */}

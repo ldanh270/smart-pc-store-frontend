@@ -13,7 +13,7 @@ export default function UserMenu() {
 	return (
 		<div className="group relative py-4">
 			<Link
-				href={user ? "/tai-khoan" : "/login"}
+				href={user ? "/tai-khoan" : "/dang-nhap"}
 				className="flex items-center gap-1 text-sm font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
 			>
 				TÀI KHOẢN

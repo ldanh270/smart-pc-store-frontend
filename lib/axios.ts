@@ -1,5 +1,6 @@
 import axios, { type AxiosRequestConfig } from "axios";
 import { toast } from "sonner";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_MODE === "development" ? process.env.NEXT_PUBLIC_API_URL : "/api",
@@ -10,23 +11,14 @@ const api = axios.create({
 
 function getAuthState() {
   if (typeof window === "undefined") return null;
-  try {
-    const raw = localStorage.getItem("auth-storage");
-    if (!raw) return null;
-    return JSON.parse(raw)?.state ?? null;
-  } catch {
-    return null;
-  }
+  return useAuthStore.getState();
 }
 
 function setAccessToken(accessToken: string) {
   if (typeof window === "undefined") return;
   try {
-    const raw = localStorage.getItem("auth-storage");
-    if (!raw) return;
-    const store = JSON.parse(raw);
-    store.state.accessToken = accessToken;
-    localStorage.setItem("auth-storage", JSON.stringify(store));
+    // Update Zustand state (triggers UI re-render and auto-persists to localStorage)
+    useAuthStore.setState({ accessToken });
     
     // Also sync the cookie so the Next.js middleware knows about the new token
     document.cookie = `access_token=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
@@ -38,13 +30,8 @@ function setAccessToken(accessToken: string) {
 function clearAuth() {
   if (typeof window === "undefined") return;
   try {
-    const raw = localStorage.getItem("auth-storage");
-    if (!raw) return;
-    const store = JSON.parse(raw);
-    store.state.accessToken = null;
-    store.state.refreshToken = null;
-    store.state.user = null;
-    localStorage.setItem("auth-storage", JSON.stringify(store));
+    // Update Zustand state
+    useAuthStore.setState({ accessToken: null, refreshToken: null, user: null });
     
     // Clear cookies
     document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
@@ -129,26 +116,20 @@ api.interceptors.response.use(
 
     const auth = getAuthState();
 
-    if (!auth?.accessToken) {
-      clearAuth();
-      isRefreshing = false;
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
-      }
-      return Promise.reject(error);
-    }
+    // We DO NOT instantly log out if !auth?.accessToken here.
+    // The user might have a valid HttpOnly refresh cookie but an empty store (e.g., hard refresh).
+    // Let the /refresh endpoint decide if the session is truly dead.
 
     try {
       const refreshToken = auth?.refreshToken;
-      
-      if (!refreshToken) {
-        throw new Error("No refresh token available");
-      }
 
-      // Backend expects the refresh token in the body, not just cookies
+      // Backend might expect the refresh token in the body, or it might just read it from cookies.
+      // We send it in the body if we have it, but we let cookies work if we don't.
+      const payload = refreshToken ? { refreshToken } : {};
+
       const { data } = await axios.post(
         `${api.defaults.baseURL}/auth/refresh`,
-        { refreshToken },
+        payload,
         { withCredentials: true }
       );
 
@@ -172,7 +153,7 @@ api.interceptors.response.use(
       processQueue(refreshError, null);
       clearAuth();
       if (typeof window !== "undefined") {
-        window.location.href = "/login";
+        window.location.href = "/dang-nhap";
       }
       return Promise.reject(refreshError);
     } finally {
