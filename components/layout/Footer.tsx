@@ -5,6 +5,7 @@ import { CONTACTS } from "@/configs/Contacts";
 
 const QUICK_LINKS = [
 	{ label: "Trang Chủ", href: "/" },
+	{ label: "Về Chúng Tôi", href: "/ve-chung-toi" },
 	{ label: "Linh Kiện PC", href: "/linh-kien" },
 	{ label: "PC & Laptop", href: "/pc-laptop" },
 	{ label: "Phụ Kiện", href: "/phu-kien" },

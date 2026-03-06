@@ -43,13 +43,9 @@ export default function AddToCartButton({
 		setIsAdding(false);
 	};
 
-	const handleBuyNow = async () => {
+	const handleBuyNow = () => {
 		setIsBuying(true);
-		const success = await addItem(productId, quantity);
-		if (success) {
-			router.push("/gio-hang");
-		}
-		setIsBuying(false);
+		router.push(`/thanh-toan?buyNow=true&productId=${productId}&quantity=${quantity}`);
 	};
 
 	const isDisabled = !isInStock || isAdding || isBuying;

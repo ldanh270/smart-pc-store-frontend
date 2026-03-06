@@ -68,7 +68,7 @@ export default function ProductTable() {
 
 	useEffect(() => {
 		const debounce = setTimeout(() => {
-			fetchProducts({ name: searchQuery || undefined, page: 1 });
+			fetchProducts({ q: searchQuery || undefined, page: 1 });
 		}, 300);
 		return () => clearTimeout(debounce);
 	}, [searchQuery, fetchProducts]);

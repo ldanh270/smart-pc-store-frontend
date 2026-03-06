@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ChevronRight, ShoppingBag, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -12,25 +12,66 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCartStore } from "@/stores/useCartStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { orderService } from "@/services/orderService";
+import { productService } from "@/services/productService";
+import { CartItem } from "@/types/cart";
 
 export default function CheckoutClient() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { items, totalPrice, totalItems, isLoading, fetchCart } = useCartStore();
   const accessToken = useAuthStore((state) => state.accessToken);
   const [isCreating, setIsCreating] = useState(false);
 
+  const isBuyNow = searchParams.get("buyNow") === "true";
+  const [buyNowItem, setBuyNowItem] = useState<CartItem | null>(null);
+  const [isBuyNowLoading, setIsBuyNowLoading] = useState(isBuyNow);
+
   const isLoggedIn = !!accessToken;
 
+  const buyNowProductId = searchParams.get("productId");
+  const buyNowQuantity = searchParams.get("quantity");
+
   useEffect(() => {
-    if (isLoggedIn) {
+    if (!isLoggedIn) return;
+
+    if (isBuyNow && buyNowProductId && buyNowQuantity) {
+      const fetchBuyNowProduct = async () => {
+        try {
+          setIsBuyNowLoading(true);
+          const product = await productService.getProduct(Number(buyNowProductId));
+          const qty = Number(buyNowQuantity);
+          
+          setBuyNowItem({
+            cartItemId: -1,
+            productId: product.id,
+            productName: product.productName,
+            price: product.currentPrice,
+            quantity: qty,
+            subtotal: product.currentPrice * qty,
+            stockQuantity: product.quantity,
+          });
+        } catch {
+          toast.error("Không thể tải thông tin sản phẩm.");
+        } finally {
+          setIsBuyNowLoading(false);
+        }
+      };
+      
+      fetchBuyNowProduct();
+    } else {
       fetchCart();
     }
-  }, [isLoggedIn, fetchCart]);
+  }, [isLoggedIn, fetchCart, isBuyNow, buyNowProductId, buyNowQuantity]);
+
+  const displayItems = isBuyNow ? (buyNowItem ? [buyNowItem] : []) : items;
+  const displayTotalItems = isBuyNow ? (buyNowItem?.quantity || 0) : totalItems;
+  const displayTotalPrice = isBuyNow ? (buyNowItem?.subtotal || 0) : totalPrice;
+  const displayLoading = isBuyNow ? isBuyNowLoading : isLoading;
 
   const handleConfirmOrder = async () => {
     setIsCreating(true);
     try {
-      const order = await orderService.createOrder(items);
+      const order = await orderService.createOrder(displayItems);
       router.push(`/thanh-toan/payment?orderId=${order.id}`);
     } catch {
       toast.error("Không thể tạo đơn hàng. Vui lòng thử lại.");
@@ -53,7 +94,7 @@ export default function CheckoutClient() {
     );
   }
 
-  if (isLoading) {
+  if (displayLoading) {
     return (
       <main className="mx-auto max-w-7xl px-4 py-8 lg:px-8">
         <CheckoutBreadcrumb />
@@ -69,7 +110,7 @@ export default function CheckoutClient() {
     );
   }
 
-  if (!isLoading && items.length === 0) {
+  if (!displayLoading && displayItems.length === 0) {
     return (
       <main className="mx-auto max-w-7xl px-4 py-8 lg:px-8">
         <CheckoutBreadcrumb />
@@ -97,10 +138,10 @@ export default function CheckoutClient() {
         {/* Product list */}
         <div className="flex-1 space-y-3">
           <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Sản phẩm ({totalItems})
+            Sản phẩm ({displayTotalItems})
           </p>
           <div className="divide-y divide-border rounded-xl border border-border bg-card">
-            {items.map((item) => (
+            {displayItems.map((item) => (
               <div key={item.cartItemId} className="flex items-center gap-4 p-4">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-sm font-bold text-muted-foreground">
                   {item.quantity}x
@@ -131,10 +172,10 @@ export default function CheckoutClient() {
             <div className="space-y-2.5">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">
-                  Tạm tính ({totalItems} sản phẩm)
+                  Tạm tính ({displayTotalItems} sản phẩm)
                 </span>
                 <span className="font-mono">
-                  {totalPrice.toLocaleString("vi-VN")}đ
+                  {displayTotalPrice.toLocaleString("vi-VN")}đ
                 </span>
               </div>
               <div className="flex justify-between text-sm">
@@ -148,7 +189,7 @@ export default function CheckoutClient() {
             <div className="mb-5 flex items-center justify-between">
               <span className="font-sans font-semibold text-foreground">Thành tiền</span>
               <span className="font-mono text-xl font-bold text-primary">
-                {totalPrice.toLocaleString("vi-VN")}đ
+                {displayTotalPrice.toLocaleString("vi-VN")}đ
               </span>
             </div>
 
@@ -165,7 +206,7 @@ export default function CheckoutClient() {
               size="lg"
               className="w-full font-sans text-sm font-bold uppercase tracking-wider"
               onClick={handleConfirmOrder}
-              disabled={isCreating || totalItems === 0}
+              disabled={isCreating || displayTotalItems === 0}
             >
               {isCreating ? (
                 <>

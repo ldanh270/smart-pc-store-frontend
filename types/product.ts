@@ -57,7 +57,7 @@ export interface ProductCreateDto {
 // ─── Product Query Params ───────────────────────────────────────────────────
 
 export interface ProductQueryParams {
-	name?: string;
+	q?: string;
 	categoryId?: number;
 	status?: boolean;
 	minPrice?: number;

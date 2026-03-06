@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { Phone, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Phone } from "lucide-react";
 import { CONTACTS } from "@/configs/Contacts";
 import { useAuthStore } from "@/stores/useAuthStore";
 import AuthButtons from "./AuthButtons";
 import UserMenu from "./UserMenu";
 import CartButton from "./CartButton";
+import SearchDialog from "./SearchDialog";
 
 export default function TopBar() {
 	const accessToken = useAuthStore((state) => state.accessToken);
@@ -49,13 +49,7 @@ export default function TopBar() {
 						<AuthButtons />
 					)}
 
-					<Button
-						variant="ghost"
-						size="icon"
-						aria-label="Tìm kiếm"
-					>
-						<Search className="size-5" />
-					</Button>
+					<SearchDialog />
 				</div>
 			</div>
 		</div>

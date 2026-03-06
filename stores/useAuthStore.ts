@@ -88,7 +88,8 @@ export const useAuthStore = create<AuthState>()(
           // Tell backend to clear HttpOnly cookies (like refresh token)
           await authService.logout();
         } catch (error) {
-          console.error("Lỗi khi đăng xuất từ server:", error);
+          // Expected to fail if token is already expired, so we don't console.error it
+          console.log("Logout from server note:", getErrorMessage(error, "Phiên hết hạn"));
         }
 
         set({ accessToken: null, refreshToken: null, user: null });

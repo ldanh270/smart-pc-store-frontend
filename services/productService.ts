@@ -23,10 +23,8 @@ export const productService = {
 	 * GET /products/{id} — single product detail
 	 */
 	getProduct: async (id: number): Promise<AdminProduct> => {
-		const response = await api.get<ApiResponse<AdminProduct>>(
-			`/products/${id}`,
-		);
-		return response.data.data;
+		const response = await api.get(`/products/${id}`);
+		return response.data?.data ?? response.data;
 	},
 
 	/**
