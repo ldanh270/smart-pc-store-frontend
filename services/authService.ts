@@ -19,5 +19,11 @@ export const authService = {
     }, {withCredentials: true});
     
     return response.data;
+  },
+
+  logout: async () => {
+    // Calling the backend to remove HttpOnly cookies
+    const response = await api.post("/auth/logout", {}, { withCredentials: true });
+    return response.data;
   }
 };

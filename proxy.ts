@@ -22,6 +22,13 @@ export function proxy(request: NextRequest) {
     }
   }
 
+  // Protect /tai-khoan (profile) — must be logged in
+  if (pathname.startsWith('/tai-khoan')) {
+    if (!role) {
+      return NextResponse.redirect(new URL('/dang-nhap', request.url));
+    }
+  }
+
   // Redirect authenticated users away from /dang-nhap
   if (pathname.startsWith('/dang-nhap')) {
     if (role) {
@@ -35,5 +42,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/dang-nhap'],
+  matcher: ['/admin/:path*', '/dang-nhap', '/tai-khoan/:path*'],
 };

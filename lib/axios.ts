@@ -27,6 +27,9 @@ function setAccessToken(accessToken: string) {
     const store = JSON.parse(raw);
     store.state.accessToken = accessToken;
     localStorage.setItem("auth-storage", JSON.stringify(store));
+    
+    // Also sync the cookie so the Next.js middleware knows about the new token
+    document.cookie = `access_token=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
   } catch {
     // Silently ignore
   }
@@ -42,6 +45,10 @@ function clearAuth() {
     store.state.refreshToken = null;
     store.state.user = null;
     localStorage.setItem("auth-storage", JSON.stringify(store));
+    
+    // Clear cookies
+    document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    document.cookie = 'refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
   } catch {
     // Silently ignore
   }
@@ -132,16 +139,26 @@ api.interceptors.response.use(
     }
 
     try {
-      // Backend reads refresh token from cookie — no body needed
+      const refreshToken = auth?.refreshToken;
+      
+      if (!refreshToken) {
+        throw new Error("No refresh token available");
+      }
+
+      // Backend expects the refresh token in the body, not just cookies
       const { data } = await axios.post(
         `${api.defaults.baseURL}/auth/refresh`,
-        {},
+        { refreshToken },
         { withCredentials: true }
       );
 
-      const newAccessToken: string = data.accessToken;
+      const newAccessToken: string = data.accessToken || data.token;
+      
+      if (!newAccessToken) {
+        throw new Error("Invalid refresh response");
+      }
 
-      // Update only the access token (refresh token stays in cookie)
+      // Update only the access token
       setAccessToken(newAccessToken);
       processQueue(null, newAccessToken);
 

@@ -83,10 +83,20 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      logout: () => {
+      logout: async () => {
+        try {
+          // Tell backend to clear HttpOnly cookies (like refresh token)
+          await authService.logout();
+        } catch (error) {
+          console.error("Lỗi khi đăng xuất từ server:", error);
+        }
+
         set({ accessToken: null, refreshToken: null, user: null });
         if (typeof document !== 'undefined') {
+          // Clear access token cookie
           document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          // Clear refresh token cookie (if it's accessible by JS)
+          document.cookie = 'refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         }
         toast.success("Đăng xuất thành công!");
       }
