@@ -9,7 +9,7 @@ export default function ProductImageGallery({
 	imageUrl,
 	productName,
 }: ProductImageGalleryProps) {
-	const src = imageUrl ?? "/products/placeholder.svg";
+	const src = imageUrl || "/products/placeholder.svg";
 
 	return (
 		<div className="relative aspect-square w-full overflow-hidden rounded-xl border border-border bg-secondary">

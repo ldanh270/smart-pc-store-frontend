@@ -7,6 +7,7 @@ import ProductImageGallery from "./ProductImageGallery";
 import ProductInfo from "./ProductInfo";
 import QuantitySelector from "./QuantitySelector";
 import AddToCartButton from "./AddToCartButton";
+import PriceChart from "./PriceChart";
 
 interface ProductDetailClientProps {
 	product: BackendProduct;
@@ -56,6 +57,9 @@ export default function ProductDetailClient({
 					/>
 				</div>
 			</div>
+
+			{/* Price Chart */}
+			<PriceChart productId={product.id} />
 		</main>
 	);
 }

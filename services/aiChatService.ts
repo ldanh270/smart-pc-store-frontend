@@ -26,6 +26,17 @@ export interface AIChatResult {
   products: Product[];
 }
 
+export interface PricePoint {
+  date: string;
+  price: number;
+}
+
+export interface ForecastResult {
+  past: PricePoint[];
+  future: PricePoint[];
+  note?: string;
+}
+
 export const aiChatService = {
   sendMessage: async (message: string): Promise<AIChatResult> => {
     const response = await aiApi.post<AIChatApiResponse>("/chat", {
@@ -36,5 +47,13 @@ export const aiChatService = {
       answer: response.data.message.content,
       products: (response.data.suggested_products || []).map(mapBackendProduct),
     };
+  },
+
+  forecastPrice: async (productId: string, days: number): Promise<ForecastResult> => {
+    const response = await aiApi.post<ForecastResult>("/forecast", {
+      product_id: productId,
+      days,
+    });
+    return response.data;
   },
 };
