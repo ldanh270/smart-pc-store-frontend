@@ -6,24 +6,45 @@ import CategoryGrid from "@/components/home/CategoryGrid";
 import ProductShowcase from "@/components/home/ProductShowcase";
 import PromoBanner from "@/components/home/PromoBanner";
 
+const CPU_KEYWORDS = /\bcpu\b/i;
+const GPU_KEYWORDS = /\bgpu\b/i;
+
 export default async function HomePage() {
-	const [allProducts, backendCategories] = await Promise.all([
-		fetchProducts({ size: 20 }),
-		fetchAllCategories(),
-	]);
+	// 1. Lấy categories để tìm categoryId cho từng section
+	const backendCategories = await fetchAllCategories();
 
 	const categories = backendCategories
 		.map(mapBackendCategory)
 		.filter((c) => c.parentId != null);
 
-	// Split products into sections
-	const newProducts = allProducts.slice(0, 4);
-	const gamingPCs = allProducts.slice(4, 8);
-	const hotAccessories = allProducts.slice(8, 12);
+	// 2. Tìm category CPU và GPU theo tên
+	const cpuCategory = backendCategories.find((c) =>
+		CPU_KEYWORDS.test(c.categoryName)
+	);
+	const gpuCategory = backendCategories.find((c) =>
+		GPU_KEYWORDS.test(c.categoryName)
+	);
+
+	// 3. Fetch song song 3 section
+	const [newProducts, cpuProducts, gpuProducts] = await Promise.all([
+		// Sản phẩm mới: lấy các sản phẩm mới nhất (không lọc category)
+		fetchProducts({ page: 0, size: 4 }),
+		// CPU nổi bật
+		fetchProducts({ categoryId: cpuCategory?.id, page: 0, size: 4 }),
+		// GPU nổi bật
+		fetchProducts({ categoryId: gpuCategory?.id, page: 0, size: 4 }),
+	]);
+
+	const cpuHref = cpuCategory
+		? `/san-pham?categoryId=${cpuCategory.id}`
+		: "/san-pham";
+	const gpuHref = gpuCategory
+		? `/san-pham?categoryId=${gpuCategory.id}`
+		: "/san-pham";
 
 	return (
 		<main>
-			<HeroSlider products={newProducts} />
+			<HeroSlider products={newProducts.slice(0, 4)} />
 
 			<CategoryGrid categories={categories} />
 
@@ -31,25 +52,24 @@ export default async function HomePage() {
 				title="Sản Phẩm Mới"
 				subtitle="Linh kiện và thiết bị mới nhất vừa cập bến"
 				products={newProducts}
-				viewAllHref="/san-pham?sort=newest"
+				viewAllHref="/san-pham"
 			/>
 
 			<ProductShowcase
-				title="PC Gaming Nổi Bật"
-				subtitle="PC build sẵn hiệu năng cao, sẵn sàng chiến game"
-				products={gamingPCs}
-				viewAllHref="/pc-laptop/pc-gaming"
+				title="CPU Nổi Bật"
+				subtitle="Bộ vi xử lý Intel & AMD hiệu năng cao"
+				products={cpuProducts}
+				viewAllHref={cpuHref}
 			/>
 
 			<PromoBanner />
 
 			<ProductShowcase
-				title="Phụ Kiện Hot"
-				subtitle="Bàn phím, chuột, tai nghe và màn hình được yêu thích"
-				products={hotAccessories}
-				viewAllHref="/phu-kien"
+				title="GPU Nổi Bật"
+				subtitle="Card đồ họa NVIDIA & AMD mạnh mẽ cho gaming và đồ họa"
+				products={gpuProducts}
+				viewAllHref={gpuHref}
 			/>
-
 		</main>
 	);
 }

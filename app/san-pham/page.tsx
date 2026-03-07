@@ -69,7 +69,7 @@ async function ProductGrid({ params }: { params: SearchPageProps["searchParams"]
 	// Prepare query params
 	const queryParams = {
 		q: p.q || undefined,
-		categoryId: p.categoryId ? Number(p.categoryId) : undefined,
+		categoryId: p.categoryId || undefined,
 		status: p.status === "true" ? true : p.status === "false" ? false : undefined,
 		minPrice: p.minPrice ? Number(p.minPrice) : undefined,
 		maxPrice: p.maxPrice ? Number(p.maxPrice) : undefined,

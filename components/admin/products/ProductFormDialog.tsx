@@ -44,8 +44,8 @@ const productFormSchema = z.object({
 	imageUrl: z.string().optional(),
 	currentPrice: z.coerce.number().min(1000, "Giá tối thiểu 1,000 ₫"),
 	quantity: z.coerce.number().min(0, "Số lượng không được âm"),
-	categoryId: z.coerce.number().min(1, "Chọn danh mục"),
-	supplierId: z.coerce.number().default(1),
+	categoryId: z.string().min(1, "Chọn danh mục"),
+	supplierId: z.string().min(1, "Chọn nhà cung cấp"),
 	status: z.boolean(),
 });
 
@@ -57,8 +57,8 @@ interface ProductFormValues {
 	imageUrl?: string;
 	currentPrice: number;
 	quantity: number;
-	categoryId: number;
-	supplierId: number;
+	categoryId: string;
+	supplierId: string;
 	status: boolean;
 }
 
@@ -99,8 +99,8 @@ export default function ProductFormDialog({
 			imageUrl: product?.imageUrl ?? "",
 			currentPrice: product?.currentPrice ?? 0,
 			quantity: product?.quantity ?? 0,
-			categoryId: product?.categoryId ?? 0,
-			supplierId: product?.supplierId ?? 1,
+			categoryId: product?.categoryId ?? "",
+			supplierId: product?.supplierId ?? "",
 			status: product?.status ?? true,
 		},
 	});
@@ -223,14 +223,8 @@ export default function ProductFormDialog({
 									<FormItem>
 										<FormLabel>Danh Mục</FormLabel>
 										<Select
-											onValueChange={(val) =>
-												field.onChange(Number(val))
-											}
-											defaultValue={
-												field.value
-													? String(field.value)
-													: undefined
-											}
+											onValueChange={field.onChange}
+											defaultValue={field.value || undefined}
 										>
 											<FormControl>
 												<SelectTrigger>
@@ -261,14 +255,8 @@ export default function ProductFormDialog({
 									<FormItem>
 										<FormLabel>Nhà Cung Cấp</FormLabel>
 										<Select
-											onValueChange={(val) =>
-												field.onChange(Number(val))
-											}
-											defaultValue={
-												field.value
-													? String(field.value)
-													: undefined
-											}
+											onValueChange={field.onChange}
+											defaultValue={field.value || undefined}
 										>
 											<FormControl>
 												<SelectTrigger>

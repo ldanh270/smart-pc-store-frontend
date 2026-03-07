@@ -1,29 +1,33 @@
 // ─── Backend API Response Types (matches SQL Server schema) ──────────────────
 
 export interface BackendProduct {
-	id: number;
+	id: string;
 	productName: string;
 	description: string | null;
 	imageUrl: string | null;
 	currentPrice: number;
 	quantity: number;
-	categoryId: number;
-	supplierId: number;
+	categoryId: string;
+	categoryName?: string;
+	supplierId: string;
+	supplierName?: string;
 	status: boolean;
+	stockStatus?: string;
 }
 
 // ─── Admin Product (includes category name from joined data) ────────────────
 
 export interface AdminProduct {
-	id: number;
+	id: string;
 	productName: string;
 	description: string | null;
 	imageUrl: string | null;
 	currentPrice: number;
 	quantity: number;
-	categoryId: number;
+	categoryId: string;
 	categoryName?: string;
-	supplierId: number;
+	supplierId: string;
+	supplierName?: string;
 	status: boolean;
 }
 
@@ -49,8 +53,8 @@ export interface ProductCreateDto {
 	imageUrl?: string;
 	currentPrice: number;
 	quantity: number;
-	supplierId: number;
-	categoryId: number;
+	supplierId: string;
+	categoryId: string;
 	status?: boolean;
 }
 
@@ -58,7 +62,7 @@ export interface ProductCreateDto {
 
 export interface ProductQueryParams {
 	q?: string;
-	categoryId?: number;
+	categoryId?: string;
 	status?: boolean;
 	minPrice?: number;
 	maxPrice?: number;
@@ -85,11 +89,13 @@ export interface Product {
 
 export function mapBackendProduct(bp: BackendProduct): Product {
 	return {
-		id: String(bp.id),
+		id: bp.id,
 		name: bp.productName,
-		slug: String(bp.id),
+		slug: bp.id,
 		price: bp.currentPrice,
-		image: bp.imageUrl ?? "/products/placeholder.svg",
-		category: `Category ${bp.categoryId}`,
+		image: bp.imageUrl || "/products/placeholder.svg",
+		category: bp.categoryName ?? "",
+		stockStatus: bp.stockStatus,
+		quantity: bp.quantity,
 	};
 }

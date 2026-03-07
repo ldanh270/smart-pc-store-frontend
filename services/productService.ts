@@ -22,7 +22,7 @@ export const productService = {
 	/**
 	 * GET /products/{id} — single product detail
 	 */
-	getProduct: async (id: number): Promise<AdminProduct> => {
+	getProduct: async (id: string): Promise<AdminProduct> => {
 		const response = await api.get(`/products/${id}`);
 		return response.data?.data ?? response.data;
 	},
@@ -42,7 +42,7 @@ export const productService = {
 	 * PUT /products/{id} — update product
 	 */
 	updateProduct: async (
-		id: number,
+		id: string,
 		data: ProductCreateDto,
 	): Promise<AdminProduct> => {
 		const response = await api.put<ApiResponse<AdminProduct>>(
@@ -55,7 +55,7 @@ export const productService = {
 	/**
 	 * DELETE /products/{id} — soft delete (status = false)
 	 */
-	deleteProduct: async (id: number): Promise<void> => {
+	deleteProduct: async (id: string): Promise<void> => {
 		await api.delete(`/products/${id}`);
 	},
 };

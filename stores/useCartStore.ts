@@ -9,7 +9,7 @@ interface CartState {
   totalItems: number;
   totalPrice: number;
   fetchCart: () => Promise<void>;
-  addItem: (productId: number, quantity: number) => Promise<boolean>;
+  addItem: (productId: string, quantity: number) => Promise<boolean>;
   updateQuantity: (cartItemId: number, quantity: number) => Promise<void>;
   removeItem: (cartItemId: number) => Promise<void>;
   clearCart: () => Promise<void>;

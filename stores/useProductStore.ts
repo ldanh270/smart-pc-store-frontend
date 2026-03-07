@@ -12,8 +12,8 @@ interface ProductStore {
   
   fetchProducts: (params?: ProductQueryParams) => Promise<void>;
   createProduct: (data: ProductCreateDto) => Promise<boolean>;
-  updateProduct: (id: number, data: ProductCreateDto) => Promise<boolean>;
-  deleteProduct: (id: number) => Promise<boolean>;
+  updateProduct: (id: string, data: ProductCreateDto) => Promise<boolean>;
+  deleteProduct: (id: string) => Promise<boolean>;
 }
 
 export const useProductStore = create<ProductStore>((set, get) => ({
@@ -53,7 +53,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
     }
   },
 
-  updateProduct: async (id: number, data: ProductCreateDto) => {
+  updateProduct: async (id: string, data: ProductCreateDto) => {
     try {
       set({ loading: true });
       await productService.updateProduct(id, data);
@@ -67,7 +67,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
     }
   },
 
-  deleteProduct: async (id: number) => {
+  deleteProduct: async (id: string) => {
     try {
       set({ loading: true });
       await productService.deleteProduct(id);

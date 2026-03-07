@@ -16,7 +16,7 @@ export const categoryService = {
   /**
    * GET /categories/{id}
    */
-  getCategory: async (id: number): Promise<Category> => {
+  getCategory: async (id: string): Promise<Category> => {
     const response = await api.get<ApiResponse<BackendCategory>>(`/categories/${id}`);
     return mapBackendCategory(response.data.data);
   },
@@ -32,7 +32,7 @@ export const categoryService = {
   /**
    * PUT /categories/{id}
    */
-  updateCategory: async (id: number, data: CategoryCreateDto): Promise<Category> => {
+  updateCategory: async (id: string, data: CategoryCreateDto): Promise<Category> => {
     const response = await api.put<ApiResponse<BackendCategory>>(`/categories/${id}`, data);
     return mapBackendCategory(response.data.data);
   },
@@ -40,7 +40,7 @@ export const categoryService = {
   /**
    * DELETE /categories/{id}
    */
-  deleteCategory: async (id: number): Promise<void> => {
+  deleteCategory: async (id: string): Promise<void> => {
     await api.delete(`/categories/${id}`);
   },
 };

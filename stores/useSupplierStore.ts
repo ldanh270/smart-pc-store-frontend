@@ -9,8 +9,8 @@ interface SupplierStore {
   
   fetchSuppliers: () => Promise<void>;
   createSupplier: (data: SupplierCreateDto) => Promise<boolean>;
-  updateSupplier: (id: number, data: SupplierCreateDto) => Promise<boolean>;
-  deleteSupplier: (id: number) => Promise<boolean>;
+  updateSupplier: (id: string, data: SupplierCreateDto) => Promise<boolean>;
+  deleteSupplier: (id: string) => Promise<boolean>;
 }
 
 export const useSupplierStore = create<SupplierStore>((set, get) => ({
@@ -43,7 +43,7 @@ export const useSupplierStore = create<SupplierStore>((set, get) => ({
     }
   },
 
-  updateSupplier: async (id, data) => {
+  updateSupplier: async (id: string, data) => {
     try {
       set({ loading: true });
       await supplierService.updateSupplier(id, data);
@@ -57,7 +57,7 @@ export const useSupplierStore = create<SupplierStore>((set, get) => ({
     }
   },
 
-  deleteSupplier: async (id) => {
+  deleteSupplier: async (id: string) => {
     try {
       set({ loading: true });
       await supplierService.deleteSupplier(id);

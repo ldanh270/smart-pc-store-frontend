@@ -13,7 +13,7 @@ const BASE_URL =
 
 interface FetchProductsParams {
 	name?: string;
-	categoryId?: number;
+	categoryId?: string;
 	status?: boolean;
 	minPrice?: number;
 	maxPrice?: number;
@@ -54,15 +54,19 @@ export async function fetchProducts(
 
 		const json = await res.json();
 
-		// Handle different possible response shapes:
-		// { data: [...] } or { data: { content: [...] } } or direct array
+		// Handle all common response shapes:
+		// { data: [...] }            — wrapped array
+		// { data: { content: [...] } }  — wrapped paginated (Spring)
+		// { content: [...] }          — Spring Page without wrapper
+		// [...]                       — direct array
 		const products: BackendProduct[] =
 			Array.isArray(json.data) ? json.data
 			: Array.isArray(json.data?.content) ? json.data.content
+			: Array.isArray(json.content) ? json.content
 			: Array.isArray(json) ? json
 			: [];
 
-		return products.map(mapBackendProduct);
+		return products.map((bp) => mapBackendProduct(bp));
 	} catch (error) {
 		console.error("Error fetching products:", error);
 		return [];

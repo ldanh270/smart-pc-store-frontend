@@ -1,19 +1,19 @@
 // ─── Backend API Response Types (matches SQL Server schema) ──────────────────
 
 export interface BackendCategory {
-  id: number;
+  id: string;
   categoryName: string;
   description: string | null;
   status: boolean;
-  parentId?: number | null;
+  parentId?: string | null;
 }
 
 export interface Category {
-  id: number;
+  id: string;
   name: string;
   description: string | null;
   status: boolean;
-  parentId?: number | null;
+  parentId?: string | null;
 }
 
 export interface CategoryCreateDto {
@@ -41,35 +41,35 @@ export function generateCategorySlug(categoryName: string): string {
 // ─── Category Detail (with nested products) ─────────────────────────────────
 
 export interface CategoryDetailProduct {
-  id: number;
+  id: string;
   productName: string;
   description: string | null;
   currentPrice: number;
   quantity: number;
-  supplierId: number;
+  supplierId: string;
   supplierName: string;
-  categoryId: number;
+  categoryId: string;
   categoryName: string;
   status: boolean;
   stockStatus: string;
 }
 
 export interface BackendCategoryDetail {
-  id: number;
+  id: string;
   categoryName: string;
   description: string | null;
   status: boolean;
-  parentId?: number | null;
+  parentId?: string | null;
   products: CategoryDetailProduct[];
 }
 
 export interface CategoryDetail {
-  id: number;
+  id: string;
   name: string;
   slug: string;
   description: string | null;
   status: boolean;
-  parentId?: number | null;
+  parentId?: string | null;
   products: CategoryDetailProduct[];
 }
 

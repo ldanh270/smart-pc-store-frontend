@@ -14,12 +14,12 @@ export const supplierService = {
     return response.data.data;
   },
 
-  updateSupplier: async (id: number, data: SupplierCreateDto): Promise<Supplier> => {
+  updateSupplier: async (id: string, data: SupplierCreateDto): Promise<Supplier> => {
     const response = await api.put<ApiResponse<Supplier>>(`/suppliers/${id}`, data);
     return response.data.data;
   },
 
-  deleteSupplier: async (id: number): Promise<void> => {
+  deleteSupplier: async (id: string): Promise<void> => {
     await api.delete(`/suppliers/${id}`);
   },
 };

@@ -33,7 +33,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 		}
 
 		setIsAdding(true);
-		await addItem(Number(product.id), 1);
+		await addItem(product.id, 1);
 		setIsAdding(false);
 	};
 

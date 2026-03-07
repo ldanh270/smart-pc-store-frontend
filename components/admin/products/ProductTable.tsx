@@ -139,7 +139,7 @@ export default function ProductTable() {
 		});
 	}
 
-	async function handleDeleteProduct(id: number) {
+	async function handleDeleteProduct(id: string) {
 		const success = await deleteProduct(id);
 		if (success) {
 			setDeletingProduct(null);
@@ -272,14 +272,12 @@ export default function ProductTable() {
 									</TableCell>
 									<TableCell className="hidden text-center lg:table-cell">
 										<Badge variant="secondary">
-											{categories.find((c) => c.id === product.categoryId)?.name ??
-												`Category ${product.categoryId}`}
+											{product.categoryName ?? product.categoryId}
 										</Badge>
 									</TableCell>
 									<TableCell className="hidden text-center lg:table-cell">
 										<span className="text-sm">
-											{suppliers.find((s) => s.id === product.supplierId)?.name ??
-												`Supplier ${product.supplierId}`}
+											{product.supplierName ?? product.supplierId}
 										</span>
 									</TableCell>
 									<TableCell className="text-center">

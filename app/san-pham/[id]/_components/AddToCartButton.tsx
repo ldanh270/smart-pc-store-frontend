@@ -9,7 +9,7 @@ import { ShoppingCart, Loader2, LogIn, Zap } from "lucide-react";
 import Link from "next/link";
 
 interface AddToCartButtonProps {
-	productId: number;
+	productId: string;
 	quantity: number;
 	isInStock: boolean;
 }

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Phone } from "lucide-react";
+import { useState, useEffect } from "react";
 import { CONTACTS } from "@/configs/Contacts";
 import { useAuthStore } from "@/stores/useAuthStore";
 import AuthButtons from "./AuthButtons";
@@ -11,7 +12,13 @@ import SearchDialog from "./SearchDialog";
 
 export default function TopBar() {
 	const accessToken = useAuthStore((state) => state.accessToken);
-	const isLoggedIn = !!accessToken;
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	const isLoggedIn = mounted && !!accessToken;
 
 	return (
 		<div className="bg-background">

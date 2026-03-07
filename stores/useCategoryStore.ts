@@ -9,8 +9,8 @@ interface CategoryStore {
   
   fetchCategories: () => Promise<void>;
   createCategory: (data: CategoryCreateDto) => Promise<boolean>;
-  updateCategory: (id: number, data: CategoryCreateDto) => Promise<boolean>;
-  deleteCategory: (id: number) => Promise<boolean>;
+  updateCategory: (id: string, data: CategoryCreateDto) => Promise<boolean>;
+  deleteCategory: (id: string) => Promise<boolean>;
 }
 
 export const useCategoryStore = create<CategoryStore>((set, get) => ({
@@ -44,7 +44,7 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
     }
   },
 
-  updateCategory: async (id, data) => {
+  updateCategory: async (id: string, data) => {
     try {
       set({ loading: true });
       await categoryService.updateCategory(id, data);
@@ -66,7 +66,7 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
     }
   },
 
-  deleteCategory: async (id) => {
+  deleteCategory: async (id: string) => {
     try {
       set({ loading: true });
       await categoryService.deleteCategory(id);

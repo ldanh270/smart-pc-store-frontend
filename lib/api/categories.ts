@@ -21,7 +21,11 @@ export async function fetchAllCategories(): Promise<BackendCategory[]> {
 		if (!res.ok) return [];
 
 		const json = await res.json();
-		const data = Array.isArray(json.data) ? json.data : Array.isArray(json) ? json : [];
+		const data =
+			Array.isArray(json.data) ? json.data
+			: Array.isArray(json.content) ? json.content
+			: Array.isArray(json) ? json
+			: [];
 		return data;
 	} catch (error) {
 		console.error("Error fetching all categories:", error);
