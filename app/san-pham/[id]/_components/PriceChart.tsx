@@ -114,7 +114,41 @@ export default function PriceChart({ productId }: { productId: string }) {
 		);
 	}
 
-	if (error || points.length === 0) return null;
+	if (error) {
+		return (
+			<Card className="mt-8 border-border/50">
+				<CardHeader className="pb-2">
+					<CardTitle className="text-sm font-semibold">Biểu Đồ Giá</CardTitle>
+					<CardDescription className="text-xs">
+						Lịch sử & dự đoán xu hướng giá từ AI
+					</CardDescription>
+				</CardHeader>
+				<CardContent className="flex h-48 items-center justify-center">
+					<p className="text-xs text-muted-foreground">
+						Không thể tải dữ liệu giá. Vui lòng thử lại sau.
+					</p>
+				</CardContent>
+			</Card>
+		);
+	}
+
+	if (points.length === 0) {
+		return (
+			<Card className="mt-8 border-border/50">
+				<CardHeader className="pb-2">
+					<CardTitle className="text-sm font-semibold">Biểu Đồ Giá</CardTitle>
+					<CardDescription className="text-xs">
+						Lịch sử & dự đoán xu hướng giá từ AI
+					</CardDescription>
+				</CardHeader>
+				<CardContent className="flex h-48 items-center justify-center">
+					<p className="text-xs text-muted-foreground">
+						Chưa có dữ liệu lịch sử giá cho sản phẩm này.
+					</p>
+				</CardContent>
+			</Card>
+		);
+	}
 
 	return (
 		<Card className="mt-8 border-border/50">

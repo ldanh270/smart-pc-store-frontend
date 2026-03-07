@@ -14,6 +14,15 @@ function getErrorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
+/** Decode the JWT payload without verifying the signature. */
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    return JSON.parse(atob(token.split(".")[1]));
+  } catch {
+    return null;
+  }
+}
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
@@ -21,12 +30,11 @@ export const useAuthStore = create<AuthState>()(
       refreshToken: null,
       user: null,
       loading: false,
-      
+
       signup: async (username: string, email: string, displayName: string, password: string) => {
         try {
           set({ loading: true });
           await authService.signup(username, password, email, displayName);
-
           toast.success("Đăng kí thành công! Bạn sẽ được chuyển hướng đến trang đăng nhập");
           return true;
         } catch (error) {
@@ -41,35 +49,37 @@ export const useAuthStore = create<AuthState>()(
         try {
           set({ loading: true });
           const data = await authService.login(username, password);
-          const accessToken = data.accessToken || data.token;
-          const refreshToken = data.refreshToken;
 
+          // Normalise token key across backend conventions
+          const accessToken: string | undefined =
+            data.accessToken ?? data.token ?? data.access_token;
+          const refreshToken: string | undefined = data.refreshToken ?? data.refresh_token;
+
+          // Derive user info from the response body or from the token payload
           let user = null;
           if (data.user) {
             user = {
               id: data.user.id,
-              name: data.user.displayName || data.user.name || username,
-              email: data.user.email || "",
-              role: data.user.role || "user",
+              name: data.user.displayName ?? data.user.name ?? username,
+              email: data.user.email ?? "",
+              role: data.user.role ?? "user",
             };
           } else if (accessToken) {
-            try {
-              const payload = JSON.parse(atob(accessToken.split('.')[1]));
+            const payload = decodeJwtPayload(accessToken);
+            if (payload) {
               user = {
-                id: payload.id || payload.sub,
-                name: payload.displayName || payload.name || payload.sub || username,
-                email: payload.email || "",
-                role: payload.role || "user",
+                id: payload.id ?? payload.sub,
+                name: payload.displayName ?? payload.name ?? payload.sub ?? username,
+                email: payload.email ?? "",
+                role: payload.role ?? "user",
               };
-            } catch (e) {
-              console.error("Failed to parse JWT", e);
             }
           }
 
           set({ accessToken, refreshToken, user });
 
-          // Sync access token to cookie for Next.js middleware
-          if (typeof document !== 'undefined') {
+          // Sync to cookie so the Next.js middleware can read it server-side
+          if (typeof document !== "undefined" && accessToken) {
             document.cookie = `access_token=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
           }
 
@@ -85,25 +95,38 @@ export const useAuthStore = create<AuthState>()(
 
       logout: async () => {
         try {
-          // Tell backend to clear HttpOnly cookies (like refresh token)
           await authService.logout();
         } catch (error) {
-          // Expected to fail if token is already expired, so we don't console.error it
-          console.log("Logout from server note:", getErrorMessage(error, "Phiên hết hạn"));
+          // Expected when the token is already expired — not a real error
+          console.log("Logout note:", getErrorMessage(error, "Phiên đã hết hạn"));
         }
 
         set({ accessToken: null, refreshToken: null, user: null });
-        if (typeof document !== 'undefined') {
-          // Clear access token cookie
-          document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-          // Clear refresh token cookie (if it's accessible by JS)
-          document.cookie = 'refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+
+        if (typeof document !== "undefined") {
+          document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+          document.cookie = "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         }
+
         toast.success("Đăng xuất thành công!");
-      }
+      },
     }),
     {
-      name: "auth-storage", // Khóa lưu trong localStorage
+      name: "auth-storage",
+
+      // ─── Security: access token must NOT be persisted to localStorage ────────
+      //
+      // localStorage is readable by any JS on the page (XSS risk).
+      // Access tokens are short-lived; the refresh flow re-issues one on every
+      // page load, so persisting them gives attackers a window with no benefit.
+      // refresh_token + user info are safe to persist (user stays "logged in"
+      // across reloads and the refresh call re-hydrates the access token).
+      //
+      partialize: (state) => ({
+        refreshToken: state.refreshToken,
+        user: state.user,
+        // accessToken and loading are intentionally excluded
+      }),
     }
   )
 );

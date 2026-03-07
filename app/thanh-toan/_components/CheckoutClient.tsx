@@ -38,7 +38,7 @@ export default function CheckoutClient() {
       const fetchBuyNowProduct = async () => {
         try {
           setIsBuyNowLoading(true);
-          const product = await productService.getProduct(Number(buyNowProductId));
+          const product = await productService.getProduct(buyNowProductId);
           const qty = Number(buyNowQuantity);
           
           setBuyNowItem({
@@ -71,8 +71,9 @@ export default function CheckoutClient() {
   const handleConfirmOrder = async () => {
     setIsCreating(true);
     try {
-      const order = await orderService.createOrder(displayItems);
-      router.push(`/thanh-toan/payment?orderId=${order.id}`);
+      const paymentInfo = await orderService.purchase(displayItems);
+      sessionStorage.setItem("pendingPayment", JSON.stringify(paymentInfo));
+      router.push("/thanh-toan/payment");
     } catch {
       toast.error("Không thể tạo đơn hàng. Vui lòng thử lại.");
       setIsCreating(false);

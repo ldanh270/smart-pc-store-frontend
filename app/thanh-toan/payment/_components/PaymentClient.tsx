@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { CheckCircle2, Clock, Loader2, RefreshCw, XCircle } from "lucide-react";
+import { Clock, Loader2, RefreshCw, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -17,12 +17,10 @@ import { PaymentQRInfo } from "@/types/order";
 const TIMEOUT_SECONDS = 5 * 60; // 5 minutes
 const POLL_INTERVAL_MS = 3000; // 3 seconds
 
-type PaymentStatus = "loading" | "waiting" | "success" | "timeout";
+type PaymentStatus = "loading" | "waiting" | "timeout";
 
 export default function PaymentClient() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const orderId = searchParams.get("orderId");
 
   const [qrInfo, setQrInfo] = useState<PaymentQRInfo | null>(null);
   const [status, setStatus] = useState<PaymentStatus>("loading");
@@ -39,85 +37,78 @@ export default function PaymentClient() {
     countdownRef.current = null;
   }, []);
 
-  const handleSuccess = useCallback(async () => {
-    clearTimers();
-    setStatus("success");
-    try {
-      await cartService.clearCart();
-    } catch {
-      // best-effort — don't block success flow
-    }
-    useCartStore.setState({ items: [], totalItems: 0, totalPrice: 0 });
-    setTimeout(() => router.push("/"), 3000);
-  }, [clearTimers, router]);
+  const handleSuccess = useCallback(
+    async (transactionCode: string) => {
+      clearTimers();
+      try {
+        await cartService.clearCart();
+      } catch {
+        // best-effort — don't block success flow
+      }
+      useCartStore.setState({ items: [], totalItems: 0, totalPrice: 0 });
+      sessionStorage.removeItem("pendingPayment");
+      router.push(`/thanh-toan/success?txnCode=${transactionCode}`);
+    },
+    [clearTimers, router]
+  );
 
-  const handleTimeout = useCallback(async (id: number) => {
+  const handleTimeout = useCallback(() => {
     clearTimers();
     setStatus("timeout");
-    try {
-      await orderService.cancelOrder(id);
-    } catch {
-      // best-effort — order may already be cancelled server-side
-    }
   }, [clearTimers]);
 
   useEffect(() => {
-    const parsedOrderId = orderId ? parseInt(orderId, 10) : null;
+    const raw = sessionStorage.getItem("pendingPayment");
+    if (!raw) {
+      toast.error("Không tìm thấy thông tin thanh toán.");
+      router.push("/gio-hang");
+      return;
+    }
 
-    if (!parsedOrderId || isNaN(parsedOrderId)) {
+    let info: PaymentQRInfo;
+    try {
+      info = JSON.parse(raw) as PaymentQRInfo;
+    } catch {
+      toast.error("Thông tin thanh toán không hợp lệ.");
       router.push("/gio-hang");
       return;
     }
 
     let cancelled = false;
 
-    const init = async () => {
-      try {
-        const info = await orderService.getPaymentQR(parsedOrderId);
-        if (cancelled) return;
+    setQrInfo(info);
+    setStatus("waiting");
 
-        setQrInfo(info);
-        setStatus("waiting");
-
-        // Countdown: tick every second
-        countdownRef.current = setInterval(() => {
-          setTimeLeft((prev) => {
-            if (prev <= 1) {
-              handleTimeout(parsedOrderId);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-
-        // Polling: check transaction every 3s
-        pollRef.current = setInterval(async () => {
-          try {
-            const result = await orderService.checkTransaction(info.transactionCode);
-            if (cancelled) return;
-            setStatusMessage(result.message);
-            if (result.found) {
-              handleSuccess();
-            }
-          } catch {
-            // network hiccup — keep polling
-          }
-        }, POLL_INTERVAL_MS);
-      } catch {
-        if (!cancelled) {
-          toast.error("Không thể lấy thông tin thanh toán. Vui lòng thử lại.");
-          router.push("/gio-hang");
+    // Countdown: tick every second
+    countdownRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          handleTimeout();
+          return 0;
         }
-      }
-    };
+        return prev - 1;
+      });
+    }, 1000);
 
-    init();
+    // Polling: check transaction every 3s
+    pollRef.current = setInterval(async () => {
+      try {
+        const result = await orderService.checkTransaction(info.transactionCode);
+        if (cancelled) return;
+        setStatusMessage(result.message);
+        if (result.completed) {
+          handleSuccess(info.transactionCode);
+        }
+      } catch {
+        // network hiccup — keep polling
+      }
+    }, POLL_INTERVAL_MS);
 
     return () => {
       cancelled = true;
       clearTimers();
     };
-  }, [orderId, router, handleSuccess, handleTimeout, clearTimers]);
+  }, [router, handleSuccess, handleTimeout, clearTimers]);
 
   const formatTime = (seconds: number): string => {
     const m = Math.floor(seconds / 60).toString().padStart(2, "0");
@@ -140,31 +131,6 @@ export default function PaymentClient() {
     );
   }
 
-  // ── Success ────────────────────────────────────────────────────────────────
-  if (status === "success") {
-    return (
-      <main className="flex min-h-[60vh] items-center justify-center px-4">
-        <div className="flex flex-col items-center gap-4 text-center animate-in fade-in zoom-in duration-500">
-          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-emerald-100">
-            <CheckCircle2 className="h-14 w-14 text-emerald-600" />
-          </div>
-          <div>
-            <h2 className="font-sans text-2xl font-bold text-foreground">
-              Thanh Toán Thành Công!
-            </h2>
-            <p className="mt-1 text-muted-foreground">
-              Đơn hàng của bạn đã được xác nhận.
-            </p>
-            <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
-              <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-              Đang chuyển về trang chủ...
-            </p>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
   // ── Timeout ────────────────────────────────────────────────────────────────
   if (status === "timeout") {
     return (
@@ -178,7 +144,7 @@ export default function PaymentClient() {
               Giao Dịch Hết Hạn
             </h2>
             <p className="mt-1 text-muted-foreground">
-              Phiên thanh toán đã hết 5 phút. Đơn hàng của bạn đã bị hủy.
+              Phiên thanh toán đã hết 5 phút. Vui lòng thử lại.
             </p>
           </div>
           <Button asChild size="lg" className="mt-2">
@@ -297,7 +263,7 @@ export default function PaymentClient() {
       {/* Cancel fallback */}
       <div className="mt-3 text-center">
         <button
-          onClick={() => handleTimeout(parseInt(orderId!, 10))}
+          onClick={handleTimeout}
           className="text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
         >
           Hủy giao dịch

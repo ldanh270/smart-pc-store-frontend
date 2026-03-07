@@ -16,7 +16,9 @@ export interface PaymentQRInfo {
 }
 
 export interface TransactionCheckResult {
-  found: boolean;
+  transactionCode: string;
+  status: string;
+  completed: boolean;
   message: string;
 }
 

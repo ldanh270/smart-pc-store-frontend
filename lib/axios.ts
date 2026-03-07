@@ -1,164 +1,164 @@
-import axios, { type AxiosRequestConfig } from "axios";
+import axios, { type AxiosRequestConfig, type InternalAxiosRequestConfig } from "axios";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_MODE === "development" ? process.env.NEXT_PUBLIC_API_URL : "/api",
+  baseURL:
+    process.env.NEXT_PUBLIC_MODE === "development"
+      ? process.env.NEXT_PUBLIC_API_URL
+      : "/api",
   withCredentials: true,
+  timeout: 15_000,
 });
 
-// ─── Helpers to read/write persisted auth store ─────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getAuthState() {
   if (typeof window === "undefined") return null;
   return useAuthStore.getState();
 }
 
-function setAccessToken(accessToken: string) {
+export function setAccessToken(accessToken: string) {
   if (typeof window === "undefined") return;
+  useAuthStore.setState({ accessToken });
+  document.cookie = `access_token=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
+}
+
+export function clearAuth() {
+  if (typeof window === "undefined") return;
+  useAuthStore.setState({ accessToken: null, refreshToken: null, user: null });
+  document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  document.cookie = "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+}
+
+// ─── Proactive expiry check (refresh 30s before actual expiry) ────────────────
+
+function isTokenExpiredOrExpiringSoon(token: string, bufferSeconds = 30): boolean {
   try {
-    // Update Zustand state (triggers UI re-render and auto-persists to localStorage)
-    useAuthStore.setState({ accessToken });
-    
-    // Also sync the cookie so the Next.js middleware knows about the new token
-    document.cookie = `access_token=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    if (!payload.exp) return false;
+    return payload.exp * 1000 < Date.now() + bufferSeconds * 1000;
   } catch {
-    // Silently ignore
+    return true; // malformed token — treat as expired
   }
 }
 
-function clearAuth() {
-  if (typeof window === "undefined") return;
-  try {
-    // Update Zustand state
-    useAuthStore.setState({ accessToken: null, refreshToken: null, user: null });
-    
-    // Clear cookies
-    document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    document.cookie = 'refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-  } catch {
-    // Silently ignore
-  }
+// ─── Refresh singleton (Promise-based, no race conditions) ───────────────────
+//
+// Using a shared Promise instead of isRefreshing + failedQueue:
+//   - Multiple concurrent 401s all await the same promise
+//   - No manual queue management
+//   - Automatically cleared when the promise settles
+//
+let refreshPromise: Promise<string> | null = null;
+
+async function refreshAccessToken(): Promise<string> {
+  // Re-use an in-flight refresh rather than firing a second request
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = (async () => {
+    const auth = getAuthState();
+    const body = auth?.refreshToken ? { refreshToken: auth.refreshToken } : {};
+
+    const { data } = await axios.post(
+      `${api.defaults.baseURL}/auth/refresh`,
+      body,
+      { withCredentials: true, timeout: 10_000 }
+    );
+
+    // Normalise the token key across different backend conventions
+    const newToken: string =
+      data.accessToken ?? data.token ?? data.access_token;
+
+    if (!newToken) throw new Error("Refresh response is missing the access token");
+
+    setAccessToken(newToken);
+    return newToken;
+  })().finally(() => {
+    // Always clear the singleton so the next expiry starts fresh
+    refreshPromise = null;
+  });
+
+  return refreshPromise;
 }
 
-// ─── Request Interceptor: Attach Bearer Token ───────────────────────────────
+// ─── Request interceptor: proactive refresh + attach token ───────────────────
 
-api.interceptors.request.use((config) => {
+api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
   const auth = getAuthState();
-  if (auth?.accessToken) {
-    config.headers.Authorization = `Bearer ${auth.accessToken}`;
+  if (!auth?.accessToken) return config;
+
+  // If the token will expire very soon, refresh before the request goes out.
+  // This avoids a needless 401 round-trip for the common "tab left open" case.
+  if (isTokenExpiredOrExpiringSoon(auth.accessToken)) {
+    try {
+      const freshToken = await refreshAccessToken();
+      config.headers.Authorization = `Bearer ${freshToken}`;
+      return config;
+    } catch {
+      // Refresh failed — let the request proceed; the response interceptor
+      // will catch the resulting 401/403 and redirect to login.
+    }
   }
+
+  config.headers.Authorization = `Bearer ${auth.accessToken}`;
   return config;
 });
 
-// ─── Response Interceptor: Auto Refresh on 401 ─────────────────────────────
+// ─── Response interceptor: reactive 401/403 handler ─────────────────────────
 
-let isRefreshing = false;
-let failedQueue: Array<{
-  resolve: (token: string) => void;
-  reject: (error: unknown) => void;
-}> = [];
-
-function processQueue(error: unknown, token: string | null) {
-  failedQueue.forEach((prom) => {
-    if (token) {
-      prom.resolve(token);
-    } else {
-      prom.reject(error);
-    }
-  });
-  failedQueue = [];
-}
+// These paths handle their own errors — never attempt a refresh for them.
+const AUTH_PATHS = ["/auth/login", "/auth/signup", "/auth/logout", "/auth/refresh"];
 
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    // Global toast notifications for specific error codes
-    // Skip auth endpoints — the auth store handles those errors itself.
-    const status = error.response?.status;
-    const isAuthEndpoint = error.config?.url?.includes("/auth/");
-    if (status && !isAuthEndpoint) {
-      if ([400, 403, 404, 409].includes(status)) {
-        const message = error.response?.data?.message || error.response?.data?.error || `Error: ${status}`;
-        toast.error(message);
-      }
-    }
 
+  async (error) => {
+    const status: number | undefined = error.response?.status;
+    const requestUrl: string = error.config?.url ?? "";
+    const isAuthCall = AUTH_PATHS.some((p) => requestUrl.includes(p));
     const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
 
-    // Only handle 401 and skip if already retried or is an auth endpoint
-    if (status !== 401 || originalRequest._retry || isAuthEndpoint) {
-      if (status === 401 && !isAuthEndpoint) {
-        const message = error.response?.data?.message || "Unauthorized";
+    // ── Non-401/403 errors: show toast (skip auth-related calls) ──────────
+    if (status && ![401, 403].includes(status) && !isAuthCall) {
+      if ([400, 404, 409].includes(status)) {
+        const message =
+          error.response?.data?.message ??
+          error.response?.data?.error ??
+          `Lỗi ${status}`;
         toast.error(message);
       }
       return Promise.reject(error);
     }
 
-    // Queue this request if a refresh is already in progress
-    if (isRefreshing) {
-      return new Promise((resolve, reject) => {
-        failedQueue.push({
-          resolve: (token: string) => {
-            originalRequest.headers = {
-              ...originalRequest.headers,
-              Authorization: `Bearer ${token}`,
-            };
-            resolve(api(originalRequest));
-          },
-          reject,
-        });
-      });
+    // ── Auth calls and already-retried requests: reject immediately ────────
+    if (isAuthCall || originalRequest._retry) {
+      return Promise.reject(error);
     }
 
-    originalRequest._retry = true;
-    isRefreshing = true;
+    // ── 401 / 403 on a regular call: attempt refresh then retry ───────────
+    if (status === 401 || status === 403) {
+      originalRequest._retry = true;
 
-    const auth = getAuthState();
-
-    // We DO NOT instantly log out if !auth?.accessToken here.
-    // The user might have a valid HttpOnly refresh cookie but an empty store (e.g., hard refresh).
-    // Let the /refresh endpoint decide if the session is truly dead.
-
-    try {
-      const refreshToken = auth?.refreshToken;
-
-      // Backend might expect the refresh token in the body, or it might just read it from cookies.
-      // We send it in the body if we have it, but we let cookies work if we don't.
-      const payload = refreshToken ? { refreshToken } : {};
-
-      const { data } = await axios.post(
-        `${api.defaults.baseURL}/auth/refresh`,
-        payload,
-        { withCredentials: true }
-      );
-
-      const newAccessToken: string = data.accessToken || data.token;
-      
-      if (!newAccessToken) {
-        throw new Error("Invalid refresh response");
+      try {
+        const freshToken = await refreshAccessToken();
+        originalRequest.headers = {
+          ...originalRequest.headers,
+          Authorization: `Bearer ${freshToken}`,
+        };
+        return api(originalRequest);
+      } catch {
+        // Refresh failed — session is truly dead
+        clearAuth();
+        toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+        if (typeof window !== "undefined") {
+          window.location.href = "/dang-nhap";
+        }
+        return Promise.reject(error);
       }
-
-      // Update only the access token
-      setAccessToken(newAccessToken);
-      processQueue(null, newAccessToken);
-
-      // Retry original request with new token
-      originalRequest.headers = {
-        ...originalRequest.headers,
-        Authorization: `Bearer ${newAccessToken}`,
-      };
-      return api(originalRequest);
-    } catch (refreshError) {
-      processQueue(refreshError, null);
-      clearAuth();
-      if (typeof window !== "undefined") {
-        window.location.href = "/dang-nhap";
-      }
-      return Promise.reject(refreshError);
-    } finally {
-      isRefreshing = false;
     }
+
+    return Promise.reject(error);
   }
 );
 
