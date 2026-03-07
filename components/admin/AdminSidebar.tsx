@@ -10,6 +10,7 @@ import {
 	ShoppingCart,
 	Monitor,
   Truck,
+  PackagePlus,
 } from "lucide-react";
 
 import {
@@ -44,6 +45,7 @@ const CATALOG_MENU: AdminMenuItem[] = [
 	{ label: "Sản Phẩm", href: "/admin/products", icon: Package },
 	{ label: "Danh Mục", href: "/admin/categories", icon: Tags },
   { label: "Nhà Cung Cấp", href: "/admin/suppliers", icon: Truck },
+  { label: "Nhập Hàng", href: "/admin/nhap-hang", icon: PackagePlus },
 ];
 
 const SYSTEM_MENU: AdminMenuItem[] = [

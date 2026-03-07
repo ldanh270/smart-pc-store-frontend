@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import AIChatBox from "@/components/chat/AIChatBox";
 
 export default function LayoutShell({
 	children,
@@ -21,6 +22,7 @@ export default function LayoutShell({
 			<Header />
 			{children}
 			<Footer />
+			<AIChatBox />
 		</>
 	);
 }

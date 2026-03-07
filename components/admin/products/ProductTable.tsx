@@ -40,18 +40,15 @@ import {
 } from "@/components/ui/pagination";
 import type { AdminProduct } from "@/types/product";
 import { useProductStore } from "@/stores/useProductStore";
-import { useCategoryStore } from "@/stores/useCategoryStore";
-import { useSupplierStore } from "@/stores/useSupplierStore";
 import ProductFormDialog from "./ProductFormDialog";
+import ProductEditSheet from "./ProductEditSheet";
 import DeleteProductDialog from "./DeleteProductDialog";
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function ProductTable() {
 	const { products, loading, fetchProducts, createProduct, updateProduct, deleteProduct, lastParams } = useProductStore();
-	const { categories, fetchCategories } = useCategoryStore();
-	const { suppliers, fetchSuppliers } = useSupplierStore();
-	
+
 	const [searchQuery, setSearchQuery] = useState("");
 	const [isCreateOpen, setIsCreateOpen] = useState(false);
 	const [editingProduct, setEditingProduct] = useState<AdminProduct | null>(null);
@@ -60,15 +57,8 @@ export default function ProductTable() {
 	// ─── Fetch Products from Backend ────────────────────────────────────
 
 	useEffect(() => {
-		if (categories.length === 0) fetchCategories();
-		if (suppliers.length === 0) fetchSuppliers();
-	}, [categories.length, suppliers.length, fetchCategories, fetchSuppliers]);
-
-	// ─── Fetch Products from Backend ────────────────────────────────────
-
-	useEffect(() => {
 		const debounce = setTimeout(() => {
-			fetchProducts({ q: searchQuery || undefined, page: 1 });
+			fetchProducts({ q: searchQuery || undefined, page: 1, size: 20 });
 		}, 300);
 		return () => clearTimeout(debounce);
 	}, [searchQuery, fetchProducts]);
@@ -107,22 +97,6 @@ export default function ProductTable() {
 		});
 		if (success) {
 			setIsCreateOpen(false);
-		}
-	}
-
-	async function handleEditProduct(updated: AdminProduct) {
-		const success = await updateProduct(updated.id, {
-			productName: updated.productName,
-			description: updated.description ?? undefined,
-			imageUrl: updated.imageUrl ?? undefined,
-			currentPrice: updated.currentPrice,
-			quantity: updated.quantity,
-			supplierId: updated.supplierId,
-			categoryId: updated.categoryId,
-			status: updated.status,
-		});
-		if (success) {
-			setEditingProduct(null);
 		}
 	}
 
@@ -235,7 +209,7 @@ export default function ProductTable() {
 										<div className="relative size-10 overflow-hidden rounded-md bg-muted">
 											<Image
 												src={
-													product.imageUrl ??
+													product.imageUrl ||
 													"/products/placeholder.svg"
 												}
 												alt={product.productName}
@@ -399,16 +373,11 @@ export default function ProductTable() {
 				onSubmit={handleCreateProduct}
 			/>
 
-			<ProductFormDialog
+			<ProductEditSheet
+				product={editingProduct}
 				open={!!editingProduct}
 				onOpenChange={(open) => {
 					if (!open) setEditingProduct(null);
-				}}
-				product={editingProduct ?? undefined}
-				onSubmit={(data) => {
-					if (editingProduct) {
-						handleEditProduct({ ...editingProduct, ...data });
-					}
 				}}
 			/>
 
