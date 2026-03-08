@@ -1,14 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { useAuthStore } from "@/stores/useAuthStore";
-import { getRoleFromJwt } from "@/lib/jwt";
 
 export default function UserMenu() {
-	const { user, accessToken, logout } = useAuthStore();
+	const router = useRouter();
+	const { user, logout } = useAuthStore();
 
-	const isAdmin = getRoleFromJwt(accessToken) === "ADMIN";
+	const isAdmin = user?.role?.toUpperCase() === "ADMIN";
 
 	return (
 		<div className="group relative py-4">
@@ -43,7 +44,7 @@ export default function UserMenu() {
 					)}
 
 					<button
-						onClick={logout}
+						onClick={async () => { await logout(); router.push("/"); }}
 						className="block w-full rounded-sm px-3 py-2 text-left text-sm text-popover-foreground transition-colors hover:bg-accent hover:text-accent-foreground uppercase"
 					>
 						ĐĂNG XUẤT

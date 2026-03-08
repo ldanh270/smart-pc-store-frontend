@@ -135,7 +135,7 @@ export default function AdminHeader() {
 					<DropdownMenuSeparator />
 					<DropdownMenuItem
 						className="text-destructive focus:text-destructive cursor-pointer"
-						onClick={() => { logout(); window.location.href = "/dang-nhap"; }}
+						onClick={async () => { await logout(); window.location.href = "/dang-nhap"; }}
 					>
 						<LogOut className="mr-2 size-4" />
 						Đăng Xuất

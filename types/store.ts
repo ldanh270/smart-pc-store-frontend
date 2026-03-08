@@ -12,5 +12,5 @@ export interface AuthState {
   loading: boolean;
   signup: (username: string, email: string, displayName: string, password: string) => Promise<boolean>;
   login: (username: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }

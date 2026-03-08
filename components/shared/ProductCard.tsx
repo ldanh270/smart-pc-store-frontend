@@ -15,9 +15,6 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-	const hasDiscount =
-		product.originalPrice && product.originalPrice > product.price;
-
 	const [isAdding, setIsAdding] = useState(false);
 	const addItem = useCartStore((state) => state.addItem);
 	const accessToken = useAuthStore((state) => state.accessToken);
@@ -110,11 +107,6 @@ export default function ProductCard({ product }: ProductCardProps) {
 					<span className="font-mono text-sm font-bold text-foreground">
 						{formatPrice(product.price)}
 					</span>
-					{hasDiscount && (
-						<span className="font-mono text-xs text-muted-foreground line-through decoration-muted-foreground/50">
-							{formatPrice(product.originalPrice!)}
-						</span>
-					)}
 				</div>
 			</div>
 		</Link>

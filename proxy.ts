@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getRoleFromJwt } from '@/lib/jwt';
 
-// ─── Proxy ───────────────────────────────────────────────────────────────
+// ─── Proxy (Next.js 16+ replaces middleware.ts) ───────────────────────────────
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

@@ -52,7 +52,7 @@ function isTokenExpiredOrExpiringSoon(token: string, bufferSeconds = 30): boolea
 //
 let refreshPromise: Promise<string> | null = null;
 
-async function refreshAccessToken(): Promise<string> {
+export async function refreshAccessToken(): Promise<string> {
   // Re-use an in-flight refresh rather than firing a second request
   if (refreshPromise) return refreshPromise;
 
