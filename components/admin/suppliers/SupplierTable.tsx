@@ -63,7 +63,7 @@ export default function SupplierTable() {
     }
   }
 
-  async function handleDeleteSupplier(id: number) {
+  async function handleDeleteSupplier(id: string) {
     const success = await deleteSupplier(id);
     if (success) {
       setDeletingSupplier(null);

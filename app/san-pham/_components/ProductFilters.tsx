@@ -19,7 +19,6 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Category } from "@/types/category";
 import { categoryService } from "@/services/categoryService";
-import { cn } from "@/lib/utils";
 
 interface FilterState {
 	categoryId?: string;
@@ -71,7 +70,7 @@ export default function ProductFilters() {
 			// Reset to page 1 on filter change
 			params.delete("page");
 
-			router.push(`/products?${params.toString()}`);
+			router.push(`/san-pham?${params.toString()}`);
 		},
 		[router, searchParams],
 	);

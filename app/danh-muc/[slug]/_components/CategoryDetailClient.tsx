@@ -91,7 +91,7 @@ export default function CategoryDetailClient({
 			if (sortBy === "name-desc") return b.productName.localeCompare(a.productName);
 			if (sortBy === "price-asc") return a.currentPrice - b.currentPrice;
 			if (sortBy === "price-desc") return b.currentPrice - a.currentPrice;
-			if (sortBy === "newest") return b.id - a.id; // Mocking newest by ID
+			if (sortBy === "newest") return Number(b.id) - Number(a.id); // Mocking newest by ID
 			return 0;
 		});
 

@@ -85,7 +85,7 @@ export default function CategoryTable() {
 		if (success) setEditingCategory(null);
 	}
 
-	async function handleDeleteCategory(id: number) {
+	async function handleDeleteCategory(id: string) {
 		const success = await deleteCategory(id);
 		if (success) setDeletingCategory(null);
 	}
