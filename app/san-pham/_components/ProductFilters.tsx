@@ -19,7 +19,6 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Category } from "@/types/category";
 import { categoryService } from "@/services/categoryService";
-import { cn } from "@/lib/utils";
 
 interface FilterState {
 	categoryId?: string;
@@ -33,8 +32,11 @@ export default function ProductFilters() {
 	const searchParams = useSearchParams();
 
 	const [categories, setCategories] = useState<Category[]>([]);
-	const [filters, setFilters] = useState<FilterState>({});
 	const [isOpen, setIsOpen] = useState(false);
+	const [localPrices, setLocalPrices] = useState({
+		minPrice: searchParams.get("minPrice") || "",
+		maxPrice: searchParams.get("maxPrice") || "",
+	});
 
 	// Load categories
 	useEffect(() => {
@@ -44,15 +46,13 @@ export default function ProductFilters() {
 			.catch(console.error);
 	}, []);
 
-	// Sync local state with URL
-	useEffect(() => {
-		setFilters({
-			categoryId: searchParams.get("categoryId") || undefined,
-			status: searchParams.get("status") || undefined,
-			minPrice: searchParams.get("minPrice") || undefined,
-			maxPrice: searchParams.get("maxPrice") || undefined,
-		});
-	}, [searchParams]);
+	// Read filters directly from URL
+	const filters: FilterState = {
+		categoryId: searchParams.get("categoryId") || undefined,
+		status: searchParams.get("status") || undefined,
+		minPrice: searchParams.get("minPrice") || undefined,
+		maxPrice: searchParams.get("maxPrice") || undefined,
+	};
 
 	// Push filters to URL
 	const applyFilters = useCallback(
@@ -71,14 +71,13 @@ export default function ProductFilters() {
 			// Reset to page 1 on filter change
 			params.delete("page");
 
-			router.push(`/products?${params.toString()}`);
+			router.push(`/san-pham?${params.toString()}`);
 		},
 		[router, searchParams],
 	);
 
 	const handleFilterChange = (key: keyof FilterState, value: string | undefined) => {
 		const newFilters = { ...filters, [key]: value };
-		setFilters(newFilters);
 		applyFilters(newFilters);
 	};
 
@@ -89,6 +88,7 @@ export default function ProductFilters() {
 		} else {
 			router.push(`/products`);
 		}
+		setLocalPrices({ minPrice: "", maxPrice: "" });
 		setIsOpen(false);
 	};
 
@@ -154,9 +154,9 @@ export default function ProductFilters() {
 							type="number"
 							min={0}
 							placeholder="Tối thiểu"
-							value={filters.minPrice || ""}
+							value={localPrices.minPrice}
 							onChange={(e) =>
-								setFilters((prev) => ({ ...prev, minPrice: e.target.value }))
+								setLocalPrices((prev) => ({ ...prev, minPrice: e.target.value }))
 							}
 							onBlur={(e) => handleFilterChange("minPrice", e.target.value)}
 						/>
@@ -173,9 +173,9 @@ export default function ProductFilters() {
 							type="number"
 							min={0}
 							placeholder="Tối đa"
-							value={filters.maxPrice || ""}
+							value={localPrices.maxPrice}
 							onChange={(e) =>
-								setFilters((prev) => ({ ...prev, maxPrice: e.target.value }))
+								setLocalPrices((prev) => ({ ...prev, maxPrice: e.target.value }))
 							}
 							onBlur={(e) => handleFilterChange("maxPrice", e.target.value)}
 						/>

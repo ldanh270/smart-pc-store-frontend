@@ -17,7 +17,7 @@ function buildCategoryTree(categories: Category[]): NavItem[] {
 	const activeCategories = categories.filter((c) => c.status);
 
 	// Group children by parentId
-	const childrenMap = new Map<number, Category[]>();
+	const childrenMap = new Map<string, Category[]>();
 	const roots: Category[] = [];
 
 	for (const cat of activeCategories) {

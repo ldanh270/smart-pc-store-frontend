@@ -10,12 +10,12 @@
 	"eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
 	"files.eol": "\n",
 	// Auto convert ~ to src
-	"typescript.preferences.importModuleSpecifier": "non-relative",
+	"js/ts.preferences.importModuleSpecifier": "non-relative",
 
 	// Optimize TypeScript performance
-	"typescript.tsserver.maxTsServerMemory": 4096,
-	"typescript.disableAutomaticTypeAcquisition": false,
-	"typescript.updateImportsOnFileMove.enabled": "always",
+	"js/ts.tsserver.maxMemory": 4096,
+	"js/ts.tsserver.automaticTypeAcquisition.enabled": true,
+	"js/ts.updateImportsOnFileMove.enabled": "always",
 
 	// Optimize editor performance
 	"editor.quickSuggestions": {
@@ -73,10 +73,10 @@
 	"[javascriptreact]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
-	"typescript.format.insertSpaceAfterCommaDelimiter": true,
-	"typescript.tsdk": "",
-	"typescript.enablePromptUseWorkspaceTsdk": true,
-	"typescript.tsserver.web.projectWideIntellisense.suppressSemanticErrors": true,
+	"js/ts.format.insertSpaceAfterCommaDelimiter": true,
+	"js/ts.tsdk.path": "",
+	"js/ts.tsdk.promptToUseWorkspaceVersion": true,
+	"js/ts.tsserver.web.projectWideIntellisense.suppressSemanticErrors": true,
 	"editor.definitionLinkOpensInPeek": false,
-	"typescript.tsserver.watchOptions": "vscode"
+	"js/ts.tsserver.watchOptions": "vscode"
 }
