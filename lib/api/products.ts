@@ -21,25 +21,26 @@ interface FetchProductsParams {
 export async function fetchProducts(
 	params?: FetchProductsParams
 ): Promise<Product[]> {
-	const url = new URL(`${BASE_URL}/products`);
-
-	if (params) {
-		if (params.name) url.searchParams.set("name", params.name);
-		if (params.categoryId !== undefined)
-			url.searchParams.set("categoryId", String(params.categoryId));
-		if (params.status !== undefined)
-			url.searchParams.set("status", String(params.status));
-		if (params.minPrice !== undefined)
-			url.searchParams.set("minPrice", String(params.minPrice));
-		if (params.maxPrice !== undefined)
-			url.searchParams.set("maxPrice", String(params.maxPrice));
-		if (params.page !== undefined)
-			url.searchParams.set("page", String(params.page));
-		if (params.size !== undefined)
-			url.searchParams.set("size", String(params.size));
-	}
-
 	try {
+        const baseUrlToUse = BASE_URL || "http://localhost:8080";
+		const url = new URL(`${baseUrlToUse}/products`);
+
+		if (params) {
+			if (params.name) url.searchParams.set("name", params.name);
+			if (params.categoryId !== undefined)
+				url.searchParams.set("categoryId", String(params.categoryId));
+			if (params.status !== undefined)
+				url.searchParams.set("status", String(params.status));
+			if (params.minPrice !== undefined)
+				url.searchParams.set("minPrice", String(params.minPrice));
+			if (params.maxPrice !== undefined)
+				url.searchParams.set("maxPrice", String(params.maxPrice));
+			if (params.page !== undefined)
+				url.searchParams.set("page", String(params.page));
+			if (params.size !== undefined)
+				url.searchParams.set("size", String(params.size));
+		}
+
 		const res = await fetch(url.toString(), {
 			next: { revalidate: 60 }, // ISR: revalidate every 60 seconds
 		});

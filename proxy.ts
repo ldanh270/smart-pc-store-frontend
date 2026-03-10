@@ -33,7 +33,7 @@ export function proxy(request: NextRequest) {
   if (pathname.startsWith('/dang-nhap')) {
     if (role) {
       return NextResponse.redirect(
-        new URL(role === 'ADMIN' ? '/admin' : '/', request.url),
+        new URL('/', request.url),
       );
     }
   }

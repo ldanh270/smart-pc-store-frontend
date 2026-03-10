@@ -6,10 +6,8 @@ import {
 	generateCategorySlug,
 } from "@/types/category";
 
-const BASE_URL =
-	process.env.NEXT_PUBLIC_MODE === "development"
-		? process.env.NEXT_PUBLIC_API_URL
-		: "/api";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
+
 
 // ─── Fetch All Categories (Server-Side) ───────────────────────────────────────
 
