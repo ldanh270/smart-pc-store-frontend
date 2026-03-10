@@ -67,7 +67,7 @@ export default function Footer() {
 							{SUPPORT_LINKS.map((link) => (
 								<li key={link.href}>
 									<Link
-										href={link.href}
+										href={"#"}
 										className="text-sm text-background/60 transition-colors hover:text-primary"
 									>
 										{link.label}

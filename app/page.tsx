@@ -27,11 +27,11 @@ export default async function HomePage() {
 	// 3. Fetch song song 3 section
 	const [newProducts, cpuProducts, gpuProducts] = await Promise.all([
 		// Sản phẩm mới: lấy các sản phẩm mới nhất (không lọc category)
-		fetchProducts({ page: 0, size: 4 }),
+		fetchProducts({ page: 1, size: 4 }),
 		// CPU nổi bật
-		fetchProducts({ categoryId: cpuCategory?.id, page: 0, size: 4 }),
+		fetchProducts({ categoryId: cpuCategory?.id, page: 1, size: 4 }),
 		// GPU nổi bật
-		fetchProducts({ categoryId: gpuCategory?.id, page: 0, size: 4 }),
+		fetchProducts({ categoryId: gpuCategory?.id, page: 1, size: 4 }),
 	]);
 
 	const cpuHref = cpuCategory
