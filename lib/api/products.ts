@@ -4,10 +4,7 @@ import {
 	mapBackendProduct,
 } from "@/types/product";
 
-const BASE_URL =
-	process.env.NEXT_PUBLIC_MODE === "development"
-		? process.env.NEXT_PUBLIC_API_URL
-		: "/api";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // ─── Fetch Products (Server-Side) ───────────────────────────────────────────
 

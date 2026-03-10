@@ -4,7 +4,6 @@ import { mapBackendCategory } from "@/types/category";
 import HeroSlider from "@/components/home/HeroSlider";
 import CategoryGrid from "@/components/home/CategoryGrid";
 import ProductShowcase from "@/components/home/ProductShowcase";
-import PromoBanner from "@/components/home/PromoBanner";
 
 const CPU_KEYWORDS = /\bcpu\b/i;
 const GPU_KEYWORDS = /\bgpu\b/i;
@@ -61,8 +60,6 @@ export default async function HomePage() {
 				products={cpuProducts}
 				viewAllHref={cpuHref}
 			/>
-
-			<PromoBanner />
 
 			<ProductShowcase
 				title="GPU Nổi Bật"

@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import { Order, PaymentQRInfo, TransactionCheckResult, OrderQueryParams } from "@/types/order";
+import { Order, PaymentQRInfo, TransactionCheckResult, OrderQueryParams, OrderHistoryItem } from "@/types/order";
 import { CartItem } from "@/types/cart";
 
 export const orderService = {
@@ -21,6 +21,12 @@ export const orderService = {
 
   getOrders: async (params?: OrderQueryParams): Promise<Order[]> => {
     const response = await api.get("/orders", { params });
+    const data = response.data?.data ?? response.data;
+    return Array.isArray(data) ? data : [];
+  },
+
+  getOrderHistory: async (): Promise<OrderHistoryItem[]> => {
+    const response = await api.get("/history");
     const data = response.data?.data ?? response.data;
     return Array.isArray(data) ? data : [];
   },

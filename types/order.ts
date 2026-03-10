@@ -31,3 +31,12 @@ export interface OrderQueryParams {
 export interface OrderUpdateDto {
   status?: OrderStatus;
 }
+
+export interface OrderHistoryItem {
+  id: string;
+  orderCode: string;
+  amount: number;
+  transactionCode: string;
+  status: OrderStatus;
+  createdAt: string;
+}
