@@ -1,7 +1,5 @@
 // ─── Admin Dashboard Mock Data ──────────────────────────────────────────────
 
-import type { User } from "@/types/user";
-
 // ─── Order Types ────────────────────────────────────────────────────────────
 
 export type OrderStatus =
@@ -21,25 +19,6 @@ export interface Order {
 	createdAt: string;
 }
 
-// ─── Category Types ─────────────────────────────────────────────────────────
-
-export interface Category {
-	id: number;
-	name: string;
-	imageUrl: string | null;
-	productCount: number;
-	status: boolean;
-}
-
-// ─── Dashboard Stats ────────────────────────────────────────────────────────
-
-export const MOCK_STATS = {
-	revenue: { value: 156_800_000, trend: 12.5 },
-	orders: { value: 342, trend: 8.2 },
-	users: { value: 1_254, trend: 4.7 },
-	products: { value: 186, trend: -2.1 },
-};
-
 // ─── Revenue Chart Data ─────────────────────────────────────────────────────
 
 export const MOCK_REVENUE_CHART = [
@@ -50,74 +29,6 @@ export const MOCK_REVENUE_CHART = [
 	{ date: "28/02", revenue: 21_200_000, orders: 48 },
 	{ date: "01/03", revenue: 28_400_000, orders: 64 },
 	{ date: "02/03", revenue: 21_000_000, orders: 34 },
-];
-
-// ─── Mock Users ─────────────────────────────────────────────────────────────
-
-export const MOCK_USERS: User[] = [
-	{
-		id: 1,
-		username: "admin",
-		displayName: "Nguyễn Văn Admin",
-		role: "admin",
-		email: "admin@smartpc.vn",
-		phone: "0901234567",
-		address: "123 Nguyễn Văn Linh, Đà Nẵng",
-		status: "active",
-		createdAt: "2025-01-15",
-	},
-	{
-		id: 2,
-		username: "johndoe",
-		displayName: "John Doe",
-		role: "user",
-		email: "john@gmail.com",
-		phone: "0912345678",
-		address: "456 Lê Duẩn, Đà Nẵng",
-		status: "active",
-		createdAt: "2025-02-20",
-	},
-	{
-		id: 3,
-		username: "tranthib",
-		displayName: "Trần Thị B",
-		role: "user",
-		email: "tranthib@yahoo.com",
-		phone: "0923456789",
-		address: "789 Trần Phú, Đà Nẵng",
-		status: "active",
-		createdAt: "2025-03-10",
-	},
-	{
-		id: 4,
-		username: "levanc",
-		displayName: "Lê Văn C",
-		role: "user",
-		email: "levanc@hotmail.com",
-		phone: "0934567890",
-		address: "321 Hải Phòng, Đà Nẵng",
-		status: "inactive",
-		createdAt: "2025-04-05",
-	},
-	{
-		id: 5,
-		username: "phamthid",
-		displayName: "Phạm Thị D",
-		role: "user",
-		email: "phamthid@gmail.com",
-		phone: "0945678901",
-		status: "active",
-		createdAt: "2025-05-18",
-	},
-	{
-		id: 6,
-		username: "hoangvane",
-		displayName: "Hoàng Văn E",
-		role: "user",
-		email: "hoangvane@gmail.com",
-		status: "active",
-		createdAt: "2025-06-22",
-	},
 ];
 
 // ─── Mock Orders ────────────────────────────────────────────────────────────
@@ -167,43 +78,6 @@ export const MOCK_ORDERS: Order[] = [
 		status: "cancelled",
 		itemCount: 5,
 		createdAt: "2026-02-27",
-	},
-];
-
-// ─── Mock Categories ────────────────────────────────────────────────────────
-
-export const MOCK_CATEGORIES: Category[] = [
-	{ id: 1, name: "CPU", imageUrl: null, productCount: 24, status: true },
-	{ id: 2, name: "GPU", imageUrl: null, productCount: 18, status: true },
-	{ id: 3, name: "RAM", imageUrl: null, productCount: 32, status: true },
-	{ id: 4, name: "Mainboard", imageUrl: null, productCount: 15, status: true },
-	{
-		id: 5,
-		name: "Ổ cứng SSD",
-		imageUrl: null,
-		productCount: 28,
-		status: true,
-	},
-	{
-		id: 6,
-		name: "Nguồn (PSU)",
-		imageUrl: null,
-		productCount: 12,
-		status: true,
-	},
-	{
-		id: 7,
-		name: "Case",
-		imageUrl: null,
-		productCount: 20,
-		status: true,
-	},
-	{
-		id: 8,
-		name: "Tản nhiệt",
-		imageUrl: null,
-		productCount: 16,
-		status: false,
 	},
 ];
 

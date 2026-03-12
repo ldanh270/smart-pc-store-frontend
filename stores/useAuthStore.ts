@@ -27,7 +27,6 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       accessToken: null,
-      refreshToken: null,
       user: null,
       loading: false,
 
@@ -53,7 +52,6 @@ export const useAuthStore = create<AuthState>()(
           // Normalise token key across backend conventions
           const accessToken: string | undefined =
             data.accessToken ?? data.token ?? data.access_token;
-          const refreshToken: string | undefined = data.refreshToken ?? data.refresh_token;
 
           // Derive user info from the response body or from the token payload
           let user = null;
@@ -76,7 +74,7 @@ export const useAuthStore = create<AuthState>()(
             }
           }
 
-          set({ accessToken, refreshToken, user });
+          set({ accessToken, user });
 
           // Sync to cookie so the Next.js middleware can read it server-side
           if (typeof document !== "undefined" && accessToken) {
@@ -101,9 +99,10 @@ export const useAuthStore = create<AuthState>()(
           console.log("Logout note:", getErrorMessage(error, "Phiên đã hết hạn"));
         }
 
-        set({ accessToken: null, refreshToken: null, user: null });
+        set({ accessToken: null, user: null });
 
-        if (typeof document !== "undefined") {
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("auth-storage");
           document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
           document.cookie = "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         }
@@ -122,10 +121,13 @@ export const useAuthStore = create<AuthState>()(
       // refresh_token + user info are safe to persist (user stays "logged in"
       // across reloads and the refresh call re-hydrates the access token).
       //
+      // ─── Only user is persisted to localStorage ──────────────────────────
+      //
+      // accessToken: in-memory only (short-lived, re-issued on every load via /refresh)
+      // refreshToken: managed by the backend via HttpOnly cookie — not stored in JS
+      //
       partialize: (state) => ({
-        refreshToken: state.refreshToken,
         user: state.user,
-        // accessToken and loading are intentionally excluded
       }),
     }
   )

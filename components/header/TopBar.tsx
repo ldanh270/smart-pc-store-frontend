@@ -11,14 +11,14 @@ import CartButton from "./CartButton";
 import SearchDialog from "./SearchDialog";
 
 export default function TopBar() {
-	const accessToken = useAuthStore((state) => state.accessToken);
+	const user = useAuthStore((state) => state.user);
 	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {
 		setMounted(true);
 	}, []);
 
-	const isLoggedIn = mounted && !!accessToken;
+	const isLoggedIn = mounted && !!user;
 
 	return (
 		<div className="bg-background">
