@@ -14,7 +14,7 @@ export default function TopProducts() {
 	const topProducts = MOCK_ADMIN_PRODUCTS.slice(0, 5);
 
 	return (
-		<Card className="border-border/50">
+		<Card className="border-border/50 h-full flex flex-col">
 			<CardHeader>
 				<CardTitle className="text-base font-semibold">
 					Sản Phẩm Bán Chạy

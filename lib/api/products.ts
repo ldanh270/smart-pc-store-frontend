@@ -3,11 +3,7 @@ import {
 	type Product,
 	mapBackendProduct,
 } from "@/types/product";
-
-const BASE_URL =
-	process.env.NEXT_PUBLIC_MODE === "development"
-		? process.env.NEXT_PUBLIC_API_URL
-		: "/api";
+import { buildApiUrl } from "./base-url";
 
 // ─── Fetch Products (Server-Side) ───────────────────────────────────────────
 
@@ -24,7 +20,7 @@ interface FetchProductsParams {
 export async function fetchProducts(
 	params?: FetchProductsParams
 ): Promise<Product[]> {
-	const url = new URL(`${BASE_URL}/products`);
+	const url = new URL(buildApiUrl("/products"));
 
 	if (params) {
 		if (params.name) url.searchParams.set("name", params.name);
@@ -79,7 +75,7 @@ export async function fetchProductById(
 	id: string
 ): Promise<BackendProduct | null> {
 	try {
-		const res = await fetch(`${BASE_URL}/products/${id}`, {
+		const res = await fetch(buildApiUrl(`/products/${id}`), {
 			next: { revalidate: 60 },
 		});
 

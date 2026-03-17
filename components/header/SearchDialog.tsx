@@ -3,28 +3,56 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Search, Loader2, X } from "lucide-react";
+import { Search, Loader2, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-	Dialog,
-	DialogContent,
-	DialogTrigger,
-	DialogTitle,
-} from "@/components/ui/dialog";
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { productService } from "@/services/productService";
 import { mapBackendProduct, type Product } from "@/types/product";
+import { useCategoryStore } from "@/stores/useCategoryStore";
+import { cn, formatPrice } from "@/lib/utils";
 
-export default function SearchDialog() {
+type SearchDialogProps = {
+	triggerMode?: "icon" | "bar";
+	className?: string;
+	initialCategories?: any[];
+};
+
+export default function SearchDialog({
+	triggerMode = "icon",
+	className,
+	initialCategories = [],
+}: SearchDialogProps) {
 	const router = useRouter();
 	const [isOpen, setIsOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [debouncedQuery, setDebouncedQuery] = useState("");
 	const [isSearching, setIsSearching] = useState(false);
 	const [results, setResults] = useState<Product[]>([]);
+	const { categories, fetchCategories } = useCategoryStore();
+	const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
-	// Handle 300ms Debounce
+	// Fetch Categories on mount
+	useEffect(() => {
+		// Nếu initialCategories có dữ liệu, ta có thể sync vào store hoặc dùng local
+		if (categories.length === 0) {
+			fetchCategories();
+		}
+	}, [categories.length, fetchCategories]);
+
+	// Ưu tiên dùng categories từ store, nếu trống thì dùng initialCategories làm fallback nhanh
+	// Chỉ hiển thị các danh mục con (có parentId)
+	const displayCategories = (categories.length > 0 ? categories : initialCategories).filter(
+		(cat) => !!cat.parentId
+	);
+
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			setDebouncedQuery(searchQuery);
@@ -33,11 +61,11 @@ export default function SearchDialog() {
 		return () => clearTimeout(timer);
 	}, [searchQuery]);
 
-	// Fetch Products when Debounced Query Changes
 	useEffect(() => {
 		async function fetchResults() {
 			const q = debouncedQuery.trim();
-			if (!q) {
+			// Nếu không có cả từ khóa lẫn danh mục cụ thể thì ẩn kết quả
+			if (!q && selectedCategory === "all") {
 				setResults([]);
 				setIsSearching(false);
 				return;
@@ -45,8 +73,17 @@ export default function SearchDialog() {
 
 			setIsSearching(true);
 			try {
-				const backendProducts = await productService.getProducts({ q });
-				setResults(backendProducts.map(mapBackendProduct));
+				const params: any = { q };
+				if (selectedCategory !== "all") {
+					params.category = selectedCategory; 
+				}
+				const backendProducts = await productService.getProducts(params);
+				
+				let filtered = backendProducts;
+				if (selectedCategory !== "all") {
+					filtered = filtered.filter(p => p.categoryId === selectedCategory);
+				}
+				setResults(filtered.map(mapBackendProduct));
 			} catch (error) {
 				console.error("Failed to fetch search results:", error);
 				setResults([]);
@@ -56,23 +93,23 @@ export default function SearchDialog() {
 		}
 
 		fetchResults();
-	}, [debouncedQuery]);
+	}, [debouncedQuery, selectedCategory]);
 
-	// Handle Search Form Submit
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		const q = searchQuery.trim();
-		if (q) {
+		if (q || selectedCategory !== "all") {
 			setIsOpen(false);
-			router.push(`/products?q=${encodeURIComponent(q)}`);
+			const url = new URL("/san-pham", window.location.origin);
+			if (q) url.searchParams.set("q", q);
+			if (selectedCategory !== "all") url.searchParams.set("category", selectedCategory);
+			router.push(url.pathname + url.search);
 		}
 	};
 
-	// Reset state on close
 	const handleOpenChange = (open: boolean) => {
 		setIsOpen(open);
 		if (!open) {
-			// Clear results slightly after closing so it doesn't snap suddenly
 			setTimeout(() => {
 				setSearchQuery("");
 				setDebouncedQuery("");
@@ -82,116 +119,185 @@ export default function SearchDialog() {
 	};
 
 	return (
-		<Dialog
-			open={isOpen}
-			onOpenChange={handleOpenChange}
-		>
-			<DialogTrigger asChild>
-				<Button
-					variant="ghost"
-					size="icon"
-					aria-label="Tìm kiếm"
+		<div className={cn("relative z-50", triggerMode === "bar" && "mx-auto max-w-[600px]", className)}>
+			{triggerMode === "bar" ? (
+				<form
+					onSubmit={handleSubmit}
+					className={cn(
+						"group flex h-9 w-full items-center overflow-visible rounded-lg border border-border/60 bg-muted/30 transition-all hover:border-primary/40 focus-within:bg-background focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/20",
+						isOpen ? "border-primary/60 bg-background" : ""
+					)}
 				>
-					<Search className="size-5" />
-				</Button>
-			</DialogTrigger>
-			<DialogContent className="top-[5%] translate-y-0 sm:max-w-150 p-0 gap-0 overflow-hidden" showCloseButton={false}>
-				<DialogTitle className="sr-only">Tìm kiếm sản phẩm</DialogTitle>
-				{/* Header / Input Area */}
-				<form onSubmit={handleSubmit} className="relative flex items-center p-4 border-b">
-					<Search className="absolute left-6 size-5 text-muted-foreground mr-2" />
-					<Input
-						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
-						placeholder="Nhập tên sản phẩm để tìm kiếm..."
-						className="pl-10 pr-10 border-none outline-none focus-visible:ring-0 focus-visible:ring-offset-0 text-base"
-						autoFocus
-					/>
-					{searchQuery && (
-						<Button
-							type="button"
-							variant="ghost"
-							size="icon"
-							className="absolute right-12 size-8 rounded-full"
-							onClick={() => setSearchQuery("")}
-						>
-							<X className="size-4" />
-						</Button>
-					)}
-				</form>
-
-				{/* Results Area */}
-				<ScrollArea className="max-h-[60vh]">
-					{isSearching ? (
-						<div className="flex flex-col items-center justify-center py-14 text-muted-foreground">
-							<Loader2 className="size-6 animate-spin mb-4" />
-							<p className="text-sm">Đang tìm kiếm...</p>
-						</div>
-					) : results.length > 0 ? (
-						<div className="p-2">
-							<div className="mb-2 px-3 text-xs font-semibold uppercase text-muted-foreground">
-								Sản phẩm ({results.length})
-							</div>
-							<div className="flex flex-col gap-1">
-								{results.map((product) => (
-									<button
-										key={product.id}
-										type="button"
-										className="flex items-center gap-4 rounded-md p-3 text-left transition-colors hover:bg-muted/50"
-										onClick={() => {
-											setIsOpen(false);
-											router.push(`/san-pham/${product.slug}`);
-										}}
-									>
-										<div className="relative size-12 shrink-0 overflow-hidden rounded border bg-background">
-											<Image
-												src={product.image}
-												alt={product.name}
-												fill
-												sizes="48px"
-												className="object-cover"
-											/>
-										</div>
-										<div className="flex-1 overflow-hidden">
-											<h4 className="truncate text-sm font-medium">
-												{product.name}
-											</h4>
-											<p className="text-sm font-semibold text-primary mt-1">
-												{product.price.toLocaleString("vi-VN")} ₫
-											</p>
-										</div>
-									</button>
+					{/* Category Select */}
+					<div className="hidden h-full items-center md:flex shrink-0">
+						<Select value={selectedCategory} onValueChange={setSelectedCategory}>
+							<SelectTrigger className="h-full border-0 bg-transparent shadow-none focus:ring-0 text-sm font-medium w-[160px] px-3 border-r border-border/60 rounded-none focus-visible:ring-0">
+								<SelectValue placeholder="Tất cả danh mục" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all" className="font-semibold">Tất cả danh mục</SelectItem>
+								{displayCategories.map((cat) => (
+									<SelectItem key={cat.id} value={cat.id.toString()}>
+										{cat.name}
+									</SelectItem>
 								))}
-							</div>
-							
-							<div className="mt-4 p-2 border-t text-center">
-								<Button 
-									variant="link" 
-									className="text-primary w-full"
-									onClick={() => {
-										setIsOpen(false);
-										router.push(`/san-pham?q=${encodeURIComponent(debouncedQuery.trim())}`);
-									}}
-								>
-									Xem tất cả kết quả cho &quot;{debouncedQuery}&quot; →
-								</Button>
-							</div>
-						</div>
-					) : debouncedQuery.trim() ? (
-						<div className="flex flex-col items-center justify-center p-14 text-center">
-							<Search className="mx-auto size-12 text-muted-foreground/30 mb-4" />
-							<p className="text-sm font-medium">Không tìm thấy sản phẩm nào</p>
-							<p className="text-sm text-muted-foreground mt-1">
-								Thử một từ khóa khác hoặc kiểm tra lại lỗi chính tả.
-							</p>
-						</div>
-					) : (
-						<div className="flex flex-col items-center justify-center py-10 px-6 text-center text-muted-foreground">
-							<p className="text-sm">Nhập thông tin sản phẩm bạn muốn tìm vào ô trên</p>
-						</div>
+							</SelectContent>
+						</Select>
+					</div>
+
+					{/* Search Input */}
+					<div className="relative flex-1 h-full min-w-0 flex items-center">
+						<input
+							type="text"
+							value={searchQuery}
+							onChange={(e) => {
+								setSearchQuery(e.target.value);
+								setIsOpen(true);
+							}}
+							onFocus={() => setIsOpen(true)}
+							placeholder="Tìm kiếm sản phẩm..."
+							className="h-full w-full bg-transparent px-4 text-sm outline-none placeholder:text-muted-foreground/60 min-w-0"
+						/>
+						{searchQuery && (
+							<button
+								type="button"
+								onClick={() => {
+									setSearchQuery("");
+									setIsOpen(false);
+								}}
+								className="absolute right-2 p-1 text-muted-foreground hover:text-foreground"
+							>
+								<X className="size-3.5" />
+							</button>
+						)}
+					</div>
+
+					<button
+						type="submit"
+						aria-label="Tìm kiếm"
+						className="flex h-full w-10 shrink-0 items-center justify-center text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors rounded-r-lg border-l border-border/60"
+					>
+						<Search className="size-4" />
+					</button>
+				</form>
+			) : (
+				/* Mobile Icon trigger can keep a simpler popout or just expand */
+				<button
+					type="button"
+					aria-label="Tìm kiếm"
+					onClick={() => setIsOpen((prev) => !prev)}
+					className={cn(
+						"flex h-9 w-9 items-center justify-center rounded-lg",
+						"border border-border/60 bg-muted/40 text-muted-foreground",
+						"transition-all hover:border-primary/40 hover:bg-primary/10 hover:text-primary",
+						isOpen && "bg-primary/10 text-primary border-primary/40"
 					)}
-				</ScrollArea>
-			</DialogContent>
-		</Dialog>
+				>
+					{isOpen ? <X className="size-4" /> : <Search className="size-4" />}
+				</button>
+			)}
+
+			{/* Inline Dropdown for Results */}
+			{isOpen && (
+				<>
+					{/* Overlay click to close */}
+					<div
+						className="fixed inset-0 z-40 bg-transparent"
+						onClick={() => setIsOpen(false)}
+						aria-hidden="true"
+					/>
+
+					<div
+						className={cn(
+							"absolute top-full z-50 mt-2 w-full overflow-hidden rounded-xl border border-border bg-popover shadow-xl shadow-black/5 animate-in fade-in zoom-in-95",
+							triggerMode === "icon" ? "right-0 w-[calc(100vw-32px)] max-w-[360px]" : "left-0 min-w-full"
+						)}
+					>
+						{/* Mobile Search Input (shows only when triggerMode is icon) */}
+						{triggerMode === "icon" && (
+							<div className="flex items-center gap-2 border-b p-3">
+								<Search className="size-4 text-muted-foreground shrink-0 ml-1" />
+								<input
+									type="text"
+									value={searchQuery}
+									onChange={(e) => setSearchQuery(e.target.value)}
+									placeholder="Tìm kiếm..."
+									className="flex-1 bg-transparent text-sm outline-none"
+									autoFocus
+								/>
+							</div>
+						)}
+
+						<ScrollArea className="max-h-[60vh] md:max-h-[400px]">
+							{isSearching ? (
+								<div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
+									<Loader2 className="mb-3 size-5 animate-spin" />
+									<p className="text-xs">Đang tìm kiếm...</p>
+								</div>
+							) : results.length > 0 ? (
+								<div className="p-2">
+									<div className="mb-1.5 px-3 py-1 text-xs font-semibold uppercase text-muted-foreground">
+										Sản phẩm ({results.length})
+									</div>
+									<div className="flex flex-col gap-0.5">
+										{results.map((product) => (
+											<button
+												key={product.id}
+												type="button"
+												className="flex items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-muted/60"
+												onClick={() => {
+													setIsOpen(false);
+													router.push(`/san-pham/${product.slug}`);
+												}}
+											>
+												<div className="relative size-10 shrink-0 overflow-hidden rounded border bg-background">
+													<Image
+														src={product.image || "/placeholder.png"}
+														alt={product.name}
+														fill
+														sizes="40px"
+														className="object-cover"
+													/>
+												</div>
+												<div className="flex-1 min-w-0 pr-2">
+													<h4 className="truncate text-sm font-medium leading-tight">
+														{product.name}
+													</h4>
+													<p className="mt-0.5 font-mono text-xs font-semibold text-primary">
+														{formatPrice(product.price)}
+													</p>
+												</div>
+											</button>
+										))}
+									</div>
+
+									<div className="mt-2 border-t p-2 text-center pb-1">
+										<Button
+											variant="ghost"
+											className="w-full text-xs h-8 text-primary hover:text-primary hover:bg-primary/5"
+											onClick={(e) => handleSubmit(e as any)}
+										>
+											Xem tất cả kết quả
+										</Button>
+									</div>
+								</div>
+							) : debouncedQuery.trim() || selectedCategory !== "all" ? (
+								<div className="flex flex-col items-center justify-center py-10 text-center px-4">
+									<Search className="mx-auto mb-3 size-10 text-muted-foreground/20" />
+									<p className="text-sm font-medium">Không tìm thấy sản phẩm nào</p>
+									<p className="mt-1 text-xs text-muted-foreground max-w-[200px]">
+										{selectedCategory !== "all" ? "Thử bỏ lọc danh mục hoặc đổi từ khóa." : "Thử một từ khóa khác hoặc kiểm tra lại lỗi chính tả."}
+									</p>
+								</div>
+							) : (
+								<div className="hidden md:flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
+									<p className="text-xs">Gõ phím để tìm kiếm...</p>
+								</div>
+							)}
+						</ScrollArea>
+					</div>
+				</>
+			)}
+		</div>
 	);
 }

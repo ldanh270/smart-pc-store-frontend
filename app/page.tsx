@@ -1,75 +1,65 @@
 import { fetchProducts } from "@/lib/api/products";
 import { fetchAllCategories } from "@/lib/api/categories";
 import { mapBackendCategory } from "@/types/category";
-import HeroSlider from "@/components/home/HeroSlider";
-import CategoryGrid from "@/components/home/CategoryGrid";
-import ProductShowcase from "@/components/home/ProductShowcase";
-import PromoBanner from "@/components/home/PromoBanner";
 
-const CPU_KEYWORDS = /\bcpu\b/i;
-const GPU_KEYWORDS = /\bgpu\b/i;
+// Figma-based components
+import FigmaHero from "@/components/home/FigmaHero";
+import FeatureBar from "@/components/home/FeatureBar";
+import ProductTabsShowcase from "@/components/home/ProductTabsShowcase";
+import Top10Products from "@/components/home/Top10Products";
+import BrandsList from "@/components/home/BrandsList";
+import CategoryGrid from "@/components/home/CategoryGrid";
 
 export default async function HomePage() {
-	// 1. Lấy categories để tìm categoryId cho từng section
+	// Lấy categories
 	const backendCategories = await fetchAllCategories();
-
 	const categories = backendCategories
 		.map(mapBackendCategory)
 		.filter((c) => c.parentId != null);
 
-	// 2. Tìm category CPU và GPU theo tên
-	const cpuCategory = backendCategories.find((c) =>
-		CPU_KEYWORDS.test(c.categoryName)
-	);
-	const gpuCategory = backendCategories.find((c) =>
-		GPU_KEYWORDS.test(c.categoryName)
-	);
-
-	// 3. Fetch song song 3 section
-	const [newProducts, cpuProducts, gpuProducts] = await Promise.all([
-		// Sản phẩm mới: lấy các sản phẩm mới nhất (không lọc category)
-		fetchProducts({ page: 0, size: 4 }),
-		// CPU nổi bật
-		fetchProducts({ categoryId: cpuCategory?.id, page: 0, size: 4 }),
-		// GPU nổi bật
-		fetchProducts({ categoryId: gpuCategory?.id, page: 0, size: 4 }),
+	// Fetch song song các list sản phẩm để điền vào UI
+	const [bestDeals, forYou, editorsPick, top10Products] = await Promise.all([
+		fetchProducts({ page: 0, size: 8 }),
+		fetchProducts({ page: 1, size: 8 }), // Demo data for different tabs
+		fetchProducts({ page: 2, size: 8 }), // Demo data for different tabs
+		fetchProducts({ page: 0, size: 10 }), // For Top 10
 	]);
 
-	const cpuHref = cpuCategory
-		? `/san-pham?categoryId=${cpuCategory.id}`
-		: "/san-pham";
-	const gpuHref = gpuCategory
-		? `/san-pham?categoryId=${gpuCategory.id}`
-		: "/san-pham";
-
 	return (
-		<main>
-			<HeroSlider products={newProducts.slice(0, 4)} />
+		<main className="space-y-24 pb-24">
+			{/* 1. Intro / Hero Area */}
+			<section className="mx-auto max-w-7xl px-4 lg:px-8 mt-1">
+				<FigmaHero />
+			</section>
 
+			{/* 2. Danh mục sản phẩm (Shop by Category) - Move up after Hero */}
 			<CategoryGrid categories={categories} />
 
-			<ProductShowcase
-				title="Sản Phẩm Mới"
-				subtitle="Linh kiện và thiết bị mới nhất vừa cập bến"
-				products={newProducts}
-				viewAllHref="/san-pham"
-			/>
+			{/* 3. Product Showcase (Best Deals / For You / Editors Pick) */}
+			<section className="mx-auto max-w-7xl px-4 lg:px-8">
+				<ProductTabsShowcase 
+					bestDeals={bestDeals}
+					forYou={forYou}
+					editorsPick={editorsPick}
+				/>
+			</section>
 
-			<ProductShowcase
-				title="CPU Nổi Bật"
-				subtitle="Bộ vi xử lý Intel & AMD hiệu năng cao"
-				products={cpuProducts}
-				viewAllHref={cpuHref}
-			/>
+			{/* 4. Features */}
+			<section className="mx-auto max-w-7xl px-4 lg:px-8">
+				<FeatureBar />
+			</section>
 
-			<PromoBanner />
+			{/* 5. Top 10 Selected Products */}
+			<section className="mx-auto max-w-7xl px-4 lg:px-8">
+				<Top10Products products={top10Products} />
+			</section>
 
-			<ProductShowcase
-				title="GPU Nổi Bật"
-				subtitle="Card đồ họa NVIDIA & AMD mạnh mẽ cho gaming và đồ họa"
-				products={gpuProducts}
-				viewAllHref={gpuHref}
-			/>
+			{/* 6. Brands / Các nhà cung cấp - Make it big */}
+			<section className="border-y border-border/40 bg-muted/20 py-20">
+				<div className="mx-auto max-w-7xl px-4 lg:px-8">
+					<BrandsList />
+				</div>
+			</section>
 		</main>
 	);
 }

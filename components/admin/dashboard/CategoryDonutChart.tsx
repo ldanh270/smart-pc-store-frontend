@@ -40,17 +40,17 @@ const chartConfig = {
 
 export default function CategoryDonutChart() {
 	return (
-		<Card className="border-border/50">
+		<Card className="border-border/50 h-full flex flex-col">
 			<CardHeader>
 				<CardTitle className="text-base font-semibold">
 					Phân Bổ Sản Phẩm
 				</CardTitle>
 				<CardDescription>Sản phẩm theo danh mục</CardDescription>
 			</CardHeader>
-			<CardContent>
+			<CardContent className="pb-0">
 				<ChartContainer
 					config={chartConfig}
-					className="mx-auto aspect-square"
+					className="mx-auto aspect-square max-h-[180px]"
 				>
 					<PieChart>
 						<ChartTooltip
@@ -106,18 +106,18 @@ export default function CategoryDonutChart() {
 					</PieChart>
 				</ChartContainer>
 			</CardContent>
-			<CardFooter className="flex-col gap-2 border-t border-border/50 pt-4">
+			<CardFooter className="grid grid-cols-2 gap-x-4 gap-y-1 border-t border-border/50 pt-3">
 				{CATEGORY_DATA.map((cat) => (
 					<div
 						key={cat.name}
-						className="flex w-full items-center justify-between text-sm"
+						className="flex items-center justify-between text-xs"
 					>
-						<div className="flex items-center gap-2">
+						<div className="flex items-center gap-1.5">
 							<div
-								className="size-2.5 rounded-full"
+								className="size-2 rounded-full"
 								style={{ backgroundColor: cat.fill }}
 							/>
-							<span className="text-muted-foreground">
+							<span className="text-muted-foreground truncate max-w-[50px]">
 								{cat.name}
 							</span>
 						</div>
