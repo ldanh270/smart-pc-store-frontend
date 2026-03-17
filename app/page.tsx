@@ -18,9 +18,8 @@ export default async function HomePage() {
 		.filter((c) => c.parentId != null);
 
 	// Fetch song song các list sản phẩm để điền vào UI
-	const [forYou, cheapest, top10Products] = await Promise.all([
+	const [forYou, top10Products] = await Promise.all([
 		fetchProducts({ page: 1, size: 8 }), // Gợi ý cho bạn
-		fetchProducts({ page: 1, size: 8, sort: "price,asc" }), // Cheapest
 		fetchProducts({ page: 1, size: 10 }), // For Top 10
 	]);
 

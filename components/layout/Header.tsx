@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import NavBar from "@/components/header/NavBar";
 import TopBar from "@/components/header/TopBar";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/types/category";
@@ -30,7 +29,6 @@ export default function Header({ initialCategories = [] }: HeaderProps) {
 			)}
 		>
 			<TopBar scrolled={scrolled} initialCategories={initialCategories} />
-			{/* <NavBar initialCategories={initialCategories} /> */}
 		</header>
 	);
 }

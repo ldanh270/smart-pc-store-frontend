@@ -16,6 +16,13 @@ export async function fetchAllCategories(): Promise<BackendCategory[]> {
 		});
 		if (!res.ok) return [];
 
+		// Prevent JSON parsing error when API returns an HTML page
+		const contentType = res.headers.get("content-type");
+		if (!contentType || !contentType.includes("application/json")) {
+			console.error(`Expected JSON but got ${contentType}. URL: ${buildApiUrl("/categories")}`);
+			return [];
+		}
+
 		const json = await res.json();
 		const data =
 			Array.isArray(json.data) ? json.data
@@ -51,6 +58,12 @@ export async function fetchCategoryBySlug(
 		});
 
 		if (!res.ok) return null;
+
+		const contentType = res.headers.get("content-type");
+		if (!contentType || !contentType.includes("application/json")) {
+			console.error(`Expected JSON but got ${contentType}. URL: ${buildApiUrl(`/categories/${matched.id}`)}`);
+			return null;
+		}
 
 		const json = await res.json();
 		const raw: BackendCategoryDetail | null = json.data ?? json ?? null;

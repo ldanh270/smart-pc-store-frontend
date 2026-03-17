@@ -1,5 +1,24 @@
 export type StockImportStatus = "PENDING" | "COMPLETED" | "CANCELLED";
 
+export interface BackendPurchaseOrder {
+  id: string;
+  supplierId: string;
+  supplierName: string;
+  orderDate: string;
+  totalAmount: number;
+}
+
+export interface BackendPurchaseOrderDetail extends BackendPurchaseOrder {
+  items: {
+    id: string;
+    productId: string;
+    productName: string;
+    quantity: number;
+    unitPrice: number;
+    lineTotal: number;
+  }[];
+}
+
 export interface StockImportItem {
   id?: string;
   productId: string;
@@ -24,7 +43,8 @@ export interface StockImport {
 
 export interface StockImportCreateDto {
   supplierId: string;
-  notes?: string;
+  note?: string;
+  expectedDeliveryDate: string;
   items: {
     productId: string;
     quantity: number;

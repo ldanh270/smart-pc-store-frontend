@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Mail, Phone, MapPin, Zap, Github, Facebook, Youtube, ArrowRight, Instagram, Linkedin, Twitter } from "lucide-react";
+import { Mail, Phone, MapPin, Zap, Facebook, Youtube, ArrowRight, Instagram, Linkedin, Twitter } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faApple, faGooglePlay } from "@fortawesome/free-brands-svg-icons";
 import { CONTACTS } from "@/configs/Contacts";
@@ -33,7 +33,7 @@ export default function Footer() {
 				}}
 			/>
 
-			<div className="relative z-10 mx-auto max-w-8xl px-4 lg:px-8">
+			<div className="relative z-10 mx-auto lg:max-w-7xl px-4 lg:px-8">
 				{/* ── Main grid ── */}
 				<div className="grid gap-10 py-3 pt-10 md:grid-cols-2 lg:grid-cols-12">
 
@@ -119,7 +119,7 @@ export default function Footer() {
 								FOLLOW US
 							</h3>
 							<div className="flex items-center gap-2">
-								<a href="#" className="flex h-10 w-10 items-center justify-center rounded-xl bg-background/5 text-background/60 transition-transform hover:scale-105">
+								<a href="#" className="flex h-10 w-10 items-center justify-center rounded-xl bg-background/5 text-background/60 transition hover:scale-105">
 									<Youtube className="size-5" />
 								</a>
 								<a href="#" className="flex h-10 w-10 items-center justify-center rounded-xl bg-background/5 text-background/60 transition-all hover:bg-background/10 hover:text-background hover:scale-105">
@@ -142,14 +142,14 @@ export default function Footer() {
 								DOWNLOAD APP
 							</h3>
 							<div className="flex flex-col gap-2 xl:flex-row ">
-								<a href="#" className="flex flex-1 items-center justify-center gap-2 rounded-xl transition-transform hover:scale-105 bg-[#222222] px-3 py-2 text-white transition hover:bg-black xl:justify-start whitespace-nowrap">
+								<a href="#" className="flex flex-1 items-center justify-center gap-2 rounded-xl min-w-40 w-fit hover:scale-105 bg-[#222222] px-3 py-2 text-white transition hover:bg-black xl:justify-start whitespace-nowrap">
 									<FontAwesomeIcon icon={faApple} className="text-2xl" />
 									<div className="flex flex-col text-left">
 										<span className="text-[10px] leading-tight text-gray-400">Download on the</span>
 										<span className="text-sm font-semibold leading-tight">App Store</span>
 									</div>
 								</a>
-								<a href="#" className="flex flex-1 items-center justify-center gap-2 rounded-xl transition-transform hover:scale-105 bg-[#222222] px-3 py-2 text-white transition hover:bg-black xl:justify-start whitespace-nowrap">
+								<a href="#" className="flex flex-1 items-center justify-center gap-2 rounded-xl min-w-40 w-fit hover:scale-105 bg-[#222222] px-3 py-2 text-white transition hover:bg-black xl:justify-start whitespace-nowrap">
 									<FontAwesomeIcon icon={faGooglePlay} className="text-xl" />
 									<div className="flex flex-col text-left">
 										<span className="text-[10px] leading-tight text-gray-400">GET IT ON</span>

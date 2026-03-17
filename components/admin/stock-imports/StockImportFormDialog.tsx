@@ -35,6 +35,7 @@ import { Separator } from "@/components/ui/separator";
 import { useSupplierStore } from "@/stores/useSupplierStore";
 import { useProductStore } from "@/stores/useProductStore";
 import type { StockImport, StockImportCreateDto } from "@/types/stockImport";
+import { ProductCombobox } from "./ProductCombobox";
 
 // ─── Schema ─────────────────────────────────────────────────────────────────
 
@@ -46,7 +47,8 @@ const itemSchema = z.object({
 
 const formSchema = z.object({
   supplierId: z.string().min(1, "Chọn nhà cung cấp"),
-  notes: z.string().optional(),
+  expectedDeliveryDate: z.string().min(1, "Chọn ngày dự kiến giao"),
+  note: z.string().optional(),
   items: z.array(itemSchema).min(1, "Cần ít nhất 1 sản phẩm"),
 });
 
@@ -85,7 +87,8 @@ export default function StockImportFormDialog({
     resolver: zodResolver(formSchema) as any,
     defaultValues: {
       supplierId: stockImport?.supplierId ?? "",
-      notes: stockImport?.notes ?? "",
+      expectedDeliveryDate: stockImport ? stockImport.createdAt.split("T")[0] : new Date().toISOString().split("T")[0],
+      note: stockImport?.notes ?? "",
       items: stockImport?.items.map((i) => ({
         productId: i.productId,
         quantity: i.quantity,
@@ -108,7 +111,8 @@ export default function StockImportFormDialog({
   function handleSubmit(values: FormValues) {
     onSubmit({
       supplierId: values.supplierId,
-      notes: values.notes || undefined,
+      expectedDeliveryDate: values.expectedDeliveryDate,
+      note: values.note || undefined,
       items: values.items,
     });
     form.reset();
@@ -136,7 +140,7 @@ export default function StockImportFormDialog({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-5"
           >
-            {/* Supplier & Notes */}
+            {/* Supplier, Date & Notes */}
             <div className="grid gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
@@ -165,13 +169,30 @@ export default function StockImportFormDialog({
 
               <FormField
                 control={form.control}
-                name="notes"
+                name="expectedDeliveryDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Ghi Chú</FormLabel>
+                    <FormLabel>Ngày Dự Kiến Giao</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="date"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="note"
+                render={({ field }) => (
+                  <FormItem className="sm:col-span-2">
+                    <FormLabel>GHI CHÚ</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Ghi chú thêm (không bắt buộc)"
+                        placeholder="Ghi chú (không bắt buộc)"
                         className="resize-none h-10"
                         {...field}
                       />
@@ -241,23 +262,13 @@ export default function StockImportFormDialog({
                         render={({ field: f }) => (
                           <FormItem>
                             <FormLabel className="text-xs">Sản Phẩm</FormLabel>
-                            <Select
-                              onValueChange={f.onChange}
-                              value={f.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Chọn sản phẩm" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {activeProducts.map((p) => (
-                                  <SelectItem key={p.id} value={p.id}>
-                                    {p.productName}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            <FormControl>
+                              <ProductCombobox
+                                products={activeProducts}
+                                value={f.value}
+                                onChange={f.onChange}
+                              />
+                            </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}

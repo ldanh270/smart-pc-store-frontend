@@ -51,6 +51,13 @@ export async function fetchProducts(
 			return [];
 		}
 
+		// Prevent JSON parsing error when API returns an HTML page (e.g. Tomcat DefaultServlet with 200 OK)
+		const contentType = res.headers.get("content-type");
+		if (!contentType || !contentType.includes("application/json")) {
+			console.error(`Expected JSON but got ${contentType}. URL: ${url.toString()}`);
+			return [];
+		}
+
 		const json = await res.json();
 
 		// Handle all common response shapes:
@@ -84,6 +91,12 @@ export async function fetchProductById(
 
 		if (!res.ok) {
 			console.error(`Failed to fetch product ${id}: ${res.status}`);
+			return null;
+		}
+
+		const contentType = res.headers.get("content-type");
+		if (!contentType || !contentType.includes("application/json")) {
+			console.error(`Expected JSON but got ${contentType}. URL: ${buildApiUrl(`/products/${id}`)}`);
 			return null;
 		}
 
