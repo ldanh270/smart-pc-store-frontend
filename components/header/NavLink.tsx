@@ -6,8 +6,7 @@ import { usePathname } from "next/navigation";
 
 export default function NavLink({ item }: { item: NavItem }) {
 	const pathname = usePathname();
-	const isActive =
-		pathname === item.href || pathname.startsWith(`${item.href}/`);
+	const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
 	const hasChildren = item.children && item.children.length > 0;
 
 	return (
@@ -15,31 +14,47 @@ export default function NavLink({ item }: { item: NavItem }) {
 			<Link
 				href={item.href}
 				className={cn(
-					"flex items-center gap-1 px-3 py-2 text-sm font-medium uppercase tracking-wide transition-colors",
+					"relative flex items-center gap-1 px-3 py-3 text-sm font-medium transition-colors duration-200",
 					isActive
 						? "text-primary"
-						: "text-foreground hover:text-primary"
+						: "text-muted-foreground hover:text-foreground"
 				)}
 			>
 				{item.label}
 				{hasChildren && (
-					<ChevronDown className="size-3.5 transition-transform group-hover:rotate-180" />
+					<ChevronDown className="size-3 opacity-60 transition-transform duration-200 group-hover:rotate-180" />
 				)}
+
+				{/* Active indicator — animated underline */}
+				<span
+					className={cn(
+						"absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-primary transition-all duration-300",
+						isActive ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0 group-hover:opacity-60 group-hover:scale-x-100"
+					)}
+				/>
 			</Link>
 
 			{/* Dropdown */}
 			{hasChildren && (
-				<ul className="invisible absolute left-0 top-full z-50 min-w-48 rounded-md border border-border bg-popover p-1 opacity-0 shadow-lg transition-all group-hover:visible group-hover:opacity-100">
-					{item.children!.map((child) => (
-						<li key={child.href}>
-							<Link
-								href={child.href}
-								className="block rounded-sm px-3 py-2 text-sm text-popover-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-							>
-								{child.label}
-							</Link>
-						</li>
-					))}
+				<ul className="invisible absolute left-0 top-full z-50 min-w-52 rounded-xl border border-border/60 bg-popover/95 p-1.5 opacity-0 shadow-xl shadow-black/10 backdrop-blur-xl transition-all duration-200 group-hover:visible group-hover:opacity-100">
+					{item.children!.map((child) => {
+						const childActive = pathname === child.href;
+						return (
+							<li key={child.href}>
+								<Link
+									href={child.href}
+									className={cn(
+										"flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+										childActive
+											? "bg-primary/10 text-primary"
+											: "text-popover-foreground/80 hover:bg-primary hover:text-accent-foreground"
+									)}
+								>
+									{child.label}
+								</Link>
+							</li>
+						);
+					})}
 				</ul>
 			)}
 		</li>

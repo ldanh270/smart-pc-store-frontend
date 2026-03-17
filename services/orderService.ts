@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import { Order, PaymentQRInfo, TransactionCheckResult, OrderQueryParams, OrderHistoryItem } from "@/types/order";
+import { Order, MyOrder, OrderDetailView, PaymentQRInfo, TransactionCheckResult, OrderQueryParams } from "@/types/order";
 import { CartItem } from "@/types/cart";
 
 export const orderService = {
@@ -10,8 +10,8 @@ export const orderService = {
     return response.data;
   },
 
-  cancelOrder: async (orderId: number): Promise<void> => {
-    await api.delete(`/orders/${orderId}`);
+  cancelOrder: async (orderId: string): Promise<void> => {
+    await api.put(`/orders?id=${orderId}&action=cancel`);
   },
 
   checkTransaction: async (txnCode: string): Promise<TransactionCheckResult> => {
@@ -19,16 +19,24 @@ export const orderService = {
     return response.data;
   },
 
+  // Admin: get all orders
   getOrders: async (params?: OrderQueryParams): Promise<Order[]> => {
     const response = await api.get("/orders", { params });
     const data = response.data?.data ?? response.data;
     return Array.isArray(data) ? data : [];
   },
 
-  getOrderHistory: async (): Promise<OrderHistoryItem[]> => {
-    const response = await api.get("/history");
+  // Customer: get my orders from /history endpoint
+  getMyOrders: async (params?: { page?: number; size?: number }): Promise<MyOrder[]> => {
+    const response = await api.get("/history", { params });
     const data = response.data?.data ?? response.data;
     return Array.isArray(data) ? data : [];
+  },
+
+  // Get order detail (order info + items)
+  getOrderDetail: async (idOrCode: string): Promise<OrderDetailView> => {
+    const response = await api.get(`/orders?id=${idOrCode}&action=view`);
+    return response.data?.data ?? response.data;
   },
 
   updateOrderStatus: async (id: number, status: string): Promise<Order> => {

@@ -68,7 +68,7 @@ export default function OrderHistoryTab() {
 
   useEffect(() => {
     orderService
-      .getOrderHistory()
+      .getMyOrders()
       .then((data) => {
         setOrders(data);
       })

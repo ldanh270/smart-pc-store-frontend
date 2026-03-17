@@ -9,7 +9,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider>
+    <SidebarProvider style={{ "--sidebar-width": "14rem" } as React.CSSProperties}>
       <AdminAuthGuard>
         <div className="flex min-h-screen w-full bg-muted/40">
           <AdminSidebar />

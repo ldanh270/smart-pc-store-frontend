@@ -3,8 +3,7 @@ import {
 	type Product,
 	mapBackendProduct,
 } from "@/types/product";
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+import { buildApiUrl } from "./base-url";
 
 // ─── Fetch Products (Server-Side) ───────────────────────────────────────────
 
@@ -16,37 +15,46 @@ interface FetchProductsParams {
 	maxPrice?: number;
 	page?: number;
 	size?: number;
+	sort?: string;
 }
 
 export async function fetchProducts(
 	params?: FetchProductsParams
 ): Promise<Product[]> {
+	const url = new URL(buildApiUrl("/products"));
+
+	if (params) {
+		if (params.name) url.searchParams.set("name", params.name);
+		if (params.categoryId !== undefined)
+			url.searchParams.set("categoryId", String(params.categoryId));
+		if (params.status !== undefined)
+			url.searchParams.set("status", String(params.status));
+		if (params.minPrice !== undefined)
+			url.searchParams.set("minPrice", String(params.minPrice));
+		if (params.maxPrice !== undefined)
+			url.searchParams.set("maxPrice", String(params.maxPrice));
+		if (params.page !== undefined)
+			url.searchParams.set("page", String(params.page));
+		if (params.size !== undefined)
+			url.searchParams.set("size", String(params.size));
+		if (params.sort !== undefined)
+			url.searchParams.set("sort", params.sort);
+	}
+
 	try {
-        const baseUrlToUse = BASE_URL || "http://localhost:8080";
-		const url = new URL(`${baseUrlToUse}/products`);
-
-		if (params) {
-			if (params.name) url.searchParams.set("name", params.name);
-			if (params.categoryId !== undefined)
-				url.searchParams.set("categoryId", String(params.categoryId));
-			if (params.status !== undefined)
-				url.searchParams.set("status", String(params.status));
-			if (params.minPrice !== undefined)
-				url.searchParams.set("minPrice", String(params.minPrice));
-			if (params.maxPrice !== undefined)
-				url.searchParams.set("maxPrice", String(params.maxPrice));
-			if (params.page !== undefined)
-				url.searchParams.set("page", String(params.page));
-			if (params.size !== undefined)
-				url.searchParams.set("size", String(params.size));
-		}
-
 		const res = await fetch(url.toString(), {
 			next: { revalidate: 60 }, // ISR: revalidate every 60 seconds
 		});
 
 		if (!res.ok) {
 			console.error(`Failed to fetch products: ${res.status}`);
+			return [];
+		}
+
+		// Prevent JSON parsing error when API returns an HTML page (e.g. Tomcat DefaultServlet with 200 OK)
+		const contentType = res.headers.get("content-type");
+		if (!contentType || !contentType.includes("application/json")) {
+			console.error(`Expected JSON but got ${contentType}. URL: ${url.toString()}`);
 			return [];
 		}
 
@@ -77,12 +85,18 @@ export async function fetchProductById(
 	id: string
 ): Promise<BackendProduct | null> {
 	try {
-		const res = await fetch(`${BASE_URL}/products/${id}`, {
+		const res = await fetch(buildApiUrl(`/products/${id}`), {
 			next: { revalidate: 60 },
 		});
 
 		if (!res.ok) {
 			console.error(`Failed to fetch product ${id}: ${res.status}`);
+			return null;
+		}
+
+		const contentType = res.headers.get("content-type");
+		if (!contentType || !contentType.includes("application/json")) {
+			console.error(`Expected JSON but got ${contentType}. URL: ${buildApiUrl(`/products/${id}`)}`);
 			return null;
 		}
 

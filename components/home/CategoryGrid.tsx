@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import {
 	Cpu,
@@ -39,10 +40,22 @@ interface CategoryGridProps {
 	categories?: Category[];
 }
 
+// Map pastel colors to categories for a soft, premium look
+const COLORS = [
+	{ bg: "bg-blue-50", border: "border-blue-100 hover:border-blue-200", iconBg: "bg-blue-100", iconText: "text-blue-600" },
+	{ bg: "bg-emerald-50", border: "border-emerald-100 hover:border-emerald-200", iconBg: "bg-emerald-100", iconText: "text-emerald-600" },
+	{ bg: "bg-purple-50", border: "border-purple-100 hover:border-purple-200", iconBg: "bg-purple-100", iconText: "text-purple-600" },
+	{ bg: "bg-orange-50", border: "border-orange-100 hover:border-orange-200", iconBg: "bg-orange-100", iconText: "text-orange-600" },
+	{ bg: "bg-rose-50", border: "border-rose-100 hover:border-rose-200", iconBg: "bg-rose-100", iconText: "text-rose-600" },
+	{ bg: "bg-amber-50", border: "border-amber-100 hover:border-amber-200", iconBg: "bg-amber-100", iconText: "text-amber-600" },
+	{ bg: "bg-indigo-50", border: "border-indigo-100 hover:border-indigo-200", iconBg: "bg-indigo-100", iconText: "text-indigo-600" },
+	{ bg: "bg-cyan-50", border: "border-cyan-100 hover:border-cyan-200", iconBg: "bg-cyan-100", iconText: "text-cyan-600" },
+];
+
 export default function CategoryGrid({ categories = [] }: CategoryGridProps) {
 	return (
 		<section className="bg-background py-16">
-			<div className="mx-auto max-w-7xl px-4 lg:px-8">
+			<div className="mx-auto max-w-6xl px-6 lg:px-16">
 				<SectionHeader
 					title="Danh Mục Sản Phẩm"
 					subtitle="Tìm kiếm linh kiện và thiết bị phù hợp với nhu cầu của bạn"
@@ -60,20 +73,29 @@ export default function CategoryGrid({ categories = [] }: CategoryGridProps) {
 					]}
 					className="w-full relative"
 				>
-					<CarouselContent className="-ml-2 md:-ml-4">
+					<CarouselContent className="-ml-2 md:-ml-3">
 					{categories.map((category, index) => {
 						// Extract icon name from description or fallback to array index based icons since BE doesn't store icon name.
 						const iconKeys = Object.keys(ICON_MAP);
 						const Icon = ICON_MAP[iconKeys[index % iconKeys.length]] ?? Cpu;
+						const color = COLORS[index % COLORS.length];
 						const href = `/danh-muc/${generateCategorySlug(category.name)}`;
 
 						return (
-							<CarouselItem key={category.id} className="pl-2 md:pl-4 basis-1/2 sm:basis-1/4 lg:basis-1/8">
+							<CarouselItem key={category.id} className="pl-2 md:pl-3 basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/6 xl:basis-1/7">
 								<Link
 									href={href}
-									className="group flex flex-col items-center gap-3 rounded-lg border border-border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5 h-40"
+									className={cn(
+										"group flex flex-col items-center gap-3 rounded-lg border p-4 transition-all hover:shadow-md hover:-translate-y-0.5 h-40",
+										color.bg,
+										color.border
+									)}
 								>
-								<div className="flex size-12 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+								<div className={cn(
+									"flex size-12 items-center justify-center rounded-lg transition-colors",
+									color.iconBg,
+									color.iconText
+								)}>
 									<Icon className="size-6" />
 								</div>
 								<div className="text-center">

@@ -9,6 +9,30 @@ export interface Order {
   createdAt: string;
 }
 
+// For customer-facing order history (UUID ids from /history endpoint)
+export interface MyOrder {
+  id: string;
+  orderCode: string;
+  amount: number;
+  transactionCode: string;
+  status: OrderStatus;
+  createdAt: string;
+}
+
+export interface OrderItemDetail {
+  id: string;
+  productId: string;
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+}
+
+export interface OrderDetailView {
+  order: MyOrder;
+  items: OrderItemDetail[];
+  qrCode?: string;
+}
+
 export interface PaymentQRInfo {
   amount: number;
   transactionCode: string;

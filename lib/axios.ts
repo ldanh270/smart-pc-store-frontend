@@ -1,12 +1,10 @@
 import axios, { type AxiosRequestConfig, type InternalAxiosRequestConfig } from "axios";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { getApiBaseUrl } from "@/lib/api/base-url";
 
 const api = axios.create({
-  baseURL:
-    process.env.NEXT_PUBLIC_MODE === "development"
-      ? process.env.NEXT_PUBLIC_API_URL
-      : "/api",
+  baseURL: getApiBaseUrl(),
   withCredentials: true,
   timeout: 15_000,
 });
@@ -124,7 +122,9 @@ api.interceptors.response.use(
           error.response?.data?.message ??
           error.response?.data?.error ??
           `Lỗi ${status}`;
-        toast.error(message);
+        if (typeof window !== "undefined") {
+          toast.error(message);
+        }
       }
       return Promise.reject(error);
     }

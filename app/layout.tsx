@@ -3,6 +3,8 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import LayoutShell from "@/components/layout/LayoutShell";
 import AuthInitializer from "@/components/AuthInitializer";
 import { Toaster } from "sonner";
+import { fetchAllCategories } from "@/lib/api/categories";
+import { mapBackendCategory, type Category } from "@/types/category";
 import "./globals.css";
 
 // Main font (Inter) - Used for UI, Title, Description
@@ -26,11 +28,20 @@ export const metadata: Metadata = {
 	icons: { icon: "/logo.svg" },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	// Fetch categories server-side so nav links are in the SSR HTML (SEO fix #1)
+	let initialCategories: Category[] = [];
+	try {
+		const backend = await fetchAllCategories();
+		initialCategories = backend.map(mapBackendCategory);
+	} catch {
+		// Graceful degradation — nav still renders with static links
+	}
+
 	return (
 		<html
 			lang="en"

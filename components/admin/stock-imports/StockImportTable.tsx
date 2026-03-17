@@ -171,7 +171,6 @@ export default function StockImportTable() {
             <TableRow>
               <TableHead className="w-36">Mã Phiếu</TableHead>
               <TableHead>Nhà Cung Cấp</TableHead>
-              <TableHead className="hidden md:table-cell">Số SP</TableHead>
               <TableHead>Tổng Tiền</TableHead>
               <TableHead className="text-center">Trạng Thái</TableHead>
               <TableHead className="hidden lg:table-cell">Ngày Tạo</TableHead>
@@ -207,9 +206,6 @@ export default function StockImportTable() {
                     </TableCell>
                     <TableCell>
                       <p className="font-medium">{imp.supplierName}</p>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {imp.items.length} sản phẩm
                     </TableCell>
                     <TableCell className="font-semibold text-primary">
                       {imp.totalAmount.toLocaleString("vi-VN")}₫

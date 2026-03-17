@@ -5,18 +5,23 @@ import {
 	mapBackendCategoryDetail,
 	generateCategorySlug,
 } from "@/types/category";
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
-
+import { buildApiUrl } from "./base-url";
 
 // ─── Fetch All Categories (Server-Side) ───────────────────────────────────────
 
 export async function fetchAllCategories(): Promise<BackendCategory[]> {
 	try {
-		const res = await fetch(`${BASE_URL}/categories`, {
+		const res = await fetch(buildApiUrl("/categories"), {
 			next: { revalidate: 60 },
 		});
 		if (!res.ok) return [];
+
+		// Prevent JSON parsing error when API returns an HTML page
+		const contentType = res.headers.get("content-type");
+		if (!contentType || !contentType.includes("application/json")) {
+			console.error(`Expected JSON but got ${contentType}. URL: ${buildApiUrl("/categories")}`);
+			return [];
+		}
 
 		const json = await res.json();
 		const data =
@@ -48,11 +53,17 @@ export async function fetchCategoryBySlug(
 		if (!matched) return null;
 
 		// 2. Fetch detail by id
-		const res = await fetch(`${BASE_URL}/categories/${matched.id}`, {
+		const res = await fetch(buildApiUrl(`/categories/${matched.id}`), {
 			next: { revalidate: 60 },
 		});
 
 		if (!res.ok) return null;
+
+		const contentType = res.headers.get("content-type");
+		if (!contentType || !contentType.includes("application/json")) {
+			console.error(`Expected JSON but got ${contentType}. URL: ${buildApiUrl(`/categories/${matched.id}`)}`);
+			return null;
+		}
 
 		const json = await res.json();
 		const raw: BackendCategoryDetail | null = json.data ?? json ?? null;

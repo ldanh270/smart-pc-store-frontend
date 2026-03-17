@@ -45,8 +45,15 @@ const nextConfig: NextConfig = {
         remotePatterns: [
             {
                 protocol: "https",
-                hostname: "*",
-            }
+                hostname: "**",
+            },
+            // Allow images served by the local backend during development
+            {
+                protocol: "http",
+                hostname: "localhost",
+                port: "8080",
+                pathname: "/**",
+            },
         ],
         dangerouslyAllowSVG: true,
         contentDispositionType: "attachment",

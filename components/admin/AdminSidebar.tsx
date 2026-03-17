@@ -8,7 +8,7 @@ import {
 	Package,
 	Tags,
 	ShoppingCart,
-	Monitor,
+	Zap,
   Truck,
   PackagePlus,
 } from "lucide-react";
@@ -96,21 +96,21 @@ export default function AdminSidebar() {
 	return (
 		<Sidebar collapsible="icon" variant="sidebar">
 			{/* Brand */}
-			<SidebarHeader className="px-4 py-4">
+			{/* Brand */}
+			<SidebarHeader className="h-14 flex flex-row items-center justify-start border-b border-border p-0 px-4 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
 				<Link
 					href="/admin"
-					className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center"
+					className="flex items-center gap-2.5 w-full justify-start group-data-[collapsible=icon]:justify-center"
 				>
-					<div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-						<Monitor className="size-4" />
+					<div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+						<Zap className="size-4.5 text-primary" fill="currentColor" />
 					</div>
-					<span className="text-sm font-bold tracking-wide group-data-[collapsible=icon]:hidden">
-						SMART PC
+					<span className="text-lg font-bold tracking-tight group-data-[collapsible=icon]:hidden">
+						<span className="text-foreground">Smart</span>
+						<span className="text-foreground"> PC</span>
 					</span>
 				</Link>
 			</SidebarHeader>
-
-			<SidebarSeparator />
 
 			{/* Navigation */}
 			<SidebarContent>

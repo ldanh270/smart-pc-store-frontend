@@ -11,7 +11,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 import type { StockImport, StockImportStatus } from "@/types/stockImport";
+import { stockImportService } from "@/services/stockImportService";
 
 interface StockImportDetailDialogProps {
   open: boolean;
@@ -40,11 +43,40 @@ const STATUS_CONFIG: Record<
 export default function StockImportDetailDialog({
   open,
   onOpenChange,
-  stockImport,
+  stockImport: initialStockImport,
 }: StockImportDetailDialogProps) {
-  if (!stockImport) return null;
+  const [stockImport, setStockImport] = useState<StockImport | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const statusCfg = STATUS_CONFIG[stockImport.status];
+  useEffect(() => {
+    let isMounted = true;
+    if (open && initialStockImport?.id) {
+      const fetchDetail = async () => {
+        try {
+          const detail = await stockImportService.getStockImport(initialStockImport.id);
+          if (isMounted) {
+            setStockImport(detail);
+          }
+        } catch (error) {
+          console.error(error);
+        } finally {
+          if (isMounted) setLoading(false);
+        }
+      };
+      setLoading(true);
+      fetchDetail();
+    } else {
+      setStockImport(null);
+      setLoading(false);
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [open, initialStockImport]);
+
+  if (!open || (!stockImport && !loading)) return null;
+
+  const statusCfg = stockImport ? STATUS_CONFIG[stockImport.status] : STATUS_CONFIG.COMPLETED;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -52,23 +84,33 @@ export default function StockImportDetailDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             Chi Tiết Phiếu Nhập Hàng
-            <Badge
-              variant="outline"
-              className={statusCfg.className}
-            >
-              {statusCfg.label}
-            </Badge>
+            {!loading && stockImport && (
+              <Badge
+                variant="outline"
+                className={statusCfg.className}
+              >
+                {statusCfg.label}
+              </Badge>
+            )}
           </DialogTitle>
-          <DialogDescription>
-            Mã phiếu:{" "}
-            <span className="font-mono font-semibold text-foreground">
-              {stockImport.importCode}
-            </span>
-          </DialogDescription>
+          {!loading && stockImport && (
+            <DialogDescription>
+              Mã phiếu:{" "}
+              <span className="font-mono font-semibold text-foreground">
+                {stockImport.importCode}
+              </span>
+            </DialogDescription>
+          )}
         </DialogHeader>
 
-        {/* Info section */}
-        <div className="grid gap-4 sm:grid-cols-2">
+        {loading ? (
+          <div className="flex h-40 items-center justify-center">
+            <Loader2 className="size-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : stockImport ? (
+          <>
+            {/* Info section */}
+            <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1">
             <p className="text-xs text-muted-foreground">Nhà Cung Cấp</p>
             <p className="font-medium">{stockImport.supplierName}</p>
@@ -146,6 +188,8 @@ export default function StockImportDetailDialog({
             </table>
           </div>
         </div>
+        </>
+        ) : null}
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
