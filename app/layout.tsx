@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
-import { AuthProvider } from "@/contexts/AuthContext";
 import LayoutShell from "@/components/layout/LayoutShell";
 import AuthInitializer from "@/components/AuthInitializer";
 import { Toaster } from "sonner";
@@ -49,11 +48,9 @@ export default async function RootLayout({
 			suppressHydrationWarning
 		>
 			<body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
-				<AuthProvider>
-					<AuthInitializer />
-					<LayoutShell initialCategories={initialCategories}>{children}</LayoutShell>
-					<Toaster richColors position="bottom-right" />
-				</AuthProvider>
+				<AuthInitializer />
+				<LayoutShell>{children}</LayoutShell>
+				<Toaster richColors position="bottom-right" />
 			</body>
 		</html>
 	);

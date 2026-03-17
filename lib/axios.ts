@@ -24,7 +24,8 @@ export function setAccessToken(accessToken: string) {
 
 export function clearAuth() {
   if (typeof window === "undefined") return;
-  useAuthStore.setState({ accessToken: null, refreshToken: null, user: null });
+  useAuthStore.setState({ accessToken: null, user: null });
+  localStorage.removeItem("auth-storage");
   document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
   document.cookie = "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 }
@@ -55,12 +56,9 @@ export async function refreshAccessToken(): Promise<string> {
   if (refreshPromise) return refreshPromise;
 
   refreshPromise = (async () => {
-    const auth = getAuthState();
-    const body = auth?.refreshToken ? { refreshToken: auth.refreshToken } : {};
-
     const { data } = await axios.post(
       `${api.defaults.baseURL}/auth/refresh`,
-      body,
+      {},
       { withCredentials: true, timeout: 10_000 }
     );
 

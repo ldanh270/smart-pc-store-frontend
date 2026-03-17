@@ -43,7 +43,7 @@ const STATUS_CONFIG: Record<
     className: "text-amber-600 bg-amber-50 border-amber-200",
     badgeVariant: "outline",
   },
-  COMPLETED: {
+  PAID: {
     label: "Đã thanh toán",
     icon: CheckCircle2,
     className: "text-emerald-600 bg-emerald-50 border-emerald-200",
@@ -54,6 +54,12 @@ const STATUS_CONFIG: Record<
     icon: XCircle,
     className: "text-red-600 bg-red-50 border-red-200",
     badgeVariant: "destructive",
+  },
+  EXPIRED: {
+    label: "Hết hạn",
+    icon: XCircle,
+    className: "text-gray-600 bg-gray-50 border-gray-200",
+    badgeVariant: "outline",
   },
 };
 
@@ -296,8 +302,9 @@ function OrderCard({
 const FILTER_OPTIONS: { value: OrderStatus | "ALL"; label: string }[] = [
   { value: "ALL", label: "Tất cả" },
   { value: "PENDING", label: "Chờ thanh toán" },
-  { value: "COMPLETED", label: "Đã thanh toán" },
+  { value: "PAID", label: "Đã thanh toán" },
   { value: "CANCELLED", label: "Đã huỷ" },
+  { value: "EXPIRED", label: "Hết hạn" },
 ];
 
 // ─── Main Component ───────────────────────────────────────────────────────────

@@ -31,7 +31,7 @@ import {
 import type { Order } from "@/types/order";
 
 const formSchema = z.object({
-  status: z.enum(["PENDING", "COMPLETED", "CANCELLED"]),
+  status: z.enum(["PENDING", "PAID", "CANCELLED", "EXPIRED"]),
 });
 
 export type OrderStatusFormValues = z.infer<typeof formSchema>;
@@ -102,8 +102,9 @@ export default function UpdateOrderStatusDialog({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="PENDING">Chờ xử lý (PENDING)</SelectItem>
-                        <SelectItem value="COMPLETED">Đã giao hàng (COMPLETED)</SelectItem>
+                        <SelectItem value="PAID">Đã thanh toán (PAID)</SelectItem>
                         <SelectItem value="CANCELLED">Đã hủy (CANCELLED)</SelectItem>
+                        <SelectItem value="EXPIRED">Đã hết hạn (EXPIRED)</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>

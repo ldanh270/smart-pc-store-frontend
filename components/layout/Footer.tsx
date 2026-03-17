@@ -38,7 +38,7 @@ export default function Footer() {
 				<div className="grid gap-10 py-3 pt-10 md:grid-cols-2 lg:grid-cols-12">
 
 					{/* Brand — 4 cols */}
-					<div className="space-y-5 lg:col-span-4 xl:col-span-4 lg:pr-8">
+					<div className="space-y-5 lg:col-span-4 xl:col-span-4">
 						<Link href="/" className="group inline-flex items-center gap-2.5">
 							<div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/15 transition-colors group-hover:bg-primary/25">
 								<Zap className="size-5 text-primary" fill="currentColor" />
@@ -82,7 +82,7 @@ export default function Footer() {
 								<li key={link.href}>
 									<Link
 										href={link.href}
-										className="group flex items-center gap-1.5 text-sm text-background/70 transition-colors hover:text-primary"
+										className="group flex items-center gap-1.5 -ml-5 text-sm text-background/70  transition-colors hover:text-primary"
 									>
 										<ArrowRight className="size-3 opacity-0 -translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-x-0" />
 										{link.label}
@@ -102,7 +102,7 @@ export default function Footer() {
 								<li key={link.href}>
 									<Link
 										href={link.href}
-										className="group flex items-center gap-1.5 text-sm text-background/70 transition-colors hover:text-primary"
+										className="group flex items-center gap-1.5 -ml-5 text-sm text-background/70 transition-colors hover:text-primary"
 									>
 										<ArrowRight className="size-3 opacity-0 -translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-x-0" />
 										{link.label}
@@ -119,7 +119,7 @@ export default function Footer() {
 								FOLLOW US
 							</h3>
 							<div className="flex items-center gap-2">
-								<a href="#" className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#ffeadd] text-[#ff5722] transition-transform hover:scale-105">
+								<a href="#" className="flex h-10 w-10 items-center justify-center rounded-xl bg-background/5 text-background/60 transition-transform hover:scale-105">
 									<Youtube className="size-5" />
 								</a>
 								<a href="#" className="flex h-10 w-10 items-center justify-center rounded-xl bg-background/5 text-background/60 transition-all hover:bg-background/10 hover:text-background hover:scale-105">
@@ -141,15 +141,15 @@ export default function Footer() {
 							<h3 className="mb-4 text-xs font-bold uppercase tracking-[0.15em] text-background/50">
 								DOWNLOAD APP
 							</h3>
-							<div className="flex flex-col gap-2 xl:flex-row">
-								<a href="#" className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#222222] px-3 py-2 text-white transition hover:bg-black xl:justify-start whitespace-nowrap">
+							<div className="flex flex-col gap-2 xl:flex-row ">
+								<a href="#" className="flex flex-1 items-center justify-center gap-2 rounded-xl transition-transform hover:scale-105 bg-[#222222] px-3 py-2 text-white transition hover:bg-black xl:justify-start whitespace-nowrap">
 									<FontAwesomeIcon icon={faApple} className="text-2xl" />
 									<div className="flex flex-col text-left">
 										<span className="text-[10px] leading-tight text-gray-400">Download on the</span>
 										<span className="text-sm font-semibold leading-tight">App Store</span>
 									</div>
 								</a>
-								<a href="#" className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#222222] px-3 py-2 text-white transition hover:bg-black xl:justify-start whitespace-nowrap">
+								<a href="#" className="flex flex-1 items-center justify-center gap-2 rounded-xl transition-transform hover:scale-105 bg-[#222222] px-3 py-2 text-white transition hover:bg-black xl:justify-start whitespace-nowrap">
 									<FontAwesomeIcon icon={faGooglePlay} className="text-xl" />
 									<div className="flex flex-col text-left">
 										<span className="text-[10px] leading-tight text-gray-400">GET IT ON</span>

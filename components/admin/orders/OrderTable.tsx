@@ -7,7 +7,6 @@ import {
   Trash2,
   Loader2,
   RefreshCw,
-  Eye
 } from "lucide-react";
 import {
   Table,
@@ -147,17 +146,19 @@ export default function OrderTable() {
                   <TableCell className="text-center">
                     <Badge
                       variant={
-                        order.status === "COMPLETED"
+                        order.status === "PAID"
                           ? "default"
                           : order.status === "PENDING"
                           ? "secondary"
                           : "destructive"
                       }
                       className={
-                        order.status === "COMPLETED"
-                          ? "bg-emerald-500 hover:bg-emerald-600"
+                        order.status === "PAID"
+                          ? "bg-green-500 hover:bg-green-600"
                           : order.status === "PENDING"
-                          ? "bg-amber-500 hover:bg-amber-600"
+                          ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+                          : order.status === "EXPIRED"
+                          ? "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                           : ""
                       }
                     >

@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import OrderHistoryTab from "./OrderHistoryTab";
 import {
   Card,
   CardContent,
@@ -72,7 +73,7 @@ function RoleBadge({ role }: { role?: string }) {
   const isAdmin = role?.toLowerCase() === "admin";
   return (
     <Badge variant={isAdmin ? "default" : "secondary"} className="text-xs">
-      {isAdmin ? "Admin" : "Người dùng"}
+      {isAdmin ? "Admin" : "User"}
     </Badge>
   );
 }
@@ -214,11 +215,6 @@ export default function ProfileClient() {
     <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
       {/* ── Header ── */}
       <div className="mb-8 flex items-center gap-4">
-        <div className="flex size-16 items-center justify-center rounded-full bg-muted text-2xl font-bold text-muted-foreground">
-          {profile?.displayName?.[0]?.toUpperCase() ?? (
-            <User className="size-7" />
-          )}
-        </div>
         <div>
           <h1 className="text-xl font-bold text-foreground">
             {profile?.displayName || profile?.username}
@@ -232,9 +228,12 @@ export default function ProfileClient() {
 
       {/* ── Tabs ── */}
       <Tabs defaultValue="info">
-        <TabsList className="mb-6 w-full">
+        <TabsList className="mb-6 w-full flex">
           <TabsTrigger value="info" className="flex-1">
             Thông tin tài khoản
+          </TabsTrigger>
+          <TabsTrigger value="history" className="flex-1">
+            Lịch sử đơn hàng
           </TabsTrigger>
           <TabsTrigger value="password" className="flex-1">
             Đổi mật khẩu
@@ -493,6 +492,11 @@ export default function ProfileClient() {
               </Form>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* ── Tab: History ── */}
+        <TabsContent value="history">
+          <OrderHistoryTab />
         </TabsContent>
       </Tabs>
     </main>

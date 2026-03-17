@@ -1,4 +1,4 @@
-export type OrderStatus = "PENDING" | "COMPLETED" | "CANCELLED";
+export type OrderStatus = "PENDING" | "PAID" | "CANCELLED" | "EXPIRED";
 
 export interface Order {
   id: number;
@@ -54,4 +54,13 @@ export interface OrderQueryParams {
 
 export interface OrderUpdateDto {
   status?: OrderStatus;
+}
+
+export interface OrderHistoryItem {
+  id: string;
+  orderCode: string;
+  amount: number;
+  transactionCode: string;
+  status: OrderStatus;
+  createdAt: string;
 }
