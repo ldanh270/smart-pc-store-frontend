@@ -1,48 +1,59 @@
-import { Truck, Star, ShieldCheck, MessageSquare, CreditCard } from "lucide-react";
+import { Truck, Star, History, MessageSquare, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const features = [
 	{
 		icon: Truck,
 		title: "Free Delivery",
-		description: "Order over $50",
+		description: "from $40",
 	},
 	{
 		icon: Star,
 		title: "Best Quality",
-		description: "Premium Brands",
+		description: "Brand",
 	},
 	{
-		icon: ShieldCheck,
-		title: "1 Year Warranty",
-		description: "Free Returns",
+		icon: History,
+		title: "1 Year",
+		description: "for free Return",
 	},
 	{
 		icon: MessageSquare,
-		title: "24/7 Support",
-		description: "99% Positive",
+		title: "Feedback",
+		description: "99% Real Data",
 	},
 	{
 		icon: CreditCard,
-		title: "Secure Payment",
-		description: "100% Encrypted",
+		title: "Payment",
+		description: "Secure",
 	},
 ];
 
 export default function FeatureBar() {
 	return (
-		<div className="bg-primary/5 rounded-3xl p-10 md:p-12 border border-primary/10">
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10">
+		<div className="bg-background">
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 items-center">
 				{features.map((feature, i) => {
 					const Icon = feature.icon;
 					return (
-						<div key={i} className="flex flex-col items-center lg:items-start text-center lg:text-left gap-4 group">
-							<div className="p-4 rounded-2xl bg-primary/10 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-white group-hover:scale-110">
-								<Icon className="size-8" strokeWidth={2} />
+						<div 
+							key={i} 
+							className={cn(
+								"flex items-center justify-center lg:justify-start gap-4 px-6 py-4 lg:py-0 transition-all duration-300 group",
+								// Add border except for the last item on large screens
+								i !== features.length - 1 && "lg:border-r lg:border-border/60"
+							)}
+						>
+							<div className="flex shrink-0 items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
+								<Icon className="size-8" strokeWidth={2.5} />
 							</div>
-							<div className="space-y-1">
-								<h4 className="font-black text-lg text-foreground tracking-tight">{feature.title}</h4>
-								<p className="text-sm text-muted-foreground font-medium">{feature.description}</p>
+							<div className="flex flex-col text-left">
+								<h4 className="font-black text-sm text-foreground tracking-tight whitespace-nowrap">
+									{feature.title}
+								</h4>
+								<p className="text-xs text-muted-foreground font-medium whitespace-nowrap">
+									{feature.description}
+								</p>
 							</div>
 						</div>
 					);

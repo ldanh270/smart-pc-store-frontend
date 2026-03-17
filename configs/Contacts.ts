@@ -1,4 +1,4 @@
 export const CONTACTS = {
-	email: "ducanhle.dn@gmail.com",
+	email: "smartpcstore@gmail.com",
 	phone: "0905944716",
 };

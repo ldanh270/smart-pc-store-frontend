@@ -1,92 +1,123 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import {
-	Cpu, Monitor, MemoryStick, HardDrive,
-	CircuitBoard, Gamepad2, Laptop, MonitorDot,
-	Wind, Speaker, Mouse, Keyboard,
+	Cpu,
+	Monitor,
+	MemoryStick,
+	HardDrive,
+	CircuitBoard,
+	Gamepad2,
+	Laptop,
+	MonitorDot,
 } from "lucide-react";
 import SectionHeader from "@/components/shared/SectionHeader";
 import type { Category } from "@/types/category";
 import { generateCategorySlug } from "@/types/category";
-import { cn } from "@/lib/utils";
+import {
+	Carousel,
+	CarouselContent,
+	CarouselItem,
+	CarouselNext,
+	CarouselPrevious,
+} from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
+// Map icon name strings to Lucide components
 const ICON_MAP: Record<string, React.ElementType> = {
-	Cpu, Monitor, MemoryStick, HardDrive,
-	CircuitBoard, Gamepad2, Laptop, MonitorDot,
-	Wind, Speaker, Mouse, Keyboard,
+	Cpu,
+	Monitor,
+	MemoryStick,
+	HardDrive,
+	CircuitBoard,
+	Gamepad2,
+	Laptop,
+	MonitorDot,
 };
-
-// Colors from global.css
-const CATEGORY_COLORS = [
-	{ bg: "bg-blue-500/10", text: "text-blue-500", border: "border-blue-500/20", hover: "hover:bg-blue-500/20" },
-	{ bg: "bg-indigo-500/10", text: "text-indigo-500", border: "border-indigo-500/20", hover: "hover:bg-indigo-500/20" },
-	{ bg: "bg-violet-500/10", text: "text-violet-500", border: "border-violet-500/20", hover: "hover:bg-violet-500/20" },
-	{ bg: "bg-cyan-500/10", text: "text-cyan-500", border: "border-cyan-500/20", hover: "hover:bg-cyan-500/20" },
-	{ bg: "bg-emerald-500/10", text: "text-emerald-500", border: "border-emerald-500/20", hover: "hover:bg-emerald-500/20" },
-	{ bg: "bg-rose-500/10", text: "text-rose-500", border: "border-rose-500/20", hover: "hover:bg-rose-500/20" },
-	{ bg: "bg-amber-500/10", text: "text-amber-500", border: "border-amber-500/20", hover: "hover:bg-amber-500/20" },
-	{ bg: "bg-sky-500/10", text: "text-sky-500", border: "border-sky-500/20", hover: "hover:bg-sky-500/20" },
-];
 
 interface CategoryGridProps {
 	categories?: Category[];
 }
 
+// Map pastel colors to categories for a soft, premium look
+const COLORS = [
+	{ bg: "bg-blue-50", border: "border-blue-100 hover:border-blue-200", iconBg: "bg-blue-100", iconText: "text-blue-600" },
+	{ bg: "bg-emerald-50", border: "border-emerald-100 hover:border-emerald-200", iconBg: "bg-emerald-100", iconText: "text-emerald-600" },
+	{ bg: "bg-purple-50", border: "border-purple-100 hover:border-purple-200", iconBg: "bg-purple-100", iconText: "text-purple-600" },
+	{ bg: "bg-orange-50", border: "border-orange-100 hover:border-orange-200", iconBg: "bg-orange-100", iconText: "text-orange-600" },
+	{ bg: "bg-rose-50", border: "border-rose-100 hover:border-rose-200", iconBg: "bg-rose-100", iconText: "text-rose-600" },
+	{ bg: "bg-amber-50", border: "border-amber-100 hover:border-amber-200", iconBg: "bg-amber-100", iconText: "text-amber-600" },
+	{ bg: "bg-indigo-50", border: "border-indigo-100 hover:border-indigo-200", iconBg: "bg-indigo-100", iconText: "text-indigo-600" },
+	{ bg: "bg-cyan-50", border: "border-cyan-100 hover:border-cyan-200", iconBg: "bg-cyan-100", iconText: "text-cyan-600" },
+];
+
 export default function CategoryGrid({ categories = [] }: CategoryGridProps) {
-	const iconKeys = Object.keys(ICON_MAP);
-
 	return (
-		<section className="py-16">
-			<div className="mx-auto max-w-7xl px-4 lg:px-8">
-				<div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-					<div className="space-y-2">
-						<h3 className="text-sm font-bold uppercase tracking-widest text-primary">Explore Our World</h3>
-						<h2 className="text-4xl md:text-5xl font-black text-foreground tracking-tight">Danh Mục Sản Phẩm</h2>
-						<p className="text-muted-foreground text-lg max-w-2xl">
-							Tìm kiếm linh kiện và thiết bị phù hợp với nhu cầu của bạn từ hệ thống danh mục đa dạng.
-						</p>
-					</div>
-					<Link 
-						href="/san-pham" 
-						className="text-primary font-bold hover:underline underline-offset-4 decoration-2"
-					>
-						Xem tất cả →
-					</Link>
-				</div>
+		<section className="bg-background py-16">
+			<div className="mx-auto max-w-6xl px-6 lg:px-16">
+				<SectionHeader
+					title="Danh Mục Sản Phẩm"
+					subtitle="Tìm kiếm linh kiện và thiết bị phù hợp với nhu cầu của bạn"
+				/>
 
-				<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-					{categories.slice(0, 12).map((category, index) => {
+				<Carousel
+					opts={{
+						align: "start",
+						loop: true,
+					}}
+					plugins={[
+						Autoplay({
+							delay: 4000,
+						}),
+					]}
+					className="w-full relative"
+				>
+					<CarouselContent className="-ml-2 md:-ml-3">
+					{categories.map((category, index) => {
+						// Extract icon name from description or fallback to array index based icons since BE doesn't store icon name.
+						const iconKeys = Object.keys(ICON_MAP);
 						const Icon = ICON_MAP[iconKeys[index % iconKeys.length]] ?? Cpu;
+						const color = COLORS[index % COLORS.length];
 						const href = `/danh-muc/${generateCategorySlug(category.name)}`;
-						const colors = CATEGORY_COLORS[index % CATEGORY_COLORS.length];
 
 						return (
-							<Link
-								key={category.id}
-								href={href}
-								className={cn(
-									"group flex flex-col items-center justify-center p-8 rounded-3xl border-2 transition-all duration-300",
-									"hover:shadow-2xl hover:-translate-y-2",
-									colors.bg, colors.border, colors.hover
-								)}
-							>
+							<CarouselItem key={category.id} className="pl-2 md:pl-3 basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/6 xl:basis-1/7">
+								<Link
+									href={href}
+									className={cn(
+										"group flex flex-col items-center gap-3 rounded-lg border p-4 transition-all hover:shadow-md hover:-translate-y-0.5 h-40",
+										color.bg,
+										color.border
+									)}
+								>
 								<div className={cn(
-									"mb-4 p-4 rounded-2xl bg-white dark:bg-black/20 shadow-sm transition-transform group-hover:scale-110",
-									colors.text
+									"flex size-12 items-center justify-center rounded-lg transition-colors",
+									color.iconBg,
+									color.iconText
 								)}>
-									<Icon size={32} strokeWidth={2} />
+									<Icon className="size-6" />
 								</div>
-								<span className="text-sm font-black text-center text-foreground leading-tight group-hover:text-primary transition-colors">
-									{category.name}
-								</span>
-								<span className="mt-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-									Shop Now
-								</span>
-							</Link>
+								<div className="text-center">
+									<p className="text-sm font-semibold text-foreground line-clamp-2">
+										{category.name}
+									</p>
+									{category.description && (
+										<p className="mt-0.5 hidden text-xs text-muted-foreground lg:block line-clamp-1">
+											{category.description}
+										</p>
+									)}
+								</div>
+								</Link>
+							</CarouselItem>
 						);
 					})}
-				</div>
+					</CarouselContent>
+					<div className="hidden sm:block">
+						<CarouselPrevious className="-left-4 lg:-left-12" />
+						<CarouselNext className="-right-4 lg:-right-12" />
+					</div>
+				</Carousel>
 			</div>
 		</section>
 	);

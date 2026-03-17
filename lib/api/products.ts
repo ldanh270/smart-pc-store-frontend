@@ -15,6 +15,7 @@ interface FetchProductsParams {
 	maxPrice?: number;
 	page?: number;
 	size?: number;
+	sort?: string;
 }
 
 export async function fetchProducts(
@@ -36,6 +37,8 @@ export async function fetchProducts(
 			url.searchParams.set("page", String(params.page));
 		if (params.size !== undefined)
 			url.searchParams.set("size", String(params.size));
+		if (params.sort !== undefined)
+			url.searchParams.set("sort", params.sort);
 	}
 
 	try {
