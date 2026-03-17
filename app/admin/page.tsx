@@ -4,7 +4,6 @@ import RevenueChart from "@/components/admin/dashboard/RevenueChart";
 import VisitorAreaChart from "@/components/admin/dashboard/VisitorAreaChart";
 import CategoryDonutChart from "@/components/admin/dashboard/CategoryDonutChart";
 import TopProducts from "@/components/admin/dashboard/TopProducts";
-import RecentOrders from "@/components/admin/dashboard/RecentOrders";
 
 export default function AdminDashboardPage() {
   return (
@@ -66,11 +65,6 @@ export default function AdminDashboardPage() {
         <div className="lg:col-span-2 h-full">
           <TopProducts />
         </div>
-      </div>
-
-      {/* Recent Orders */}
-      <div>
-        <RecentOrders />
       </div>
     </div>
   );
