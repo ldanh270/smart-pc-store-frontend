@@ -41,7 +41,7 @@ export default function StatCard({
 				</p>
 
 				{/* Trend + Description */}
-				<div className="mt-1 flex items-center gap-1.5">
+				<div className="mt-3 flex items-center justify-between gap-1.5 flex-wrap">
 					<span
 						className={`inline-flex items-center gap-0.5 text-xs font-medium ${
 							isPositive

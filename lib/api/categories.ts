@@ -5,15 +5,13 @@ import {
 	mapBackendCategoryDetail,
 	generateCategorySlug,
 } from "@/types/category";
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
-
+import { buildApiUrl } from "./base-url";
 
 // ─── Fetch All Categories (Server-Side) ───────────────────────────────────────
 
 export async function fetchAllCategories(): Promise<BackendCategory[]> {
 	try {
-		const res = await fetch(`${BASE_URL}/categories`, {
+		const res = await fetch(buildApiUrl("/categories"), {
 			next: { revalidate: 60 },
 		});
 		if (!res.ok) return [];
@@ -48,7 +46,7 @@ export async function fetchCategoryBySlug(
 		if (!matched) return null;
 
 		// 2. Fetch detail by id
-		const res = await fetch(`${BASE_URL}/categories/${matched.id}`, {
+		const res = await fetch(buildApiUrl(`/categories/${matched.id}`), {
 			next: { revalidate: 60 },
 		});
 

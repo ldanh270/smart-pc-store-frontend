@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/stores/useCartStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import CartBreadcrumb from "./CartBreadcrumb";
@@ -28,6 +30,9 @@ export default function CartPageClient() {
 					<p className="mb-4 text-center text-muted-foreground">
 						Vui lòng đăng nhập để xem giỏ hàng của bạn.
 					</p>
+					<Button asChild>
+						<Link href="/dang-nhap">Đăng nhập ngay</Link>
+					</Button>
 				</div>
 			</main>
 		);

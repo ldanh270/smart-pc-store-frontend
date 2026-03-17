@@ -4,12 +4,14 @@ import { usePathname } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import AIChatBox from "@/components/chat/AIChatBox";
+import type { Category } from "@/types/category";
 
-export default function LayoutShell({
-	children,
-}: {
+interface LayoutShellProps {
 	children: React.ReactNode;
-}) {
+	initialCategories?: Category[];
+}
+
+export default function LayoutShell({ children, initialCategories = [] }: LayoutShellProps) {
 	const pathname = usePathname();
 	const isAdmin = pathname.startsWith("/admin");
 
@@ -19,7 +21,7 @@ export default function LayoutShell({
 
 	return (
 		<>
-			<Header />
+			<Header initialCategories={initialCategories} />
 			{children}
 			<Footer />
 			<AIChatBox />

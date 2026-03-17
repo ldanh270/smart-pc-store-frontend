@@ -8,8 +8,14 @@ export const categoryService = {
    */
   getCategories: async (): Promise<Category[]> => {
     const response = await api.get("/categories");
-    const data = response.data?.data ?? response.data;
-    const arrayData = Array.isArray(data) ? data : [];
+    const json = response.data;
+    // Tự động tìm mảng dữ liệu trong nested response (data, content hoặc chính nó)
+    const arrayData = 
+      Array.isArray(json.data) ? json.data :
+      Array.isArray(json.content) ? json.content :
+      Array.isArray(json) ? json :
+      [];
+    
     return arrayData.map(mapBackendCategory);
   },
 

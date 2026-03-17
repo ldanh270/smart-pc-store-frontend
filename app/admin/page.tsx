@@ -60,10 +60,10 @@ export default function AdminDashboardPage() {
 
       {/* Details Row */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 h-full">
           <CategoryDonutChart />
         </div>
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 h-full">
           <TopProducts />
         </div>
       </div>

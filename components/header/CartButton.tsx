@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 import { useCartStore } from "@/stores/useCartStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { cn } from "@/lib/utils";
 
 export default function CartButton() {
 	const totalItems = useCartStore((state) => state.totalItems);
@@ -12,24 +13,33 @@ export default function CartButton() {
 	const accessToken = useAuthStore((state) => state.accessToken);
 
 	useEffect(() => {
-		if (accessToken) {
-			fetchCart();
-		}
+		if (accessToken) fetchCart();
 	}, [accessToken, fetchCart]);
 
 	return (
 		<Link
 			href="/gio-hang"
-			className="group relative flex items-center gap-1 py-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
+			className={cn(
+				"group relative flex h-9 w-9 items-center justify-center rounded-lg",
+				"border border-border/60 bg-muted/40 text-muted-foreground",
+				"transition-all duration-200 hover:border-primary/40 hover:bg-primary/8 hover:text-primary",
+			)}
 			aria-label="Giỏ hàng"
 		>
-			GIỎ HÀNG
-			<div className="relative ml-1">
-				<ShoppingBag className="size-5" />
-				<span className="absolute -right-2 -top-1.5 flex size-4.5 items-center justify-center rounded-full bg-foreground text-[10px] font-bold text-background transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-					{totalItems > 99 ? "99+" : totalItems}
-				</span>
-			</div>
+			<ShoppingBag className="size-4 transition-transform group-hover:scale-110" />
+
+			{/* Badge */}
+			<span
+				className={cn(
+					"absolute -right-1.5 -top-1.5 flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full",
+					"bg-primary px-1 text-[10px] font-bold leading-none text-primary-foreground",
+					"shadow-lg shadow-primary/30 ring-2 ring-background",
+					"transition-transform",
+					totalItems > 0 ? "scale-100" : "scale-75 opacity-70"
+				)}
+			>
+				{totalItems > 99 ? "99+" : totalItems}
+			</span>
 		</Link>
 	);
 }
