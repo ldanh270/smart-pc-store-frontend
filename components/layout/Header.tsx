@@ -28,7 +28,7 @@ export default function Header({ initialCategories = [] }: HeaderProps) {
 					: "border-b border-transparent bg-background/60 backdrop-blur-md"
 			)}
 		>
-			<TopBar scrolled={scrolled} initialCategories={initialCategories} />
+			<TopBar initialCategories={initialCategories} />
 		</header>
 	);
 }
