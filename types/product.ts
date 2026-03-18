@@ -80,6 +80,7 @@ export interface Product {
 	originalPrice?: number;
 	image: string;
 	category: string;
+	description?: string;
 	badge?: string;
 	stockStatus?: string;
 	quantity?: number;
@@ -95,6 +96,7 @@ export function mapBackendProduct(bp: BackendProduct): Product {
 		price: bp.currentPrice,
 		image: bp.imageUrl || "/products/placeholder.svg",
 		category: bp.categoryName ?? "",
+		description: bp.description || "",
 		stockStatus: bp.stockStatus,
 		quantity: bp.quantity,
 	};

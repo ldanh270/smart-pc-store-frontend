@@ -123,24 +123,21 @@ export default function SignupForm() {
 					control={form.control}
 					name="username"
 					render={({ field }) => (
-						<FormItem>
-							<FormLabel className="font-sans text-sm font-medium text-foreground">
+						<FormItem className="space-y-1.5">
+							<FormLabel className="text-xs font-semibold text-foreground">
 								Tên đăng nhập
 							</FormLabel>
 							<FormControl>
-								<div className="relative">
-									<User className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-									<Input
-										id="signup-username"
-										type="text"
-										placeholder="Nhập tên đăng nhập"
-										className="pl-10"
-										autoComplete="username"
-										{...field}
-									/>
-								</div>
+								<Input
+									id="signup-username"
+									type="text"
+									placeholder="Nhập tên đăng nhập"
+									className="h-11 rounded-lg border-border bg-muted/30 px-4 text-sm transition-all focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 placeholder:text-muted-foreground/50"
+									autoComplete="username"
+									{...field}
+								/>
 							</FormControl>
-							<FormMessage className="text-destructive" />
+							<FormMessage className="text-[10px]" />
 						</FormItem>
 					)}
 				/>
@@ -150,24 +147,21 @@ export default function SignupForm() {
 					control={form.control}
 					name="displayName"
 					render={({ field }) => (
-						<FormItem>
-							<FormLabel className="font-sans text-sm font-medium text-foreground">
+						<FormItem className="space-y-1.5">
+							<FormLabel className="text-xs font-semibold text-foreground">
 								Tên hiển thị
 							</FormLabel>
 							<FormControl>
-								<div className="relative">
-									<User className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-									<Input
-										id="signup-displayname"
-										type="text"
-										placeholder="Nguyễn Văn A"
-										className="pl-10"
-										autoComplete="name"
-										{...field}
-									/>
-								</div>
+								<Input
+									id="signup-displayname"
+									type="text"
+									placeholder="Ví dụ: Nguyễn Văn A"
+									className="h-11 rounded-lg border-border bg-muted/30 px-4 text-sm transition-all focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 placeholder:text-muted-foreground/50"
+									autoComplete="name"
+									{...field}
+								/>
 							</FormControl>
-							<FormMessage className="text-destructive" />
+							<FormMessage className="text-[10px]" />
 						</FormItem>
 					)}
 				/>
@@ -177,24 +171,21 @@ export default function SignupForm() {
 					control={form.control}
 					name="email"
 					render={({ field }) => (
-						<FormItem>
-							<FormLabel className="font-sans text-sm font-medium text-foreground">
+						<FormItem className="space-y-1.5">
+							<FormLabel className="text-xs font-semibold text-foreground">
 								Email
 							</FormLabel>
 							<FormControl>
-								<div className="relative">
-									<Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-									<Input
-										id="signup-email"
-										type="email"
-										placeholder="you@example.com"
-										className="pl-10"
-										autoComplete="email"
-										{...field}
-									/>
-								</div>
+								<Input
+									id="signup-email"
+									type="email"
+									placeholder="you@example.com"
+									className="h-11 rounded-lg border-border bg-muted/30 px-4 text-sm transition-all focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 placeholder:text-muted-foreground/50"
+									autoComplete="email"
+									{...field}
+								/>
 							</FormControl>
-							<FormMessage className="text-destructive" />
+							<FormMessage className="text-[10px]" />
 						</FormItem>
 					)}
 				/>
@@ -204,18 +195,17 @@ export default function SignupForm() {
 					control={form.control}
 					name="password"
 					render={({ field }) => (
-						<FormItem>
-							<FormLabel className="font-sans text-sm font-medium text-foreground">
+						<FormItem className="space-y-1.5">
+							<FormLabel className="text-xs font-semibold text-foreground">
 								Mật khẩu
 							</FormLabel>
 							<FormControl>
 								<div className="relative">
-									<Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
 									<Input
 										id="signup-password"
 										type={isPasswordVisible ? "text" : "password"}
-										placeholder="••••••••"
-										className="pl-10 pr-10"
+										placeholder="Nhập mật khẩu"
+										className="h-11 rounded-lg border-border bg-muted/30 px-4 pr-10 text-sm transition-all focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 placeholder:text-muted-foreground/50"
 										autoComplete="new-password"
 										{...field}
 									/>
@@ -236,7 +226,7 @@ export default function SignupForm() {
 									</button>
 								</div>
 							</FormControl>
-							<FormMessage className="text-destructive" />
+							<FormMessage className="text-[10px]" />
 						</FormItem>
 					)}
 				/>
@@ -246,18 +236,17 @@ export default function SignupForm() {
 					control={form.control}
 					name="confirmPassword"
 					render={({ field }) => (
-						<FormItem>
-							<FormLabel className="font-sans text-sm font-medium text-foreground">
+						<FormItem className="space-y-1.5">
+							<FormLabel className="text-xs font-semibold text-foreground">
 								Xác nhận mật khẩu
 							</FormLabel>
 							<FormControl>
 								<div className="relative">
-									<Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
 									<Input
 										id="signup-confirm-password"
 										type={isConfirmPasswordVisible ? "text" : "password"}
-										placeholder="••••••••"
-										className="pl-10 pr-10"
+										placeholder="Xác nhận mật khẩu"
+										className="h-11 rounded-lg border-border bg-muted/30 px-4 pr-10 text-sm transition-all focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 placeholder:text-muted-foreground/50"
 										autoComplete="new-password"
 										{...field}
 									/>
@@ -282,7 +271,7 @@ export default function SignupForm() {
 									</button>
 								</div>
 							</FormControl>
-							<FormMessage className="text-destructive" />
+							<FormMessage className="text-[10px]" />
 						</FormItem>
 					)}
 				/>
@@ -291,13 +280,13 @@ export default function SignupForm() {
 				<Button
 					type="submit"
 					size="lg"
-					className="w-full font-sans font-semibold"
+					className="glow-primary h-11 w-full rounded-lg bg-primary font-semibold text-primary-foreground transition-all hover:bg-primary/90 hover:scale-[1.01] active:scale-[0.98]"
 					disabled={isSubmitting}
 					id="signup-submit-button"
 				>
 					{isSubmitting ? (
 						<>
-							<Loader2 className="size-4 animate-spin" />
+							<Loader2 className="mr-2 size-4 animate-spin" />
 							Đang tạo tài khoản...
 						</>
 					) : (
@@ -308,7 +297,7 @@ export default function SignupForm() {
 				{/* Divider */}
 				<div className="relative flex items-center gap-4 py-1">
 					<Separator className="flex-1" />
-					<span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+					<span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
 						Hoặc
 					</span>
 					<Separator className="flex-1" />
@@ -318,12 +307,13 @@ export default function SignupForm() {
 				<Button
 					type="button"
 					variant="outline"
-					size="lg"
-					className="w-full font-sans font-medium gap-3"
+					className="h-11 w-full rounded-lg border-border bg-card shadow-sm transition-all hover:bg-muted/50 hover:border-muted-foreground/20"
 					id="google-signup-button"
 				>
-					<GoogleIcon />
-					Đăng ký bằng Google
+					<div className="mr-2">
+						<GoogleIcon />
+					</div>
+					<span className="text-sm font-semibold text-foreground">Đăng ký bằng Google</span>
 				</Button>
 			</form>
 		</Form>

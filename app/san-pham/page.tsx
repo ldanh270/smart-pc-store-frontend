@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 interface SearchPageProps {
 	searchParams: {
-		q?: string;
+		name?: string;
 		categoryId?: string;
 		status?: string;
 		minPrice?: string;
@@ -29,7 +29,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 	// Need to wait for searchParams in Next.js 15+ async components
 	const params = await searchParams;
 
-	const { q } = params;
+	const { name } = params;
 
 	// Render the main search grid
 	return (
@@ -37,7 +37,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 			{/* Page Header */}
 			<div className="mb-8">
 				<h1 className="text-3xl font-bold tracking-tight">
-					{q ? `Kết quả tìm kiếm cho "${q}"` : "Tất cả sản phẩm"}
+					{name ? `Kết quả tìm kiếm cho "${name}"` : "Tất cả sản phẩm"}
 				</h1>
 				<p className="mt-2 text-muted-foreground">
 					Khám phá các sản phẩm chất lượng cao với giá tốt nhất
@@ -68,7 +68,7 @@ async function ProductGrid({ params }: { params: SearchPageProps["searchParams"]
 	const p = await params;
 	// Prepare query params
 	const queryParams = {
-		q: p.q || undefined,
+		name: p.name || undefined,
 		categoryId: p.categoryId || undefined,
 		status: p.status === "true" ? true : p.status === "false" ? false : undefined,
 		minPrice: p.minPrice ? Number(p.minPrice) : undefined,
@@ -81,11 +81,48 @@ async function ProductGrid({ params }: { params: SearchPageProps["searchParams"]
 	let hasError = false;
 
 	try {
-		// Fetch products
-		backendProducts = await productService.getProducts(queryParams);
+		// CHIẾN LƯỢC TÌM KIẾM:
+		// 1. Nếu gõ ngắn (1-2 chữ): Thường backend không xử lý tốt -> Fetch tập rộng rồi filter client-side.
+		// 2. Nếu gõ dài hoặc filter theo category/giá: Dùng backend filter.
+		
+		const q = queryParams.name?.toLowerCase().trim() || "";
+		
+		if (q.length > 0 && q.length < 3) {
+			// Xử lý từ khóa ngắn (1-2 ký tự)
+			const allProducts = await productService.getProducts({ size: 100 });
+			backendProducts = allProducts.filter(p => 
+				p.productName.toLowerCase().includes(q) ||
+				(p.description && p.description.toLowerCase().includes(q))
+			);
+		} else {
+			// Gọi backend cho trường hợp bình thường
+			backendProducts = await productService.getProducts(queryParams);
+
+			// Fallback nếu backend trả về [] cho keyword dài (vì lý do đồng bộ hoặc index)
+			if (backendProducts.length === 0 && q.length >= 3) {
+				const allProducts = await productService.getProducts({ size: 100 });
+				backendProducts = allProducts.filter(p => 
+					p.productName.toLowerCase().includes(q)
+				);
+			}
+		}
 	} catch (error) {
-		console.error("Failed to load products:", error);
-		hasError = true;
+		console.error("Failed to load products, trying fallback:", error);
+		// FALLBACK ON ERROR
+		try {
+			const allProducts = await productService.getProducts({ size: 100 });
+			const q = queryParams.name?.toLowerCase().trim() || "";
+			if (q) {
+				backendProducts = allProducts.filter(p => 
+					p.productName.toLowerCase().includes(q)
+				);
+			} else {
+				backendProducts = allProducts;
+			}
+		} catch (fallbackError) {
+			console.error("Complete data failure:", fallbackError);
+			hasError = true;
+		}
 	}
 
 	if (hasError) {
