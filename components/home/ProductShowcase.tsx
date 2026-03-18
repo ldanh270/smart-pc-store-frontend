@@ -34,7 +34,7 @@ export default function ProductShowcase({
 			<div className="flex justify-center pt-8">
 				<Link 
 					href="/san-pham"
-					className="group flex items-center gap-2 px-10 py-5 rounded-full bg-foreground text-background font-black text-sm uppercase tracking-widest hover:bg-primary transition-all duration-300 hover:shadow-2xl"
+					className="group flex items-center gap-2 px-10 py-5 rounded-full bg-foreground text-background font-black text-sm uppercase tracking-widest hover:bg-primary transition-all duration-300 hover:shadow-[0_0_40px_rgba(14,165,233,0.4)] active:scale-95"
 				>
 					Xem Thêm Sản Phẩm
 					<span className="transition-transform group-hover:translate-x-2">→</span>

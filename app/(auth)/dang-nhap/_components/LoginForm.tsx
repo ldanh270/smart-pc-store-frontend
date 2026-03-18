@@ -5,11 +5,12 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Eye, EyeOff, User, Lock, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Mail, Key, Loader2, ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Form,
 	FormControl,
@@ -95,32 +96,34 @@ export default function LoginForm() {
 		<Form {...form}>
 			<form
 				onSubmit={form.handleSubmit(onSubmit)}
-				className="space-y-5"
+				className="space-y-6"
 				id="login-form"
 			>
-				{/* Username Field */}
+				{/* Email Field */}
 				<FormField
 					control={form.control}
 					name="username"
 					render={({ field }) => (
-						<FormItem>
-							<FormLabel className="font-sans text-sm font-medium text-foreground">
-								Tên đăng nhập
+						<FormItem className="space-y-2">
+							<FormLabel className="text-[13px] font-semibold text-foreground/90">
+								Email
 							</FormLabel>
 							<FormControl>
-								<div className="relative">
-									<User className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+								<div className="relative group">
+									<div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground/50 group-focus-within:text-primary transition-colors">
+										<Mail className="size-4.5" />
+									</div>
 									<Input
 										id="login-username"
 										type="text"
-										placeholder="Nhập tên đăng nhập"
-										className="pl-10"
+										placeholder="Nhập email của bạn"
+										className="h-12 rounded-xl border-border/60 bg-background/50 pl-10 pr-4 text-sm transition-all hover:bg-muted/50 focus-visible:border-primary focus-visible:ring-[4px] focus-visible:ring-primary/10 focus-visible:bg-background placeholder:text-muted-foreground/40 shadow-sm"
 										autoComplete="username"
 										{...field}
 									/>
 								</div>
 							</FormControl>
-							<FormMessage className="text-destructive" />
+							<FormMessage className="text-xs" />
 						</FormItem>
 					)}
 				/>
@@ -130,89 +133,91 @@ export default function LoginForm() {
 					control={form.control}
 					name="password"
 					render={({ field }) => (
-						<FormItem>
-							<div className="flex items-center justify-between">
-								<FormLabel className="font-sans text-sm font-medium text-foreground">
-									Mật khẩu
-								</FormLabel>
-								<Link
-									href="/forgot-password"
-									className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
-									id="forgot-password-link"
-								>
-									Quên mật khẩu?
-								</Link>
-							</div>
+						<FormItem className="space-y-2">
+							<FormLabel className="text-[13px] font-semibold text-foreground/90">
+								Mật khẩu
+							</FormLabel>
 							<FormControl>
-								<div className="relative">
-									<Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+								<div className="relative group">
+									<div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground/50 group-focus-within:text-primary transition-colors">
+										<Key className="size-4.5" />
+									</div>
 									<Input
 										id="login-password"
 										type={isPasswordVisible ? "text" : "password"}
-										placeholder="••••••••"
-										className="pl-10 pr-10"
+										placeholder="Nhập mật khẩu"
+										className="h-12 rounded-xl border-border/60 bg-background/50 pl-10 pr-10 text-sm transition-all hover:bg-muted/50 focus-visible:border-primary focus-visible:ring-[4px] focus-visible:ring-primary/10 focus-visible:bg-background placeholder:text-muted-foreground/40 shadow-sm"
 										autoComplete="current-password"
 										{...field}
 									/>
 									<button
 										type="button"
 										onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-										className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-										aria-label={
-											isPasswordVisible ? "Ẩn mật khẩu" : "Hiện mật khẩu"
-										}
+										className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-foreground transition-colors p-1"
+										aria-label={isPasswordVisible ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
 										id="toggle-password-visibility"
 									>
-										{isPasswordVisible ? (
-											<EyeOff className="size-4" />
-										) : (
-											<Eye className="size-4" />
-										)}
+										{isPasswordVisible ? <EyeOff className="size-4.5" /> : <Eye className="size-4.5" />}
 									</button>
 								</div>
 							</FormControl>
-							<FormMessage className="text-destructive" />
+							<FormMessage className="text-xs" />
 						</FormItem>
 					)}
 				/>
+
+				{/* Remember Me & Forgot Password */}
+				<div className="flex items-center justify-between pt-1 pb-3">
+					<div className="flex items-center space-x-2.5">
+						<Checkbox id="remember" className="size-4 rounded-md border-border/60 bg-background/50 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all" />
+						<label htmlFor="remember" className="text-xs font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors select-none">
+							Ghi nhớ đăng nhập
+						</label>
+					</div>
+					<Link href="/forgot-password" className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors">
+						Quên mật khẩu?
+					</Link>
+				</div>
 
 				{/* Submit Button */}
 				<Button
 					type="submit"
 					size="lg"
-					className="w-full font-sans font-semibold"
+					className="group glow-primary h-12 w-full rounded-xl bg-primary font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-300 hover:bg-primary/90 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/30 active:translate-y-0"
 					disabled={isSubmitting}
 					id="login-submit-button"
 				>
 					{isSubmitting ? (
 						<>
-							<Loader2 className="size-4 animate-spin" />
+							<Loader2 className="mr-2 size-5 animate-spin" />
 							Đang đăng nhập...
 						</>
 					) : (
-						"Đăng nhập"
+						<span className="flex items-center justify-center gap-2">
+							Đăng nhập
+							<ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+						</span>
 					)}
 				</Button>
 
-				{/* Divider */}
-				<div className="relative flex items-center gap-4 py-1">
-					<Separator className="flex-1" />
-					<span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-						Hoặc
-					</span>
-					<Separator className="flex-1" />
+                <div className="relative py-2">
+					<div className="absolute inset-0 flex items-center">
+						<span className="w-full border-t border-border/40" />
+					</div>
+					<div className="relative flex justify-center text-xs uppercase">
+						<span className="bg-card px-3 text-muted-foreground/60 font-medium tracking-wider">Hoặc tiếp tục với</span>
+					</div>
 				</div>
 
 				{/* Google Login Button */}
 				<Button
 					type="button"
 					variant="outline"
-					size="lg"
-					className="w-full font-sans font-medium gap-3"
+					className="h-12 w-full flex items-center justify-center gap-3 rounded-xl border border-border/50 bg-background/30 shadow-sm transition-all duration-300 hover:bg-muted/80 hover:border-border/80 focus-visible:ring-4 focus-visible:ring-muted hover:-translate-y-0.5"
 					id="google-login-button"
 				>
 					<GoogleIcon />
-					Đăng nhập bằng Google
+					<span className="text-[13px] font-semibold text-foreground/90">Đăng nhập bằng Google</span>
 				</Button>
 			</form>
 		</Form>

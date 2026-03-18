@@ -18,16 +18,17 @@ export default async function HomePage() {
 		.filter((c) => c.parentId != null);
 
 	// Fetch song song các list sản phẩm để điền vào UI
-	const [forYou, top10Products] = await Promise.all([
+	const [forYou, top10Products, subHeroProducts] = await Promise.all([
 		fetchProducts({ page: 1, size: 8 }), // Gợi ý cho bạn
 		fetchProducts({ page: 1, size: 10 }), // For Top 10
+		fetchProducts({ page: 1, size: 3, sort: "currentPrice,asc" }), // SubHero (e.g. cheapest/newest)
 	]);
 
 	return (
 		<main className="pb-15">
 			{/* 1. Intro / Hero Area */}
 			<section className="mx-auto max-w-7xl px-6 lg:px-16 pb-16 pt-5">
-				<FigmaHero />
+				<FigmaHero products={subHeroProducts} />
 			</section>
 
 			{/* 2. Danh mục sản phẩm (Shop by Category) - Move up after Hero */}

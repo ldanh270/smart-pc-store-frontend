@@ -63,7 +63,7 @@ export default function SearchDialog({
 
 	useEffect(() => {
 		async function fetchResults() {
-			const q = debouncedQuery.trim();
+			const q = debouncedQuery.trim().toLowerCase();
 			// Nếu không có cả từ khóa lẫn danh mục cụ thể thì ẩn kết quả
 			if (!q && selectedCategory === "all") {
 				setResults([]);
@@ -73,17 +73,38 @@ export default function SearchDialog({
 
 			setIsSearching(true);
 			try {
-				const params: any = { q };
-				if (selectedCategory !== "all") {
-					params.category = selectedCategory; 
-				}
-				const backendProducts = await productService.getProducts(params);
+				// CHIẾN LƯỢC TÌM KIẾM: 
+				// 1. Nếu gõ ngắn (1-2 chữ): Backend thường bỏ qua hoặc trả về [] -> Ta fetch 100 cái rồi filter client-side ngay.
+				// 2. Nếu gõ từ 3 chữ: Gọi backend như bình thường.
 				
-				let filtered = backendProducts;
-				if (selectedCategory !== "all") {
-					filtered = filtered.filter(p => p.categoryId === selectedCategory);
+				let backendProducts: any[] = [];
+				
+				if (q.length > 0 && q.length < 3) {
+					// Fetch tập rộng để filter client-side cho từ khóa ngắn
+					const allProducts = await productService.getProducts({ size: 100 });
+					backendProducts = allProducts.filter(p => 
+						p.productName.toLowerCase().includes(q) || 
+						(p.description && p.description.toLowerCase().includes(q))
+					);
+				} else {
+					// Gõ đủ dài (> 2 chữ) hoặc chỉ chọn category -> Gọi backend filter
+					const params: any = {};
+					if (q) params.q = q;
+					if (selectedCategory !== "all") {
+						params.categoryId = selectedCategory; 
+					}
+					backendProducts = await productService.getProducts(params);
+					
+					// Fallback nếu backend trả về [] cho từ khóa dài (có thể do sai lệch index)
+					if (backendProducts.length === 0 && q.length >= 3) {
+						const allProducts = await productService.getProducts({ size: 100 });
+						backendProducts = allProducts.filter(p => 
+							p.productName.toLowerCase().includes(q)
+						);
+					}
 				}
-				setResults(filtered.map(mapBackendProduct));
+
+				setResults(backendProducts.map(mapBackendProduct));
 			} catch (error) {
 				console.error("Failed to fetch search results:", error);
 				setResults([]);
@@ -102,7 +123,7 @@ export default function SearchDialog({
 			setIsOpen(false);
 			const url = new URL("/san-pham", window.location.origin);
 			if (q) url.searchParams.set("q", q);
-			if (selectedCategory !== "all") url.searchParams.set("category", selectedCategory);
+			if (selectedCategory !== "all") url.searchParams.set("categoryId", selectedCategory);
 			router.push(url.pathname + url.search);
 		}
 	};
@@ -228,7 +249,7 @@ export default function SearchDialog({
 							</div>
 						)}
 
-						<ScrollArea className="max-h-[60vh] md:max-h-[400px]">
+						<ScrollArea className="h-full overflow-y-auto max-h-[60vh] md:max-h-[400px]">
 							{isSearching ? (
 								<div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
 									<Loader2 className="mb-3 size-5 animate-spin" />

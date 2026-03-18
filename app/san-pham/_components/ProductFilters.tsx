@@ -82,11 +82,11 @@ export default function ProductFilters() {
 	};
 
 	const clearFilters = () => {
-		const q = searchParams.get("q");
-		if (q) {
-			router.push(`/products?q=${encodeURIComponent(q)}`);
+		const name = searchParams.get("name");
+		if (name) {
+			router.push(`/san-pham?name=${encodeURIComponent(name)}`);
 		} else {
-			router.push(`/products`);
+			router.push(`/san-pham`);
 		}
 		setLocalPrices({ minPrice: "", maxPrice: "" });
 		setIsOpen(false);
