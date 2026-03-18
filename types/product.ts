@@ -62,6 +62,7 @@ export interface ProductCreateDto {
 
 export interface ProductQueryParams {
 	q?: string;
+	name?: string;
 	categoryId?: string;
 	status?: boolean;
 	minPrice?: number;
