@@ -56,20 +56,25 @@ export async function refreshAccessToken(): Promise<string> {
   if (refreshPromise) return refreshPromise;
 
   refreshPromise = (async () => {
-    const { data } = await axios.post(
-      `${api.defaults.baseURL}/auth/refresh`,
-      {},
-      { withCredentials: true, timeout: 10_000 }
-    );
+    try {
+      const { data } = await axios.post(
+        `${api.defaults.baseURL}/auth/refresh`,
+        {},
+        { withCredentials: true, timeout: 10_000 }
+      );
 
-    // Normalise the token key across different backend conventions
-    const newToken: string =
-      data.accessToken ?? data.token ?? data.access_token;
+      // Normalise the token key across different backend conventions
+      const newToken: string =
+        data.accessToken ?? data.token ?? data.access_token;
 
-    if (!newToken) throw new Error("Refresh response is missing the access token");
+      if (!newToken) throw new Error("Refresh response is missing the access token");
 
-    setAccessToken(newToken);
-    return newToken;
+      setAccessToken(newToken);
+      return newToken;
+    } catch (error) {
+      clearAuth();
+      throw error;
+    }
   })().finally(() => {
     // Always clear the singleton so the next expiry starts fresh
     refreshPromise = null;

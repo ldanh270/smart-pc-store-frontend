@@ -16,17 +16,9 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 // ─── Route Label Map ────────────────────────────────────────────────────────
 
@@ -104,44 +96,53 @@ export default function AdminHeader() {
 			<Separator orientation="vertical" className="h-4" />
 
 			{/* User Dropdown */}
-			<DropdownMenu>
-				<DropdownMenuTrigger asChild>
-					<button className="flex items-center gap-2 rounded-lg px-1.5 py-1 transition-colors hover:bg-accent">
-						<Avatar className="size-7">
-							<AvatarImage src="" />
-							<AvatarFallback className="bg-primary/20 text-xs font-semibold text-primary">
-								{user?.name?.charAt(0).toUpperCase() ?? "A"}
-							</AvatarFallback>
-						</Avatar>
-						<span className="hidden text-sm font-medium md:block">
-							{user?.name ?? "Admin"}
-						</span>
-					</button>
-				</DropdownMenuTrigger>
-				<DropdownMenuContent align="end" className="w-48">
-					<DropdownMenuLabel>
-						<span className="block text-sm font-medium">{user?.name ?? "Admin"}</span>
-						<span className="block text-xs text-muted-foreground">
+			<div className="group relative">
+				<button className="flex items-center gap-2 rounded-lg px-1.5 py-1 transition-colors hover:bg-accent">
+					<Avatar className="size-7 border border-border/50">
+						<AvatarFallback className="bg-primary/20 text-xs font-semibold text-primary">
+							{user?.name?.charAt(0).toUpperCase() ?? "A"}
+						</AvatarFallback>
+					</Avatar>
+					<span className="hidden text-sm font-medium md:block">
+						{user?.name ?? "Admin"}
+					</span>
+				</button>
+				
+				<div className="invisible absolute right-0 top-full z-50 mt-2 w-48 rounded-xl border border-border/60 bg-popover/95 p-1.5 opacity-0 shadow-xl shadow-black/10 backdrop-blur-xl transition-all duration-200 group-hover:visible group-hover:opacity-100">
+					{/* Profile header */}
+					<div className="mb-1 px-3 py-2">
+						<span className="block text-sm font-medium truncate">{user?.name ?? "Admin"}</span>
+						<span className="block text-[11px] text-muted-foreground truncate">
 							{user?.email ?? ""}
 						</span>
-					</DropdownMenuLabel>
-					<DropdownMenuSeparator />
-					<DropdownMenuItem asChild>
-						<Link href="/">
-							<Store className="mr-2 size-4" />
-							Về Trang Mua Bán
-						</Link>
-					</DropdownMenuItem>
-					<DropdownMenuSeparator />
-					<DropdownMenuItem
-						className="text-destructive focus:text-destructive cursor-pointer"
-						onClick={async () => { await logout(); window.location.href = "/dang-nhap"; }}
+					</div>
+
+					<div className="my-1 h-px bg-border/50" />
+
+					{/* Menu items */}
+					<Link
+						href="/"
+						className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-popover-foreground/90 transition-colors hover:bg-accent hover:text-accent-foreground"
 					>
-						<LogOut className="mr-2 size-4" />
+						<Store className="size-4 shrink-0 text-muted-foreground" />
+						Về Trang Khách
+					</Link>
+
+					<div className="my-1 h-px bg-border/50" />
+
+					{/* Logout */}
+					<button
+						onClick={async () => {
+							await logout();
+							window.location.href = "/dang-nhap";
+						}}
+						className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
+					>
+						<LogOut className="size-4 shrink-0" />
 						Đăng Xuất
-					</DropdownMenuItem>
-				</DropdownMenuContent>
-			</DropdownMenu>
+					</button>
+				</div>
+			</div>
 		</header>
 	);
 }

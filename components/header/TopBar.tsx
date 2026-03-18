@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Zap } from "lucide-react";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -10,13 +11,17 @@ import SearchDialog from "./SearchDialog";
 import { cn } from "@/lib/utils";
 
 interface TopBarProps {
-	scrolled?: boolean;
-	initialCategories?: any[];
+	initialCategories?: unknown[];
 }
 
-export default function TopBar({ scrolled, initialCategories = [] }: TopBarProps) {
-	const accessToken = useAuthStore((state) => state.accessToken);
-	const isLoggedIn = !!accessToken;
+export default function TopBar({ initialCategories = [] }: TopBarProps) {
+	const user = useAuthStore((state) => state.user);
+	const [isClient, setIsClient] = useState(false);
+
+	useEffect(() => {
+		const timer = setTimeout(() => setIsClient(true), 0);
+		return () => clearTimeout(timer);
+	}, []);
 
 	return (
 		<div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 lg:gap-6 lg:px-8">
@@ -44,8 +49,14 @@ export default function TopBar({ scrolled, initialCategories = [] }: TopBarProps
 
 			{/* Actions */}
 			<div className="flex shrink-0 items-center gap-1.5 lg:gap-2">
-				<CartButton />
-				{isLoggedIn ? <UserMenu /> : <AuthButtons />}
+				{isClient ? (
+					<>
+						{user && <CartButton />}
+						{user ? <UserMenu /> : <AuthButtons />}
+					</>
+				) : (
+					<div className="h-9 w-24 animate-pulse rounded-lg bg-muted/40" />
+				)}
 			</div>
 		</div>
 	);

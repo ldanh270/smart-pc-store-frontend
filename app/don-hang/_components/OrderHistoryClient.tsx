@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   Package,
@@ -13,11 +14,9 @@ import {
   Loader2,
   ExternalLink,
   ChevronDown,
-  ChevronUp,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -95,24 +94,78 @@ function OrderDetailDialog({
   orderId,
   open,
   onClose,
+  onPaymentSuccess,
 }: {
   orderId: string | null;
   open: boolean;
   onClose: () => void;
+  onPaymentSuccess?: () => void;
 }) {
   const [detail, setDetail] = useState<OrderDetailView | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [paymentMessage, setPaymentMessage] = useState("");
+
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const clearTimers = useCallback(() => {
+    if (pollRef.current) clearInterval(pollRef.current);
+    if (countdownRef.current) clearInterval(countdownRef.current);
+    pollRef.current = null;
+    countdownRef.current = null;
+  }, []);
+
   useEffect(() => {
-    if (!open || !orderId) return;
-    setDetail(null);
-    setLoading(true);
-    orderService
-      .getOrderDetail(orderId)
-      .then(setDetail)
-      .catch(() => toast.error("Không thể tải chi tiết đơn hàng"))
-      .finally(() => setLoading(false));
-  }, [open, orderId]);
+    if (!open || !orderId) {
+      clearTimers();
+      return;
+    }
+    
+    const timer = setTimeout(() => {
+      setDetail(null);
+      setLoading(true);
+      orderService
+        .getOrderDetail(orderId)
+        .then((data) => {
+           setDetail(data);
+           if (data.order.status === "PENDING") {
+               const TIMEOUT_SECONDS = 5 * 60;
+               const expireAt = new Date(data.order.createdAt).getTime() + TIMEOUT_SECONDS * 1000;
+               
+               countdownRef.current = setInterval(() => {
+                  const now = Date.now();
+                  const remaining = Math.max(0, Math.floor((expireAt - now) / 1000));
+                  setTimeLeft(remaining);
+                  if (remaining <= 0) clearTimers();
+               }, 1000);
+
+               pollRef.current = setInterval(async () => {
+                  try {
+                    const result = await orderService.checkTransaction(data.order.transactionCode);
+                    setPaymentMessage(result.message);
+                    if (result.completed) {
+                       clearTimers();
+                       toast.success("Thanh toán thành công!");
+                       setDetail(prev => prev ? { ...prev, order: { ...prev.order, status: "PAID" as OrderStatus } } : null);
+                       if (onPaymentSuccess) onPaymentSuccess();
+                    }
+                  } catch {
+                     // ignore network errors during poll
+                  }
+               }, 3000);
+           }
+        })
+        .catch(() => toast.error("Không thể tải chi tiết đơn hàng"))
+        .finally(() => setLoading(false));
+    }, 0);
+
+    return () => {
+      clearTimers();
+      clearTimeout(timer);
+    };
+  }, [open, orderId, clearTimers, onPaymentSuccess]);
 
   const total = detail?.items?.reduce(
     (sum, item) => sum + item.unitPrice * item.quantity,
@@ -162,6 +215,36 @@ function OrderDetailDialog({
                 </p>
               </div>
             </div>
+
+            {/* Payment QR Area for Pending Orders */}
+            {detail.order.status === "PENDING" && detail.qrCode && timeLeft > 0 && (
+               <div className="rounded-xl border-2 border-dashed border-primary/50 bg-primary/5 p-4 text-center">
+                  <p className="mb-3 text-sm font-semibold text-foreground">
+                    Tiếp tục thanh toán bằng mã QR
+                  </p>
+                  <div className="flex flex-col items-center justify-center gap-2">
+                     <div className="rounded-xl border bg-white p-2 shadow-sm inline-block">
+                        <Image src={detail.qrCode} alt="QR Thanh toán" width={180} height={180} unoptimized className="mx-auto" />
+                     </div>
+                  </div>
+                  
+                  <div className="mt-3 mb-2 flex items-center justify-center gap-2 font-mono text-lg font-bold text-red-500">
+                     <Clock className="h-5 w-5" />
+                     {Math.floor(timeLeft / 60).toString().padStart(2, "0")}:{ (timeLeft % 60).toString().padStart(2, "0") }
+                  </div>
+                  <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                     <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                     <span>{paymentMessage || "Đang chờ xác nhận thanh toán..."}</span>
+                  </div>
+               </div>
+            )}
+            
+            {detail.order.status === "PENDING" && timeLeft <= 0 && (
+               <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-center text-sm text-red-600">
+                  <XCircle className="mx-auto mb-2 h-8 w-8 text-red-500" />
+                  <p>Mã QR thanh toán này đã hết hạn (5 phút).</p>
+               </div>
+            )}
 
             {/* Items */}
             {detail.items && detail.items.length > 0 && (
@@ -287,7 +370,7 @@ function OrderCard({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => onViewDetail(order.id)}
+          onClick={() => onViewDetail(order.orderCode)}
         >
           <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
           Xem chi tiết
@@ -521,6 +604,7 @@ export default function OrderHistoryClient() {
         orderId={detailId}
         open={!!detailId}
         onClose={() => setDetailId(null)}
+        onPaymentSuccess={() => fetchOrders(true)}
       />
     </main>
   );

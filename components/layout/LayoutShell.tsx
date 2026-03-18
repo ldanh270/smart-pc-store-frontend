@@ -20,11 +20,13 @@ export default function LayoutShell({ children, initialCategories = [] }: Layout
 	}
 
 	return (
-		<>
+		<div className="flex min-h-screen flex-col">
 			<Header initialCategories={initialCategories} />
-			{children}
+			<div className="flex flex-1 flex-col">
+				{children}
+			</div>
 			<Footer />
 			<AIChatBox />
-		</>
+		</div>
 	);
 }
