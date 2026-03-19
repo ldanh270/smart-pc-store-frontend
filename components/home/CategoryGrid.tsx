@@ -73,12 +73,13 @@ export default function CategoryGrid({ categories = [] }: CategoryGridProps) {
 					]}
 					className="w-full relative"
 				>
-					<CarouselContent className="-ml-2 md:-ml-3">
+					<CarouselContent className="-ml-2 md:-ml-3 my-1">
 					{categories.map((category, index) => {
 						// Extract icon name from description or fallback to array index based icons since BE doesn't store icon name.
 						const iconKeys = Object.keys(ICON_MAP);
 						const Icon = ICON_MAP[iconKeys[index % iconKeys.length]] ?? Cpu;
 						const color = COLORS[index % COLORS.length];
+						// const href = `/danh-muc/${generateCategorySlug(category.name)}`;
 						const href = `/danh-muc/${generateCategorySlug(category.name)}`;
 
 						return (

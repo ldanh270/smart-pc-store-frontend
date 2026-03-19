@@ -35,7 +35,16 @@ export function mapBackendCategory(bc: BackendCategory): Category {
 // ─── Slug Utility ───────────────────────────────────────────────────────────
 
 export function generateCategorySlug(categoryName: string): string {
-  return categoryName.trim().toLowerCase().replace(/\s+/g, "-");
+  return categoryName
+    .normalize("NFD")                   // Tách chữ và dấu
+    .replace(/[\u0300-\u036f]/g, "")    // Loại bỏ các dấu
+    .replace(/đ/g, "d")                 // Chuyển chữ đ thường
+    .replace(/Đ/g, "D")                 // Chuyển chữ Đ hoa
+    .toLowerCase()                      // Chuyển về chữ thường
+    .trim()                             // Bỏ khoảng trắng 2 đầu
+    .replace(/[^a-z0-9 -]/g, "")        // Xóa các ký tự đặc biệt không phải chữ, số, khoảng trắng hay gạch ngang
+    .replace(/\s+/g, "-")               // Thay khoảng trắng bằng gạch ngang
+    .replace(/-+/g, "-");               // Xóa các gạch ngang liên tiếp (VD: "a---b" thành "a-b")
 }
 
 // ─── Category Detail (with nested products) ─────────────────────────────────

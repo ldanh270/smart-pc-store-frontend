@@ -18,7 +18,7 @@ export default function BrandsList() {
 				<h2 className="text-2xl font-black text-foreground tracking-tight md:text-3xl">
 					Thương Hiệu <span className="text-primary">Đồng Hành</span>
 				</h2>
-				<div className="h-1 w-14 rounded-full bg-gradient-to-r from-primary to-transparent mt-2" />
+				<div className="h-1 w-14 rounded-full bg-linear-to-r from-primary to-transparent mt-2" />
 			</div>
 
 			<div className="flex flex-col gap-6 md:gap-10">
@@ -28,8 +28,8 @@ export default function BrandsList() {
 						<div 
 							key={brand.name} 
 							className={cn(
-								"group relative flex items-center justify-center py-4 px-6 min-w-[120px] md:min-w-[160px]",
-								"transition-all duration-500 hover:opacity-100 hover:scale-110"
+								"group relative flex items-center justify-center py-4 px-6 min-w-30in-w-[160px]",
+								"transition-all duration-500 hover:opacity-100 hover:scale-110 cursor-default"
 							)}
 						>
 							<span className="text-xl md:text-3xl font-black tracking-tighter text-foreground transition-colors group-hover:text-primary">
@@ -46,8 +46,8 @@ export default function BrandsList() {
 						<div 
 							key={brand.name} 
 							className={cn(
-								"group relative flex items-center justify-center py-4 px-6 min-w-[120px] md:min-w-[160px]",
-								"transition-all duration-500 hover:opacity-100 hover:scale-110"
+								"group relative flex items-center justify-center py-4 px-6 min-w-30 md:min-w-40",
+								"transition-all duration-500 hover:opacity-100 hover:scale-110 cursor-default"
 							)}
 						>
 							<span className="text-xl md:text-3xl font-black tracking-tighter text-foreground transition-colors group-hover:text-primary">

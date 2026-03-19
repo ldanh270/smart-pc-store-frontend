@@ -16,7 +16,6 @@ export async function fetchAllCategories(): Promise<BackendCategory[]> {
 		});
 		if (!res.ok) return [];
 
-		// Prevent JSON parsing error when API returns an HTML page
 		const contentType = res.headers.get("content-type");
 		if (!contentType || !contentType.includes("application/json")) {
 			console.error(`Expected JSON but got ${contentType}. URL: ${buildApiUrl("/categories")}`);

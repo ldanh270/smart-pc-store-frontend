@@ -12,15 +12,12 @@
   "requirePragma": false,
   "semi": false,
   "singleQuote": false,
-  "tabWidth": 4,
+  "tabWidth": 2,
   "trailingComma": "all",
   "useTabs": false,
   "vueIndentScriptAndStyle": false,
 
-  "plugins": [
-    "@trivago/prettier-plugin-sort-imports",
-    "prettier-plugin-tailwindcss"
-  ],
+  "plugins": ["@trivago/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
   "importOrder": [
     "^(react|react-dom)$",
     "^@?\\w",

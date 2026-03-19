@@ -13,9 +13,7 @@ import CategoryGrid from "@/components/home/CategoryGrid";
 export default async function HomePage() {
 	// Lấy categories
 	const backendCategories = await fetchAllCategories();
-	const categories = backendCategories
-		.map(mapBackendCategory)
-		.filter((c) => c.parentId != null);
+	const categories = backendCategories.map(mapBackendCategory);
 
 	// Fetch song song các list sản phẩm để điền vào UI
 	const [forYou, top10Products, subHeroProducts] = await Promise.all([

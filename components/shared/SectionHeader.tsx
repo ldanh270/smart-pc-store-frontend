@@ -29,7 +29,7 @@ export default function SectionHeader({
 				)}
 
 				{/* Gradient accent underline */}
-				<div className="mt-3 h-1 w-14 rounded-full bg-gradient-to-r from-primary to-transparent" />
+				<div className="mt-3 h-1 w-14 rounded-full bg-linear-to-r from-primary to-transparent" />
 			</div>
 
 			{viewAllHref && (
