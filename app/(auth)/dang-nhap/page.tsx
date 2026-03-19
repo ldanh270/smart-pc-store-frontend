@@ -40,7 +40,7 @@ export default function LoginPage() {
     - Khi hover: Ngửa nhẹ lên đón mắt người dùng (-5), xoay ngang (15).
 */}
           <FloatingGlassBlock
-            className="top-20 left-20 opacity-70"
+            className="top-30 left-20 opacity-70"
             size="lg"
             delay={0}
             rotate={8} // Nghiêng nhẹ ban đầu
@@ -75,7 +75,7 @@ export default function LoginPage() {
     - Khi hover: Ngửa mặt kính trực diện lên (X âm) và xoay ngang cực kỳ nhẹ nhàng.
 */}
           <FloatingGlassBlock
-            className="right-1/6 bottom-20 z-50 opacity-40"
+            className="right-1/4 bottom-60 z-50 opacity-40"
             size="md"
             delay={2}
             duration={8}
