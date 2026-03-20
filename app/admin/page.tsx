@@ -1,11 +1,66 @@
-import { Package, ShoppingCart, Users, DollarSign } from "lucide-react";
-import StatCard from "@/components/admin/dashboard/StatCard";
-import RevenueChart from "@/components/admin/dashboard/RevenueChart";
-import VisitorAreaChart from "@/components/admin/dashboard/VisitorAreaChart";
-import CategoryDonutChart from "@/components/admin/dashboard/CategoryDonutChart";
-import TopProducts from "@/components/admin/dashboard/TopProducts";
+"use client"
+
+import { useEffect, useState } from "react"
+import { Package, ShoppingCart, Users, DollarSign } from "lucide-react"
+import StatCard from "@/components/admin/dashboard/StatCard"
+import RevenueChart from "@/components/admin/dashboard/RevenueChart"
+import VisitorAreaChart from "@/components/admin/dashboard/VisitorAreaChart"
+import CategoryDonutChart from "@/components/admin/dashboard/CategoryDonutChart"
+import TopProducts from "@/components/admin/dashboard/TopProducts"
+import { dashboardService } from "@/services/dashboardService"
+import type { DashboardOverview } from "@/types/dashboard"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function AdminDashboardPage() {
+  const [data, setData] = useState<DashboardOverview | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchOverview = async () => {
+      try {
+        const overview = await dashboardService.getOverview()
+        setData(overview)
+      } catch (error) {
+        console.error("Failed to fetch dashboard overview:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchOverview()
+  }, [])
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(value)
+  }
+
+  const formatNumber = (value: number) => {
+    return new Intl.NumberFormat("vi-VN").format(value)
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <Skeleton className="h-10 w-48" />
+          <Skeleton className="mt-2 h-4 w-64" />
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-32 w-full" />
+          ))}
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Skeleton className="h-80 w-full" />
+          <Skeleton className="h-80 w-full" />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -19,35 +74,35 @@ export default function AdminDashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Tổng Doanh Thu"
-          value="452.000.000đ"
+          value={data ? formatCurrency(data.totalRevenue) : "0đ"}
           icon={DollarSign}
-          trend={12.5}
+          trend={data?.revenueChangePercent ?? 0}
           trendLabel="so với tháng trước"
           description="Đã thanh toán thành công"
         />
         <StatCard
           label="Đơn Hàng Mới"
-          value="+350"
+          value={data ? `+${formatNumber(data.newOrders)}` : "0"}
           icon={ShoppingCart}
-          trend={8.2}
+          trend={data?.ordersChangePercent ?? 0}
           trendLabel="so với tháng trước"
-          description="Đơn hàng đang xử lý"
+          description="Đơn hàng mới trong tháng"
         />
         <StatCard
           label="Khách Hàng Mới"
-          value="+12"
+          value={data ? `+${formatNumber(data.newCustomers)}` : "0"}
           icon={Users}
-          trend={-2.4}
+          trend={data?.customersChangePercent ?? 0}
           trendLabel="so với tháng trước"
           description="Tài khoản đăng ký mới"
         />
         <StatCard
           label="Sản Phẩm Đã Bán"
-          value="1,234"
+          value={data ? formatNumber(data.productsSold) : "0"}
           icon={Package}
-          trend={18.5}
+          trend={data?.productsSoldChangePercent ?? 0}
           trendLabel="so với tháng trước"
-          description="Tổng số lượng"
+          description="Tổng số lượng sản phẩm"
         />
       </div>
 
@@ -67,5 +122,5 @@ export default function AdminDashboardPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

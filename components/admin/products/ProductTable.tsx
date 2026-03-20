@@ -67,7 +67,6 @@ export default function ProductTable() {
 
 	const currentPage = lastParams?.page || 1;
 	const pageSize = lastParams?.size || 10;
-	// Simple heuristic: if we received as many items as pageSize, there *might* be a next page
 	const hasNextPage = products.length === pageSize;
 
 	function handlePreviousPage() {

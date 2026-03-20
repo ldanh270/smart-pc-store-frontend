@@ -26,7 +26,7 @@ export interface CategoryCreateDto {
 export function mapBackendCategory(bc: BackendCategory): Category {
   return {
     id: bc.id,
-    name: bc.categoryName,
+    name: bc.categoryName || "Danh mục không tên",
     description: bc.description,
     status: bc.status,
     parentId: bc.parentId ?? null,

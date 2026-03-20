@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod/v4";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import {
 	Dialog,
 	DialogContent,
@@ -46,7 +47,7 @@ interface CategoryFormDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	category?: Category;
-	onSubmit: (data: CategoryFormValues) => void;
+	onSubmit: (data: CategoryFormValues) => Promise<void> | void;
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -58,6 +59,7 @@ export default function CategoryFormDialog({
 	onSubmit,
 }: CategoryFormDialogProps) {
 	const isEditing = !!category;
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const form = useForm<CategoryFormValues>({
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -71,27 +73,34 @@ export default function CategoryFormDialog({
 
 	// Reset form with category data when dialog opens
 	useEffect(() => {
-		if (open && category) {
-			form.reset({
-				categoryName: category.name ?? "",
-				description: category.description ?? "",
-				status: category.status ?? true,
-			});
-		} else if (open && !category) {
-			form.reset({
-				categoryName: "",
-				description: "",
-				status: true,
-			});
+		if (open) {
+			if (category) {
+				form.reset({
+					categoryName: category.name ?? "",
+					description: category.description ?? "",
+					status: category.status ?? true,
+				});
+			} else {
+				form.reset({
+					categoryName: "",
+					description: "",
+					status: true,
+				});
+			}
+			setIsSubmitting(false);
 		}
 	}, [open, category, form]);
 
-	function handleSubmit(values: CategoryFormValues) {
-		onSubmit({
-			...values,
-			description: values.description || undefined,
-		});
-		form.reset();
+	async function handleSubmit(values: CategoryFormValues) {
+		setIsSubmitting(true);
+		try {
+			await onSubmit({
+				...values,
+				description: values.description || undefined,
+			});
+		} finally {
+			setIsSubmitting(false);
+		}
 	}
 
 	return (
@@ -177,10 +186,14 @@ export default function CategoryFormDialog({
 								type="button"
 								variant="outline"
 								onClick={() => onOpenChange(false)}
+								disabled={isSubmitting}
 							>
 								Hủy
 							</Button>
-							<Button type="submit">
+							<Button type="submit" disabled={isSubmitting}>
+								{isSubmitting && (
+									<Loader2 className="mr-2 size-4 animate-spin" />
+								)}
 								{isEditing ? "Cập Nhật" : "Tạo Mới"}
 							</Button>
 						</DialogFooter>

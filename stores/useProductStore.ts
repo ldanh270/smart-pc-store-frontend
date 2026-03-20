@@ -56,12 +56,12 @@ export const useProductStore = create<ProductStore>((set, get) => ({
   updateProduct: async (id: string, data: ProductCreateDto) => {
     try {
       set({ loading: true });
-      await productService.updateProduct(id, data);
+      const updatedProduct = await productService.updateProduct(id, data);
       toast.success("Cập nhật sản phẩm thành công!");
       await get().fetchProducts(get().lastParams);
-      return true;
+      return updatedProduct;
     } catch {
-      return false;
+      return null;
     } finally {
       set({ loading: false });
     }

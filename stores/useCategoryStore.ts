@@ -47,19 +47,18 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
   updateCategory: async (id: string, data) => {
     try {
       set({ loading: true });
-      await categoryService.updateCategory(id, data);
+      const updatedCategory = await categoryService.updateCategory(id, data);
 
-      // Optimistic: update local state from input data (don't rely on response body)
       set((state) => ({
         categories: state.categories.map((c) =>
-          c.id === id
-            ? { ...c, name: data.categoryName, description: data.description ?? null, status: data.status ?? c.status }
-            : c,
+          c.id === id ? updatedCategory : c,
         ),
       }));
       toast.success("Cập nhật danh mục thành công!");
       return true;
-    } catch {
+    } catch (error) {
+      console.error("Update category failed:", error);
+      toast.error("Không thể cập nhật danh mục.");
       return false;
     } finally {
       set({ loading: false });

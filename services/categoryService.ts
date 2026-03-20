@@ -39,8 +39,9 @@ export const categoryService = {
    * PUT /categories/{id}
    */
   updateCategory: async (id: string, data: CategoryCreateDto): Promise<Category> => {
-    const response = await api.put<ApiResponse<BackendCategory>>(`/categories/${id}`, data);
-    return mapBackendCategory(response.data.data);
+    const response = await api.put(`/categories/${id}`, data);
+    const raw = response.data?.data ?? response.data;
+    return mapBackendCategory(raw);
   },
 
   /**

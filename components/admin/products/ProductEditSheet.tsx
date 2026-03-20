@@ -149,8 +149,9 @@ export default function ProductEditSheet({
 		if (suppliers.length === 0) fetchSuppliers();
 
 		setFetchLoading(true);
+		const identifier = product.slug || product.id;
 		productService
-			.getProduct(product.id)
+			.getProductBySlug(identifier)
 			.then((data: AdminProduct) => {
 				setFetched(data);
 				setImagePreview(data.imageUrl || "");
@@ -197,14 +198,14 @@ export default function ProductEditSheet({
 
 			if (Object.keys(changed).length === 0) return;
 
-			const success = await updateProduct(fetched.id, {
+			const updated = await updateProduct(fetched.id, {
 				...fetched,
 				...changed,
 				description: (changed.description ?? fetched.description) || undefined,
 				imageUrl: (changed.imageUrl ?? fetched.imageUrl) || undefined,
 			});
-			if (success) {
-				setFetched((prev) => (prev ? { ...prev, ...changed } : prev));
+			if (updated) {
+				setFetched(updated);
 				infoForm.reset(values);
 			}
 		} finally {
@@ -224,14 +225,14 @@ export default function ProductEditSheet({
 
 			if (Object.keys(changed).length === 0) return;
 
-			const success = await updateProduct(fetched.id, {
+			const updated = await updateProduct(fetched.id, {
 				...fetched,
 				...changed,
 				description: fetched.description || undefined,
 				imageUrl: fetched.imageUrl || undefined,
 			});
-			if (success) {
-				setFetched((prev) => (prev ? { ...prev, ...changed } : prev));
+			if (updated) {
+				setFetched(updated);
 				pricingForm.reset(values);
 			}
 		} finally {
@@ -251,7 +252,7 @@ export default function ProductEditSheet({
 
 			if (Object.keys(changed).length === 0) return;
 
-			const success = await updateProduct(fetched.id, {
+			const updated = await updateProduct(fetched.id, {
 				productName: fetched.productName,
 				description: fetched.description || undefined,
 				imageUrl: fetched.imageUrl || undefined,
@@ -261,8 +262,8 @@ export default function ProductEditSheet({
 				categoryId: changed.categoryId ?? fetched.categoryId,
 				status: fetched.status,
 			});
-			if (success) {
-				setFetched((prev) => (prev ? { ...prev, ...changed } : prev));
+			if (updated) {
+				setFetched(updated);
 				classificationForm.reset(values);
 			}
 		} finally {

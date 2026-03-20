@@ -26,6 +26,14 @@ export const productService = {
   },
 
   /**
+   * GET /products/{slug} — get product by slug
+   */
+  getProductBySlug: async (slug: string): Promise<AdminProduct> => {
+    const response = await api.get(`/products/${slug}`)
+    return response.data?.data ?? response.data
+  },
+
+  /**
    * POST /products/create — create new product
    */
   createProduct: async (data: ProductCreateDto): Promise<AdminProduct> => {
