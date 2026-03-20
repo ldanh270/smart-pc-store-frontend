@@ -42,7 +42,7 @@ export default function TopBar({ initialCategories = [] }: TopBarProps) {
       </div>
 
       {/* Actions */}
-      <div className="flex shrink-0 items-center gap-1.5 lg:gap-2">
+      <div className="flex shrink-0 cursor-pointer items-center gap-1.5 lg:gap-2">
         {
           // isClient ? (
           <>

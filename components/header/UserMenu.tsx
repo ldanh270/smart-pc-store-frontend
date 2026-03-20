@@ -34,7 +34,7 @@ export default function UserMenu() {
       <button
         type="button"
         className={cn(
-          "flex h-9 items-center gap-2 rounded-lg px-2.5",
+          "flex h-9 cursor-pointer items-center gap-2 rounded-lg px-2.5",
           "border-border/60 bg-muted/40 text-foreground border text-sm font-medium",
           "hover:border-primary/40 hover:bg-primary/8 hover:text-primary transition-all duration-200",
         )}
@@ -61,7 +61,7 @@ export default function UserMenu() {
               {user?.name || "Người dùng"}
             </p>
             <p className="text-muted-foreground truncate text-[10px]">
-              {user?.role === "ADMIN" ? "Quản trị viên" : "Khách hàng"}
+              {user?.role?.toLowerCase() === "admin" ? "Quản trị viên" : "Khách hàng"}
             </p>
           </div>
         </div>
@@ -91,7 +91,7 @@ export default function UserMenu() {
             await logout()
             router.push("/")
           }}
-          className="text-destructive hover:bg-destructive/10 flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors"
+          className="text-destructive hover:bg-destructive/10 flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors"
         >
           <LogOut className="size-3.5 shrink-0" />
           Đăng xuất

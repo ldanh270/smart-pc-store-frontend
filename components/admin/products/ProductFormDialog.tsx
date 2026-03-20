@@ -33,6 +33,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { useEffect } from "react";
 import type { AdminProduct } from "@/types/product";
+import { slugify } from "@/types/product";
 import { useCategoryStore } from "@/stores/useCategoryStore";
 import { useSupplierStore } from "@/stores/useSupplierStore";
 
@@ -114,6 +115,7 @@ export default function ProductFormDialog({
 			description: values.description ?? null,
 			imageUrl: values.imageUrl || null,
 			categoryName: category?.name ?? "Không xác định",
+			slug: product?.slug || slugify(values.productName),
 		});
 		form.reset();
 	}
