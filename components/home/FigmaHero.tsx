@@ -55,8 +55,8 @@ export default function FigmaHero({ products }: FigmaHeroProps) {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {subHeroProducts.map((product) => (
           <Link
-            key={product.id}
-            href={`/san-pham/${product.id}`}
+            key={product.slug}
+            href={`/san-pham/${product.slug}`}
             className="group relative flex aspect-2/1 flex-col justify-end overflow-hidden rounded-3xl bg-slate-900 p-6 md:aspect-4/3 lg:aspect-video"
           >
             {/* Background Image */}

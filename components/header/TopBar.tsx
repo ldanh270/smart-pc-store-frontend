@@ -3,8 +3,6 @@
 import { cn } from "@/lib/utils"
 import { useAuthStore } from "@/stores/useAuthStore"
 
-import { useEffect, useState } from "react"
-
 import { Zap } from "lucide-react"
 import Link from "next/link"
 
@@ -19,12 +17,6 @@ interface TopBarProps {
 
 export default function TopBar({ initialCategories = [] }: TopBarProps) {
   const user = useAuthStore((state) => state.user)
-  const [isClient, setIsClient] = useState(false)
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsClient(true), 0)
-    return () => clearTimeout(timer)
-  }, [])
 
   return (
     <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 lg:gap-6 lg:px-8">
