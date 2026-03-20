@@ -1,14 +1,14 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-  Plus,
-  Loader2,
-  RefreshCw,
-} from "lucide-react";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   Table,
   TableBody,
@@ -16,36 +16,33 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import type { Supplier } from "@/types/supplier";
-import { useSupplierStore } from "@/stores/useSupplierStore";
-import SupplierFormDialog from "./SupplierFormDialog";
-import DeleteSupplierDialog from "./DeleteSupplierDialog";
+} from "@/components/ui/table"
+import { useSupplierStore } from "@/stores/useSupplierStore"
+import type { Supplier } from "@/types/supplier"
+
+import { useEffect, useState } from "react"
+
+import { Loader2, MoreHorizontal, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react"
+
+import DeleteSupplierDialog from "./DeleteSupplierDialog"
+import SupplierFormDialog from "./SupplierFormDialog"
 
 export default function SupplierTable() {
-  const { suppliers, loading, fetchSuppliers, createSupplier, updateSupplier, deleteSupplier } = useSupplierStore();
-  
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
-  const [deletingSupplier, setDeletingSupplier] = useState<Supplier | null>(null);
+  const { suppliers, loading, fetchSuppliers, createSupplier, updateSupplier, deleteSupplier } =
+    useSupplierStore()
+
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null)
+  const [deletingSupplier, setDeletingSupplier] = useState<Supplier | null>(null)
 
   useEffect(() => {
-    fetchSuppliers();
-  }, [fetchSuppliers]);
+    fetchSuppliers()
+  }, [fetchSuppliers])
 
   async function handleCreateSupplier(data: Omit<Supplier, "id" | "createdAt" | "updatedAt">) {
-    const success = await createSupplier(data);
+    const success = await createSupplier(data)
     if (success) {
-      setIsCreateOpen(false);
+      setIsCreateOpen(false)
     }
   }
 
@@ -57,16 +54,16 @@ export default function SupplierTable() {
       phone: updated.phone,
       address: updated.address,
       status: updated.status,
-    });
+    })
     if (success) {
-      setEditingSupplier(null);
+      setEditingSupplier(null)
     }
   }
 
   async function handleDeleteSupplier(id: string) {
-    const success = await deleteSupplier(id);
+    const success = await deleteSupplier(id)
     if (success) {
-      setDeletingSupplier(null);
+      setDeletingSupplier(null)
     }
   }
 
@@ -86,7 +83,7 @@ export default function SupplierTable() {
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border border-border">
+      <div className="border-border rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -102,15 +99,15 @@ export default function SupplierTable() {
             {loading ? (
               <TableRow>
                 <TableCell colSpan={6} className="py-12 text-center">
-                  <Loader2 className="mx-auto size-6 animate-spin text-muted-foreground" />
-                  <p className="mt-2 text-sm text-muted-foreground">
+                  <Loader2 className="text-muted-foreground mx-auto size-6 animate-spin" />
+                  <p className="text-muted-foreground mt-2 text-sm">
                     Đang tải hệ thống cung cấp...
                   </p>
                 </TableCell>
               </TableRow>
             ) : suppliers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-12 text-center text-muted-foreground">
+                <TableCell colSpan={6} className="text-muted-foreground py-12 text-center">
                   Không tìm thấy nhà cung cấp nào.
                 </TableCell>
               </TableRow>
@@ -120,12 +117,17 @@ export default function SupplierTable() {
                   <TableCell className="font-mono text-sm">{supplier.id}</TableCell>
                   <TableCell>
                     <p className="font-medium">{supplier.name}</p>
-                    {supplier.contactName && <p className="text-xs text-muted-foreground">{supplier.contactName}</p>}
+                    {supplier.contactName && (
+                      <p className="text-muted-foreground text-xs">{supplier.contactName}</p>
+                    )}
                   </TableCell>
                   <TableCell>{supplier.email || "-"}</TableCell>
                   <TableCell className="hidden md:table-cell">{supplier.phone || "-"}</TableCell>
                   <TableCell className="text-center">
-                    <Badge variant={supplier.status ? "outline" : "destructive"} className={supplier.status ? "border-emerald-500/50 text-emerald-600" : ""}>
+                    <Badge
+                      variant={supplier.status ? "outline" : "destructive"}
+                      className={supplier.status ? "border-emerald-500/50 text-emerald-600" : ""}
+                    >
                       {supplier.status ? "Hoạt động" : "Ngừng HĐ"}
                     </Badge>
                   </TableCell>
@@ -142,7 +144,10 @@ export default function SupplierTable() {
                           Chỉnh sửa
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive" onClick={() => setDeletingSupplier(supplier)}>
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={() => setDeletingSupplier(supplier)}
+                        >
                           <Trash2 className="mr-2 size-4" />
                           Xóa
                         </DropdownMenuItem>
@@ -166,12 +171,12 @@ export default function SupplierTable() {
       <SupplierFormDialog
         open={!!editingSupplier}
         onOpenChange={(open) => {
-          if (!open) setEditingSupplier(null);
+          if (!open) setEditingSupplier(null)
         }}
         supplier={editingSupplier ?? undefined}
         onSubmit={(data) => {
           if (editingSupplier) {
-            handleEditSupplier({ ...editingSupplier, ...data } as Supplier);
+            handleEditSupplier({ ...editingSupplier, ...data } as Supplier)
           }
         }}
       />
@@ -179,13 +184,13 @@ export default function SupplierTable() {
       <DeleteSupplierDialog
         open={!!deletingSupplier}
         onOpenChange={(open) => {
-          if (!open) setDeletingSupplier(null);
+          if (!open) setDeletingSupplier(null)
         }}
         supplierName={deletingSupplier?.name ?? ""}
         onConfirm={() => {
-          if (deletingSupplier) handleDeleteSupplier(deletingSupplier.id);
+          if (deletingSupplier) handleDeleteSupplier(deletingSupplier.id)
         }}
       />
     </div>
-  );
+  )
 }

@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import OrderTable from "@/components/admin/orders/OrderTable";
+import OrderTable from "@/components/admin/orders/OrderTable"
 
 export default function AdminOrdersPage() {
   return (
@@ -18,5 +18,5 @@ export default function AdminOrdersPage() {
       {/* Main Table */}
       <OrderTable />
     </div>
-  );
+  )
 }

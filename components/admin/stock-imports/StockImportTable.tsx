@@ -1,17 +1,22 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
-  MoreHorizontal,
-  Eye,
-  Pencil,
-  Trash2,
-  Plus,
-  Loader2,
-  RefreshCw,
-  PackageCheck,
-  XCircle,
-} from "lucide-react";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Table,
   TableBody,
@@ -19,29 +24,27 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+} from "@/components/ui/table"
+import { useStockImportStore } from "@/stores/useStockImportStore"
+import type { StockImport, StockImportStatus } from "@/types/stockImport"
+
+import { useEffect, useState } from "react"
+
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import type { StockImport, StockImportStatus } from "@/types/stockImport";
-import { useStockImportStore } from "@/stores/useStockImportStore";
-import StockImportFormDialog from "./StockImportFormDialog";
-import StockImportDetailDialog from "./StockImportDetailDialog";
-import DeleteStockImportDialog from "./DeleteStockImportDialog";
+  Eye,
+  Loader2,
+  MoreHorizontal,
+  PackageCheck,
+  Pencil,
+  Plus,
+  RefreshCw,
+  Trash2,
+  XCircle,
+} from "lucide-react"
+
+import DeleteStockImportDialog from "./DeleteStockImportDialog"
+import StockImportDetailDialog from "./StockImportDetailDialog"
+import StockImportFormDialog from "./StockImportFormDialog"
 
 // ─── Status config ───────────────────────────────────────────────────────────
 
@@ -64,7 +67,7 @@ const STATUS_CONFIG: Record<
     variant: "destructive",
     className: "",
   },
-};
+}
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -77,34 +80,34 @@ export default function StockImportTable() {
     updateStockImport,
     deleteStockImport,
     updateStatus,
-  } = useStockImportStore();
+  } = useStockImportStore()
 
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [editingImport, setEditingImport] = useState<StockImport | null>(null);
-  const [viewingImport, setViewingImport] = useState<StockImport | null>(null);
-  const [deletingImport, setDeletingImport] = useState<StockImport | null>(null);
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<StockImportStatus | "ALL">("ALL");
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [editingImport, setEditingImport] = useState<StockImport | null>(null)
+  const [viewingImport, setViewingImport] = useState<StockImport | null>(null)
+  const [deletingImport, setDeletingImport] = useState<StockImport | null>(null)
+  const [search, setSearch] = useState("")
+  const [statusFilter, setStatusFilter] = useState<StockImportStatus | "ALL">("ALL")
 
   useEffect(() => {
-    fetchStockImports();
-  }, [fetchStockImports]);
+    fetchStockImports()
+  }, [fetchStockImports])
 
   async function handleCreate(data: Parameters<typeof createStockImport>[0]) {
-    const success = await createStockImport(data);
-    if (success) setIsCreateOpen(false);
+    const success = await createStockImport(data)
+    if (success) setIsCreateOpen(false)
   }
 
   async function handleEdit(data: Parameters<typeof createStockImport>[0]) {
-    if (!editingImport) return;
-    const success = await updateStockImport(editingImport.id, data);
-    if (success) setEditingImport(null);
+    if (!editingImport) return
+    const success = await updateStockImport(editingImport.id, data)
+    if (success) setEditingImport(null)
   }
 
   async function handleDelete() {
-    if (!deletingImport) return;
-    const success = await deleteStockImport(deletingImport.id);
-    if (success) setDeletingImport(null);
+    if (!deletingImport) return
+    const success = await deleteStockImport(deletingImport.id)
+    if (success) setDeletingImport(null)
   }
 
   // Filtered list
@@ -112,17 +115,16 @@ export default function StockImportTable() {
     const matchesSearch =
       search === "" ||
       imp.importCode.toLowerCase().includes(search.toLowerCase()) ||
-      imp.supplierName.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus =
-      statusFilter === "ALL" || imp.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+      imp.supplierName.toLowerCase().includes(search.toLowerCase())
+    const matchesStatus = statusFilter === "ALL" || imp.status === statusFilter
+    return matchesSearch && matchesStatus
+  })
 
   return (
     <div className="space-y-4">
       {/* Toolbar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-1 gap-2 max-w-md">
+        <div className="flex max-w-md flex-1 gap-2">
           <Input
             placeholder="Tìm theo mã phiếu, nhà cung cấp..."
             value={search}
@@ -131,9 +133,7 @@ export default function StockImportTable() {
           />
           <Select
             value={statusFilter}
-            onValueChange={(v) =>
-              setStatusFilter(v as StockImportStatus | "ALL")
-            }
+            onValueChange={(v) => setStatusFilter(v as StockImportStatus | "ALL")}
           >
             <SelectTrigger className="h-9 w-36 shrink-0">
               <SelectValue placeholder="Trạng thái" />
@@ -165,7 +165,7 @@ export default function StockImportTable() {
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border border-border">
+      <div className="border-border rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -181,24 +181,19 @@ export default function StockImportTable() {
             {loading ? (
               <TableRow>
                 <TableCell colSpan={7} className="py-12 text-center">
-                  <Loader2 className="mx-auto size-6 animate-spin text-muted-foreground" />
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Đang tải dữ liệu...
-                  </p>
+                  <Loader2 className="text-muted-foreground mx-auto size-6 animate-spin" />
+                  <p className="text-muted-foreground mt-2 text-sm">Đang tải dữ liệu...</p>
                 </TableCell>
               </TableRow>
             ) : filtered.length === 0 ? (
               <TableRow>
-                <TableCell
-                  colSpan={7}
-                  className="py-12 text-center text-muted-foreground"
-                >
+                <TableCell colSpan={7} className="text-muted-foreground py-12 text-center">
                   Không tìm thấy phiếu nhập hàng nào.
                 </TableCell>
               </TableRow>
             ) : (
               filtered.map((imp) => {
-                const cfg = STATUS_CONFIG[imp.status];
+                const cfg = STATUS_CONFIG[imp.status]
                 return (
                   <TableRow key={imp.id}>
                     <TableCell className="font-mono text-sm font-semibold">
@@ -207,60 +202,41 @@ export default function StockImportTable() {
                     <TableCell>
                       <p className="font-medium">{imp.supplierName}</p>
                     </TableCell>
-                    <TableCell className="font-semibold text-primary">
+                    <TableCell className="text-primary font-semibold">
                       {imp.totalAmount.toLocaleString("vi-VN")}₫
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge
-                        variant={cfg.variant}
-                        className={cfg.className}
-                      >
+                      <Badge variant={cfg.variant} className={cfg.className}>
                         {cfg.label}
                       </Badge>
                     </TableCell>
-                    <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">
+                    <TableCell className="text-muted-foreground hidden text-sm lg:table-cell">
                       {new Date(imp.createdAt).toLocaleDateString("vi-VN")}
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8"
-                          >
+                          <Button variant="ghost" size="icon" className="size-8">
                             <MoreHorizontal className="size-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => setViewingImport(imp)}
-                          >
+                          <DropdownMenuItem onClick={() => setViewingImport(imp)}>
                             <Eye className="mr-2 size-4" />
                             Xem Chi Tiết
                           </DropdownMenuItem>
                           {imp.status === "PENDING" && (
                             <>
-                              <DropdownMenuItem
-                                onClick={() => setEditingImport(imp)}
-                              >
+                              <DropdownMenuItem onClick={() => setEditingImport(imp)}>
                                 <Pencil className="mr-2 size-4" />
                                 Chỉnh Sửa
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  updateStatus(imp.id, "COMPLETED")
-                                }
-                              >
+                              <DropdownMenuItem onClick={() => updateStatus(imp.id, "COMPLETED")}>
                                 <PackageCheck className="mr-2 size-4 text-emerald-600" />
                                 Xác Nhận Nhập
                               </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  updateStatus(imp.id, "CANCELLED")
-                                }
-                              >
+                              <DropdownMenuItem onClick={() => updateStatus(imp.id, "CANCELLED")}>
                                 <XCircle className="mr-2 size-4 text-yellow-600" />
                                 Hủy Phiếu
                               </DropdownMenuItem>
@@ -278,7 +254,7 @@ export default function StockImportTable() {
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                );
+                )
               })
             )}
           </TableBody>
@@ -287,15 +263,12 @@ export default function StockImportTable() {
 
       {/* Summary row */}
       {!loading && filtered.length > 0 && (
-        <div className="flex items-center justify-between text-sm text-muted-foreground px-1">
+        <div className="text-muted-foreground flex items-center justify-between px-1 text-sm">
           <span>{filtered.length} phiếu nhập</span>
           <span>
             Tổng:{" "}
-            <span className="font-semibold text-foreground">
-              {filtered
-                .reduce((sum, i) => sum + i.totalAmount, 0)
-                .toLocaleString("vi-VN")}
-              ₫
+            <span className="text-foreground font-semibold">
+              {filtered.reduce((sum, i) => sum + i.totalAmount, 0).toLocaleString("vi-VN")}₫
             </span>
           </span>
         </div>
@@ -311,7 +284,7 @@ export default function StockImportTable() {
       <StockImportFormDialog
         open={!!editingImport}
         onOpenChange={(open) => {
-          if (!open) setEditingImport(null);
+          if (!open) setEditingImport(null)
         }}
         stockImport={editingImport ?? undefined}
         onSubmit={handleEdit}
@@ -320,7 +293,7 @@ export default function StockImportTable() {
       <StockImportDetailDialog
         open={!!viewingImport}
         onOpenChange={(open) => {
-          if (!open) setViewingImport(null);
+          if (!open) setViewingImport(null)
         }}
         stockImport={viewingImport}
       />
@@ -328,11 +301,11 @@ export default function StockImportTable() {
       <DeleteStockImportDialog
         open={!!deletingImport}
         onOpenChange={(open) => {
-          if (!open) setDeletingImport(null);
+          if (!open) setDeletingImport(null)
         }}
         importCode={deletingImport?.importCode ?? ""}
         onConfirm={handleDelete}
       />
     </div>
-  );
+  )
 }

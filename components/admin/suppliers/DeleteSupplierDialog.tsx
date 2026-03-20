@@ -1,22 +1,20 @@
-"use client";
+"use client"
 
-
-
+import { Button } from "@/components/ui/button"
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 interface DeleteSupplierDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  supplierName: string;
-  onConfirm: () => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  supplierName: string
+  onConfirm: () => void
 }
 
 export default function DeleteSupplierDialog({
@@ -27,15 +25,13 @@ export default function DeleteSupplierDialog({
 }: DeleteSupplierDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-106.25">
         <DialogHeader>
           <DialogTitle>Xóa nhà cung cấp?</DialogTitle>
           <DialogDescription>
             Bạn có chắc chắn muốn xóa hệ thống cung cấp{" "}
-            <span className="font-semibold text-foreground">
-              {supplierName}
-            </span>{" "}
-            không? Đây là hành động xóa mềm (chuyển trạng thái Ẩn) hoặc xóa hoàn toàn tùy quy định API.
+            <span className="text-foreground font-semibold">{supplierName}</span> không? Đây là hành
+            động xóa mềm (chuyển trạng thái Ẩn) hoặc xóa hoàn toàn tùy quy định API.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -48,5 +44,5 @@ export default function DeleteSupplierDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

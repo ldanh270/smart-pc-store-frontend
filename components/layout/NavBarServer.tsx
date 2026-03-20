@@ -1,6 +1,6 @@
-import { fetchAllCategories } from "@/lib/api/categories";
-import { mapBackendCategory, type Category } from "@/types/category";
-import Header from "@/components/layout/Header";
+import Header from "@/components/layout/Header"
+import { fetchAllCategories } from "@/lib/api/categories"
+import { type Category, mapBackendCategory } from "@/types/category"
 
 /**
  * NavBarServer — async Server Component.
@@ -9,14 +9,14 @@ import Header from "@/components/layout/Header";
  * The result is passed into Header → NavBar as `initialCategories`.
  */
 export default async function NavBarServer() {
-	let initialCategories: Category[] = [];
+  let initialCategories: Category[] = []
 
-	try {
-		const backend = await fetchAllCategories();
-		initialCategories = backend.map(mapBackendCategory);
-	} catch {
-		// Graceful degradation: nav still renders with static items
-	}
+  try {
+    const backend = await fetchAllCategories()
+    initialCategories = backend.map(mapBackendCategory)
+  } catch {
+    // Graceful degradation: nav still renders with static items
+  }
 
-	return <Header initialCategories={initialCategories} />;
+  return <Header initialCategories={initialCategories} />
 }

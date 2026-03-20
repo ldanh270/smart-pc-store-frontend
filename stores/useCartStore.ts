@@ -1,18 +1,19 @@
-import { create } from "zustand";
-import { toast } from "sonner";
-import { cartService } from "@/services/cartService";
-import { CartItem } from "@/types/cart";
+import { cartService } from "@/services/cartService"
+import { CartItem } from "@/types/cart"
+
+import { toast } from "sonner"
+import { create } from "zustand"
 
 interface CartState {
-  items: CartItem[];
-  isLoading: boolean;
-  totalItems: number;
-  totalPrice: number;
-  fetchCart: () => Promise<void>;
-  addItem: (productId: string, quantity: number) => Promise<boolean>;
-  updateQuantity: (cartItemId: number, quantity: number) => Promise<void>;
-  removeItem: (cartItemId: number) => Promise<void>;
-  clearCart: () => Promise<void>;
+  items: CartItem[]
+  isLoading: boolean
+  totalItems: number
+  totalPrice: number
+  fetchCart: () => Promise<void>
+  addItem: (productId: string, quantity: number) => Promise<boolean>
+  updateQuantity: (cartItemId: number, quantity: number) => Promise<void>
+  removeItem: (cartItemId: number) => Promise<void>
+  clearCart: () => Promise<void>
 }
 
 function deriveState(items: CartItem[]) {
@@ -20,7 +21,7 @@ function deriveState(items: CartItem[]) {
     items,
     totalItems: items.reduce((sum, item) => sum + item.quantity, 0),
     totalPrice: items.reduce((sum, item) => sum + item.subtotal, 0),
-  };
+  }
 }
 
 export const useCartStore = create<CartState>((set, get) => ({
@@ -31,69 +32,69 @@ export const useCartStore = create<CartState>((set, get) => ({
 
   fetchCart: async () => {
     try {
-      set({ isLoading: true });
-      const items = await cartService.getCart();
-      set({ ...deriveState(items), isLoading: false });
+      set({ isLoading: true })
+      const items = await cartService.getCart()
+      set({ ...deriveState(items), isLoading: false })
     } catch {
-      set({ isLoading: false });
+      set({ isLoading: false })
     }
   },
 
   addItem: async (productId, quantity) => {
     try {
-      await cartService.addToCart(productId, quantity);
-      toast.success("Đã thêm sản phẩm vào giỏ hàng!");
-      await get().fetchCart();
-      return true;
+      await cartService.addToCart(productId, quantity)
+      toast.success("Đã thêm sản phẩm vào giỏ hàng!")
+      await get().fetchCart()
+      return true
     } catch {
-      toast.error("Không thể thêm sản phẩm vào giỏ hàng");
-      return false;
+      toast.error("Không thể thêm sản phẩm vào giỏ hàng")
+      return false
     }
   },
 
   updateQuantity: async (cartItemId, quantity) => {
     // Optimistic: update UI first
-    const prevItems = get().items;
+    const prevItems = get().items
     const optimistic = prevItems.map((item) =>
       item.cartItemId === cartItemId
         ? { ...item, quantity, subtotal: item.price * quantity }
-        : item
-    );
-    set(deriveState(optimistic));
+        : item,
+    )
+    set(deriveState(optimistic))
 
     try {
-      await cartService.updateCartItem(cartItemId, quantity);
+      await cartService.updateCartItem(cartItemId, quantity)
     } catch {
       // Rollback on error
-      set(deriveState(prevItems));
-      toast.error("Không thể cập nhật số lượng");
+      set(deriveState(prevItems))
+      toast.error("Không thể cập nhật số lượng")
     }
   },
 
   removeItem: async (cartItemId) => {
-    const prevItems = get().items;
-    const optimistic = prevItems.filter((item) => item.cartItemId !== cartItemId);
-    set(deriveState(optimistic));
+    const prevItems = get().items
+    const optimistic = prevItems.filter((item) => item.cartItemId !== cartItemId)
+    set(deriveState(optimistic))
 
     try {
-      await cartService.removeCartItem(cartItemId);
-      toast.success("Đã xóa sản phẩm khỏi giỏ hàng");
+      await cartService.removeCartItem(cartItemId)
+      toast.success("Đã xóa sản phẩm khỏi giỏ hàng")
     } catch {
-      set(deriveState(prevItems));
-      toast.error("Không thể xóa sản phẩm");
+      set(deriveState(prevItems))
+      toast.error("Không thể xóa sản phẩm")
     }
   },
 
   clearCart: async () => {
-    const prevItems = get().items;
-    set(deriveState([]));
+    const prevItems = get().items
+    set(deriveState([]))
 
     try {
-      await cartService.clearCart();
-      toast.success("Đã xóa toàn bộ giỏ hàng");
+      await cartService.clearCart()
+      toast.success("Đã xóa toàn bộ giỏ hàng")
     } catch {
-      set(deriveState(prevItems));
-      toast.error("Không thể xóa giỏ hàng");
+      set(deriveState(prevItems))
+      toast.error("Không thể xóa giỏ hàng")
     }
   },
-}));
+}))

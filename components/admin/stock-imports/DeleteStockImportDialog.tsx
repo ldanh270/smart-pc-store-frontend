@@ -1,5 +1,6 @@
-"use client";
+"use client"
 
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -7,14 +8,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/dialog"
 
 interface DeleteStockImportDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  importCode: string;
-  onConfirm: () => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  importCode: string
+  onConfirm: () => void
 }
 
 export default function DeleteStockImportDialog({
@@ -30,8 +30,8 @@ export default function DeleteStockImportDialog({
           <DialogTitle>Xóa phiếu nhập hàng?</DialogTitle>
           <DialogDescription>
             Bạn có chắc chắn muốn xóa phiếu nhập{" "}
-            <span className="font-semibold text-foreground">{importCode}</span>{" "}
-            không? Hành động này không thể hoàn tác.
+            <span className="text-foreground font-semibold">{importCode}</span> không? Hành động này
+            không thể hoàn tác.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -44,5 +44,5 @@ export default function DeleteStockImportDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

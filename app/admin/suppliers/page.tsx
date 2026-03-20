@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import SupplierTable from "@/components/admin/suppliers/SupplierTable";
+import SupplierTable from "@/components/admin/suppliers/SupplierTable"
 
 export default function AdminSuppliersPage() {
   return (
@@ -18,5 +18,5 @@ export default function AdminSuppliersPage() {
       {/* Main Table */}
       <SupplierTable />
     </div>
-  );
+  )
 }

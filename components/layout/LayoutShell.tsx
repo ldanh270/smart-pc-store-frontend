@@ -1,32 +1,31 @@
-"use client";
+"use client"
 
-import { usePathname } from "next/navigation";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import AIChatBox from "@/components/chat/AIChatBox";
-import type { Category } from "@/types/category";
+import AIChatBox from "@/components/chat/AIChatBox"
+import Footer from "@/components/layout/Footer"
+import Header from "@/components/layout/Header"
+import type { Category } from "@/types/category"
+
+import { usePathname } from "next/navigation"
 
 interface LayoutShellProps {
-	children: React.ReactNode;
-	initialCategories?: Category[];
+  children: React.ReactNode
+  initialCategories?: Category[]
 }
 
 export default function LayoutShell({ children, initialCategories = [] }: LayoutShellProps) {
-	const pathname = usePathname();
-	const isAdmin = pathname.startsWith("/admin");
+  const pathname = usePathname()
+  const isAdmin = pathname.startsWith("/admin")
 
-	if (isAdmin) {
-		return <>{children}</>;
-	}
+  if (isAdmin) {
+    return <>{children}</>
+  }
 
-	return (
-		<div className="flex min-h-screen flex-col">
-			<Header initialCategories={initialCategories} />
-			<div className="flex flex-1 flex-col">
-				{children}
-			</div>
-			<Footer />
-			<AIChatBox />
-		</div>
-	);
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Header initialCategories={initialCategories} />
+      <div className="flex flex-1 flex-col">{children}</div>
+      <Footer />
+      <AIChatBox />
+    </div>
+  )
 }

@@ -8,11 +8,10 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
-import { cn, formatPrice } from "@/lib/utils"
+import { formatPrice } from "@/lib/utils"
 import { type Product } from "@/types/product"
 
 import Autoplay from "embla-carousel-autoplay"
-import { Star } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -28,7 +27,6 @@ interface Top10ProductsProps {
 function TopProductCard({ product }: { product: Product }) {
   // Mock some data that isn't in the DB but is in the user's reference image
   const mockSold = `${(Math.random() * 5 + 1).toFixed(1)}m sold`
-  const mockStars = Math.floor(Math.random() * 2) + 3 // 3, 4, or 5 stars
 
   return (
     <Link

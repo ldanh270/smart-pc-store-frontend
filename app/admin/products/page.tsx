@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import ProductTable from "@/components/admin/products/ProductTable";
+import ProductTable from "@/components/admin/products/ProductTable"
 
 export default function AdminProductsPage() {
   return (
@@ -18,5 +18,5 @@ export default function AdminProductsPage() {
       {/* Main Table */}
       <ProductTable />
     </div>
-  );
+  )
 }

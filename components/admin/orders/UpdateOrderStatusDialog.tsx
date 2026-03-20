@@ -1,9 +1,6 @@
-"use client";
+"use client"
 
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -11,7 +8,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import {
   Form,
   FormControl,
@@ -19,28 +16,33 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/form"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import type { Order } from "@/types/order";
+} from "@/components/ui/select"
+import type { Order } from "@/types/order"
+
+import { useEffect } from "react"
+
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
 
 const formSchema = z.object({
   status: z.enum(["PENDING", "PAID", "CANCELLED", "EXPIRED"]),
-});
+})
 
-export type OrderStatusFormValues = z.infer<typeof formSchema>;
+export type OrderStatusFormValues = z.infer<typeof formSchema>
 
 interface UpdateOrderStatusDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  order?: Order;
-  onSubmit: (data: OrderStatusFormValues) => Promise<void>;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  order?: Order
+  onSubmit: (data: OrderStatusFormValues) => Promise<void>
 }
 
 export default function UpdateOrderStatusDialog({
@@ -54,22 +56,22 @@ export default function UpdateOrderStatusDialog({
     defaultValues: {
       status: "PENDING",
     },
-  });
+  })
 
   // Reset form when dialog opens/closes or order changes
   useEffect(() => {
     if (open && order) {
       form.reset({
         status: order.status,
-      });
+      })
     } else if (!open) {
-      form.reset();
+      form.reset()
     }
-  }, [open, order, form]);
+  }, [open, order, form])
 
   const handleSubmit = async (values: OrderStatusFormValues) => {
-    await onSubmit(values);
-  };
+    await onSubmit(values)
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -82,10 +84,7 @@ export default function UpdateOrderStatusDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
-          >
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="status"
@@ -93,10 +92,7 @@ export default function UpdateOrderStatusDialog({
                 <FormItem>
                   <FormLabel>Trạng thái</FormLabel>
                   <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <SelectTrigger>
                         <SelectValue placeholder="Chọn trạng thái" />
                       </SelectTrigger>
@@ -114,17 +110,10 @@ export default function UpdateOrderStatusDialog({
             />
 
             <DialogFooter className="pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Hủy
               </Button>
-              <Button
-                type="submit"
-                disabled={form.formState.isSubmitting}
-              >
+              <Button type="submit" disabled={form.formState.isSubmitting}>
                 {form.formState.isSubmitting ? "Đang lưu..." : "Lưu thay đổi"}
               </Button>
             </DialogFooter>
@@ -132,5 +121,5 @@ export default function UpdateOrderStatusDialog({
         </Form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

@@ -1,8 +1,6 @@
-"use client";
+"use client"
 
-import { z } from "zod/v4";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -10,7 +8,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import {
   Form,
   FormControl,
@@ -18,11 +16,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import type { Supplier } from "@/types/supplier";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Switch } from "@/components/ui/switch"
+import type { Supplier } from "@/types/supplier"
+
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { z } from "zod/v4"
 
 // ─── Schema ─────────────────────────────────────────────────────────────────
 
@@ -33,24 +34,24 @@ const supplierFormSchema = z.object({
   phone: z.string().optional(),
   address: z.string().optional(),
   status: z.boolean(),
-});
+})
 
 interface SupplierFormValues {
-  name: string;
-  contactName?: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-  status: boolean;
+  name: string
+  contactName?: string
+  email?: string
+  phone?: string
+  address?: string
+  status: boolean
 }
 
 // ─── Props ──────────────────────────────────────────────────────────────────
 
 interface SupplierFormDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  supplier?: Supplier;
-  onSubmit: (data: Omit<Supplier, "id" | "createdAt" | "updatedAt">) => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  supplier?: Supplier
+  onSubmit: (data: Omit<Supplier, "id" | "createdAt" | "updatedAt">) => void
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -61,7 +62,7 @@ export default function SupplierFormDialog({
   supplier,
   onSubmit,
 }: SupplierFormDialogProps) {
-  const isEditing = !!supplier;
+  const isEditing = !!supplier
 
   const form = useForm<SupplierFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -74,7 +75,7 @@ export default function SupplierFormDialog({
       address: supplier?.address ?? "",
       status: supplier?.status ?? true,
     },
-  });
+  })
 
   function handleSubmit(values: SupplierFormValues) {
     onSubmit({
@@ -83,21 +84,17 @@ export default function SupplierFormDialog({
       phone: values.phone || undefined,
       address: values.address || undefined,
       contactName: values.contactName || undefined,
-    });
-    form.reset();
+    })
+    form.reset()
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {isEditing ? "Chỉnh sửa Nhà Cung Cấp" : "Thêm Nhà Cung Cấp"}
-          </DialogTitle>
+          <DialogTitle>{isEditing ? "Chỉnh sửa Nhà Cung Cấp" : "Thêm Nhà Cung Cấp"}</DialogTitle>
           <DialogDescription>
-            {isEditing
-              ? "Cập nhật thông tin chi tiết."
-              : "Điển thông tin nhà cung cấp mới."}
+            {isEditing ? "Cập nhật thông tin chi tiết." : "Điển thông tin nhà cung cấp mới."}
           </DialogDescription>
         </DialogHeader>
 
@@ -178,18 +175,13 @@ export default function SupplierFormDialog({
               control={form.control}
               name="status"
               render={({ field }) => (
-                <FormItem className="flex items-center justify-between rounded-lg border border-border p-3">
+                <FormItem className="border-border flex items-center justify-between rounded-lg border p-3">
                   <div>
                     <FormLabel>Trạng Thái</FormLabel>
-                    <p className="text-xs text-muted-foreground">
-                      Hiển thị mua bán/nhập hàng
-                    </p>
+                    <p className="text-muted-foreground text-xs">Hiển thị mua bán/nhập hàng</p>
                   </div>
                   <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
                 </FormItem>
               )}
@@ -199,13 +191,11 @@ export default function SupplierFormDialog({
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Hủy
               </Button>
-              <Button type="submit">
-                {isEditing ? "Cập Nhật" : "Tạo Mới"}
-              </Button>
+              <Button type="submit">{isEditing ? "Cập Nhật" : "Tạo Mới"}</Button>
             </DialogFooter>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

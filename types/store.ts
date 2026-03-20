@@ -1,15 +1,20 @@
 export interface User {
-  id?: number | string;
-  name: string;
-  email: string;
-  role?: string;
+  id?: number | string
+  name: string
+  email: string
+  role?: string
 }
 
 export interface AuthState {
-  accessToken: string | null;
-  user: User | null;
-  loading: boolean;
-  signup: (username: string, email: string, displayName: string, password: string) => Promise<boolean>;
-  login: (username: string, password: string) => Promise<boolean>;
-  logout: () => Promise<void>;
+  accessToken: string | null
+  user: User | null
+  loading: boolean
+  signup: (
+    username: string,
+    email: string,
+    displayName: string,
+    password: string,
+  ) => Promise<boolean>
+  login: (username: string, password: string) => Promise<boolean>
+  logout: () => Promise<void>
 }

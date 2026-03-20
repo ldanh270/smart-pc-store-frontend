@@ -2,10 +2,10 @@
 // Shared between Next.js middleware (Edge Runtime) and client components.
 
 export interface JwtPayload {
-  userId?: number;
-  username?: string;
-  role?: string;
-  exp?: number;
+  userId?: number
+  username?: string
+  role?: string
+  exp?: number
 }
 
 /**
@@ -14,19 +14,19 @@ export interface JwtPayload {
  */
 export function decodeJwtPayload(token: string): JwtPayload | null {
   try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
+    const parts = token.split(".")
+    if (parts.length !== 3) return null
 
     // Base64url → Base64 → decode
-    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-    const json = atob(base64);
-    const payload = JSON.parse(json) as JwtPayload;
+    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/")
+    const json = atob(base64)
+    const payload = JSON.parse(json) as JwtPayload
 
-    if (payload.exp && payload.exp * 1000 < Date.now()) return null;
+    if (payload.exp && payload.exp * 1000 < Date.now()) return null
 
-    return payload;
+    return payload
   } catch {
-    return null;
+    return null
   }
 }
 
@@ -35,7 +35,7 @@ export function decodeJwtPayload(token: string): JwtPayload | null {
  * Returns `null` when the token is absent, malformed, or expired.
  */
 export function getRoleFromJwt(token: string | undefined | null): string | null {
-  if (!token) return null;
-  const payload = decodeJwtPayload(token);
-  return payload?.role?.toUpperCase() ?? null;
+  if (!token) return null
+  const payload = decodeJwtPayload(token)
+  return payload?.role?.toUpperCase() ?? null
 }

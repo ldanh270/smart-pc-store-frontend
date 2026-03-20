@@ -1,9 +1,6 @@
-"use client";
+"use client"
 
-import * as React from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import {
   Command,
   CommandEmpty,
@@ -11,26 +8,27 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import type { AdminProduct } from "@/types/product";
+} from "@/components/ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { cn } from "@/lib/utils"
+import type { AdminProduct } from "@/types/product"
+
+import * as React from "react"
+
+import { Check, ChevronsUpDown } from "lucide-react"
 
 interface ProductComboboxProps {
-  products: AdminProduct[];
-  value: string;
-  onChange: (value: string) => void;
+  products: AdminProduct[]
+  value: string
+  onChange: (value: string) => void
 }
 
 export function ProductCombobox({ products, value, onChange }: ProductComboboxProps) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(false)
 
   const selectedProduct = React.useMemo(() => {
-    return products.find((p) => p.id === value);
-  }, [products, value]);
+    return products.find((p) => p.id === value)
+  }, [products, value])
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -58,15 +56,15 @@ export function ProductCombobox({ products, value, onChange }: ProductComboboxPr
                   key={product.id}
                   value={product.productName} // command search by value implicitly
                   onSelect={() => {
-                    onChange(product.id === value ? "" : product.id);
-                    setOpen(false);
+                    onChange(product.id === value ? "" : product.id)
+                    setOpen(false)
                   }}
                   className="w-full"
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === product.id ? "opacity-100" : "opacity-0"
+                      value === product.id ? "opacity-100" : "opacity-0",
                     )}
                   />
                   {product.productName}
@@ -77,5 +75,5 @@ export function ProductCombobox({ products, value, onChange }: ProductComboboxPr
         </Command>
       </PopoverContent>
     </Popover>
-  );
+  )
 }

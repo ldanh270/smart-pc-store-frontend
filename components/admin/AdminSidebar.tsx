@@ -1,151 +1,134 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
-	LayoutDashboard,
-	Users,
-	Package,
-	Tags,
-	ShoppingCart,
-	Zap,
-  Truck,
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+} from "@/components/ui/sidebar"
+
+import {
+  LayoutDashboard,
+  Package,
   PackagePlus,
-} from "lucide-react";
-
-import {
-	Sidebar,
-	SidebarContent,
-	SidebarFooter,
-	SidebarGroup,
-	SidebarGroupContent,
-	SidebarGroupLabel,
-	SidebarHeader,
-	SidebarMenu,
-	SidebarMenuButton,
-	SidebarMenuItem,
-	SidebarRail,
-	SidebarSeparator,
-} from "@/components/ui/sidebar";
+  ShoppingCart,
+  Tags,
+  Truck,
+  Users,
+  Zap,
+} from "lucide-react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 // ─── Sidebar Menu Config ────────────────────────────────────────────────────
 
 interface AdminMenuItem {
-	label: string;
-	href: string;
-	icon: React.ComponentType<{ className?: string }>;
+  label: string
+  href: string
+  icon: React.ComponentType<{ className?: string }>
 }
 
 const MAIN_MENU: AdminMenuItem[] = [
-	{ label: "Tổng Quan", href: "/admin", icon: LayoutDashboard },
-	{ label: "Đơn Hàng", href: "/admin/orders", icon: ShoppingCart },
-];
+  { label: "Tổng Quan", href: "/admin", icon: LayoutDashboard },
+  { label: "Đơn Hàng", href: "/admin/orders", icon: ShoppingCart },
+]
 
 const CATALOG_MENU: AdminMenuItem[] = [
-	{ label: "Sản Phẩm", href: "/admin/products", icon: Package },
-	{ label: "Danh Mục", href: "/admin/categories", icon: Tags },
+  { label: "Sản Phẩm", href: "/admin/products", icon: Package },
+  { label: "Danh Mục", href: "/admin/categories", icon: Tags },
   { label: "Nhà Cung Cấp", href: "/admin/suppliers", icon: Truck },
   { label: "Nhập Hàng", href: "/admin/nhap-hang", icon: PackagePlus },
-];
+]
 
-const SYSTEM_MENU: AdminMenuItem[] = [
-	{ label: "Người Dùng", href: "/admin/users", icon: Users },
-];
+const SYSTEM_MENU: AdminMenuItem[] = [{ label: "Người Dùng", href: "/admin/users", icon: Users }]
 
 // ─── Menu Renderer ──────────────────────────────────────────────────────────
 
-function MenuGroup({
-	items,
-	pathname,
-}: {
-	items: AdminMenuItem[];
-	pathname: string;
-}) {
-	return (
-		<SidebarMenu>
-			{items.map((item) => {
-				const isActive =
-					pathname === item.href ||
-					(item.href !== "/admin" &&
-						pathname.startsWith(item.href));
+function MenuGroup({ items, pathname }: { items: AdminMenuItem[]; pathname: string }) {
+  return (
+    <SidebarMenu>
+      {items.map((item) => {
+        const isActive =
+          pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href))
 
-				return (
-					<SidebarMenuItem key={item.href}>
-						<SidebarMenuButton
-							asChild
-							isActive={isActive}
-							tooltip={item.label}
-						>
-							<Link href={item.href}>
-								<item.icon className="size-4" />
-								<span>{item.label}</span>
-							</Link>
-						</SidebarMenuButton>
-					</SidebarMenuItem>
-				);
-			})}
-		</SidebarMenu>
-	);
+        return (
+          <SidebarMenuItem key={item.href}>
+            <SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
+              <Link href={item.href}>
+                <item.icon className="size-4" />
+                <span>{item.label}</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        )
+      })}
+    </SidebarMenu>
+  )
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function AdminSidebar() {
-	const pathname = usePathname();
+  const pathname = usePathname()
 
-	return (
-		<Sidebar collapsible="icon" variant="sidebar">
-			{/* Brand */}
-			{/* Brand */}
-			<SidebarHeader className="h-14 flex flex-row items-center justify-start border-b border-border p-0 px-4 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
-				<Link
-					href="/admin"
-					className="flex items-center gap-2.5 w-full justify-start group-data-[collapsible=icon]:justify-center"
-				>
-					<div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-						<Zap className="size-4.5 text-primary" fill="currentColor" />
-					</div>
-					<span className="text-lg font-bold tracking-tight group-data-[collapsible=icon]:hidden">
-						<span className="text-foreground">Smart</span>
-						<span className="text-foreground"> PC</span>
-					</span>
-				</Link>
-			</SidebarHeader>
+  return (
+    <Sidebar collapsible="icon" variant="sidebar">
+      {/* Brand */}
+      {/* Brand */}
+      <SidebarHeader className="border-border flex h-14 flex-row items-center justify-start border-b p-0 px-4 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+        <Link
+          href="/admin"
+          className="flex w-full items-center justify-start gap-2.5 group-data-[collapsible=icon]:justify-center"
+        >
+          <div className="bg-primary/10 flex size-8 shrink-0 items-center justify-center rounded-lg">
+            <Zap className="text-primary size-4.5" fill="currentColor" />
+          </div>
+          <span className="text-lg font-bold tracking-tight group-data-[collapsible=icon]:hidden">
+            <span className="text-foreground">Smart</span>
+            <span className="text-foreground"> PC</span>
+          </span>
+        </Link>
+      </SidebarHeader>
 
-			{/* Navigation */}
-			<SidebarContent>
-				<SidebarGroup>
-					<SidebarGroupLabel>Tổng Quan</SidebarGroupLabel>
-					<SidebarGroupContent>
-						<MenuGroup items={MAIN_MENU} pathname={pathname} />
-					</SidebarGroupContent>
-				</SidebarGroup>
+      {/* Navigation */}
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Tổng Quan</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <MenuGroup items={MAIN_MENU} pathname={pathname} />
+          </SidebarGroupContent>
+        </SidebarGroup>
 
-				<SidebarGroup>
-					<SidebarGroupLabel>Cửa Hàng</SidebarGroupLabel>
-					<SidebarGroupContent>
-						<MenuGroup items={CATALOG_MENU} pathname={pathname} />
-					</SidebarGroupContent>
-				</SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Cửa Hàng</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <MenuGroup items={CATALOG_MENU} pathname={pathname} />
+          </SidebarGroupContent>
+        </SidebarGroup>
 
-				<SidebarGroup>
-					<SidebarGroupLabel>Hệ Thống</SidebarGroupLabel>
-					<SidebarGroupContent>
-						<MenuGroup items={SYSTEM_MENU} pathname={pathname} />
-					</SidebarGroupContent>
-				</SidebarGroup>
-			</SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Hệ Thống</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <MenuGroup items={SYSTEM_MENU} pathname={pathname} />
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
 
-			{/* Footer */}
-			<SidebarFooter className="p-3 group-data-[collapsible=icon]:hidden">
-				<div className="rounded-lg border border-border/50 p-3">
-					<p className="text-xs font-medium text-muted-foreground">
-						Smart PC Store v1.0
-					</p>
-				</div>
-			</SidebarFooter>
+      {/* Footer */}
+      <SidebarFooter className="p-3 group-data-[collapsible=icon]:hidden">
+        <div className="border-border/50 rounded-lg border p-3">
+          <p className="text-muted-foreground text-xs font-medium">Smart PC Store v1.0</p>
+        </div>
+      </SidebarFooter>
 
-			<SidebarRail />
-		</Sidebar>
-	);
+      <SidebarRail />
+    </Sidebar>
+  )
 }

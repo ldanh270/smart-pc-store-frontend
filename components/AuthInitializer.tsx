@@ -1,8 +1,9 @@
-"use client";
+"use client"
 
-import { useEffect } from "react";
-import { useAuthStore } from "@/stores/useAuthStore";
-import { refreshAccessToken } from "@/lib/axios";
+import { refreshAccessToken } from "@/lib/axios"
+import { useAuthStore } from "@/stores/useAuthStore"
+
+import { useEffect } from "react"
 
 /**
  * Runs once on app mount. If the store has a persisted user (from localStorage)
@@ -13,14 +14,14 @@ import { refreshAccessToken } from "@/lib/axios";
  */
 export default function AuthInitializer() {
   useEffect(() => {
-    const { user, accessToken } = useAuthStore.getState();
-    if (!user || accessToken) return;
+    const { user, accessToken } = useAuthStore.getState()
+    if (!user || accessToken) return
 
     refreshAccessToken().catch(() => {
       // Refresh failed (e.g. refresh token expired) — clearAuth and
       // redirect are handled inside the axios response interceptor.
-    });
-  }, []);
+    })
+  }, [])
 
-  return null;
+  return null
 }

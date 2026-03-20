@@ -1,15 +1,17 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Package, ShoppingCart, Users, DollarSign } from "lucide-react"
-import StatCard from "@/components/admin/dashboard/StatCard"
-import RevenueChart from "@/components/admin/dashboard/RevenueChart"
-import VisitorAreaChart from "@/components/admin/dashboard/VisitorAreaChart"
 import CategoryDonutChart from "@/components/admin/dashboard/CategoryDonutChart"
+import RevenueChart from "@/components/admin/dashboard/RevenueChart"
+import StatCard from "@/components/admin/dashboard/StatCard"
 import TopProducts from "@/components/admin/dashboard/TopProducts"
+import VisitorAreaChart from "@/components/admin/dashboard/VisitorAreaChart"
+import { Skeleton } from "@/components/ui/skeleton"
 import { dashboardService } from "@/services/dashboardService"
 import type { DashboardOverview } from "@/types/dashboard"
-import { Skeleton } from "@/components/ui/skeleton"
+
+import { useEffect, useState } from "react"
+
+import { DollarSign, Package, ShoppingCart, Users } from "lucide-react"
 
 export default function AdminDashboardPage() {
   const [data, setData] = useState<DashboardOverview | null>(null)
@@ -65,9 +67,7 @@ export default function AdminDashboardPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Tổng Quan</h1>
-        <p className="text-muted-foreground mt-1">
-          Theo dõi hoạt động kinh doanh của cửa hàng.
-        </p>
+        <p className="text-muted-foreground mt-1">Theo dõi hoạt động kinh doanh của cửa hàng.</p>
       </div>
 
       {/* Stats Grid */}
@@ -114,10 +114,10 @@ export default function AdminDashboardPage() {
 
       {/* Details Row */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <div className="lg:col-span-1 h-full">
+        <div className="h-full lg:col-span-1">
           <CategoryDonutChart />
         </div>
-        <div className="lg:col-span-2 h-full">
+        <div className="h-full lg:col-span-2">
           <TopProducts />
         </div>
       </div>

@@ -1,19 +1,20 @@
-import { create } from "zustand";
-import { toast } from "sonner";
-import { productService } from "@/services/productService";
-import type { AdminProduct, ProductCreateDto, ProductQueryParams } from "@/types/product";
+import { productService } from "@/services/productService"
+import type { AdminProduct, ProductCreateDto, ProductQueryParams } from "@/types/product"
+
+import { toast } from "sonner"
+import { create } from "zustand"
 
 interface ProductStore {
-  products: AdminProduct[];
-  loading: boolean;
-  
+  products: AdminProduct[]
+  loading: boolean
+
   // Store the last used params so we can easily refetch (e.g., after create/delete)
-  lastParams: ProductQueryParams;
-  
-  fetchProducts: (params?: ProductQueryParams) => Promise<void>;
-  createProduct: (data: ProductCreateDto) => Promise<boolean>;
-  updateProduct: (id: string, data: ProductCreateDto) => Promise<boolean>;
-  deleteProduct: (id: string) => Promise<boolean>;
+  lastParams: ProductQueryParams
+
+  fetchProducts: (params?: ProductQueryParams) => Promise<void>
+  createProduct: (data: ProductCreateDto) => Promise<boolean>
+  updateProduct: (id: string, data: ProductCreateDto) => Promise<AdminProduct | null>
+  deleteProduct: (id: string) => Promise<boolean>
 }
 
 export const useProductStore = create<ProductStore>((set, get) => ({
@@ -23,61 +24,61 @@ export const useProductStore = create<ProductStore>((set, get) => ({
 
   fetchProducts: async (params = {}) => {
     try {
-      set({ loading: true });
+      set({ loading: true })
       // Merge with default/last params
-      const currentParams = { ...get().lastParams, ...params };
-      const data = await productService.getProducts(currentParams);
-      
-      set({ 
-        products: data, 
-        lastParams: currentParams 
-      });
+      const currentParams = { ...get().lastParams, ...params }
+      const data = await productService.getProducts(currentParams)
+
+      set({
+        products: data,
+        lastParams: currentParams,
+      })
     } catch (error) {
-      console.error("Failed to fetch products:", error);
+      console.error("Failed to fetch products:", error)
     } finally {
-      set({ loading: false });
+      set({ loading: false })
     }
   },
 
   createProduct: async (data: ProductCreateDto) => {
     try {
-      set({ loading: true });
-      await productService.createProduct(data);
-      toast.success("Thêm sản phẩm thành công!");
-      await get().fetchProducts(get().lastParams);
-      return true;
+      set({ loading: true })
+      await productService.createProduct(data)
+      toast.success("Thêm sản phẩm thành công!")
+      await get().fetchProducts(get().lastParams)
+      return true
     } catch {
-      return false;
+      return false
     } finally {
-      set({ loading: false });
+      set({ loading: false })
     }
   },
 
   updateProduct: async (id: string, data: ProductCreateDto) => {
     try {
-      set({ loading: true });
-      const updatedProduct = await productService.updateProduct(id, data);
-      toast.success("Cập nhật sản phẩm thành công!");
-      await get().fetchProducts(get().lastParams);
-      return updatedProduct;
+      set({ loading: true })
+      const updatedProduct = await productService.updateProduct(id, data)
+      toast.success("Cập nhật sản phẩm thành công!")
+      await get().fetchProducts(get().lastParams)
+      return updatedProduct
     } catch {
-      return null;
+      return null
     } finally {
-      set({ loading: false });
+      set({ loading: false })
     }
   },
 
   deleteProduct: async (id: string) => {
     try {
-      set({ loading: true });
-      await productService.deleteProduct(id);
-      toast.success("Xóa sản phẩm thành công!");
-      await get().fetchProducts(get().lastParams);
-      return true;
+      set({ loading: true })
+      await productService.deleteProduct(id)
+      toast.success("Xóa sản phẩm thành công!")
+      await get().fetchProducts(get().lastParams)
+      return true
     } catch {
-      return false;
+      return false
     } finally {
-      set({ loading: false });
+      set({ loading: false })
     }
-  }
-}));
+  },
+}))

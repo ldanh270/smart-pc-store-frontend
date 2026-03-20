@@ -1,26 +1,20 @@
-import AdminHeader from "@/components/admin/AdminHeader";
-import AdminSidebar from "@/components/admin/AdminSidebar";
-import AdminAuthGuard from "@/components/admin/AdminAuthGuard";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import AdminAuthGuard from "@/components/admin/AdminAuthGuard"
+import AdminHeader from "@/components/admin/AdminHeader"
+import AdminSidebar from "@/components/admin/AdminSidebar"
+import { SidebarProvider } from "@/components/ui/sidebar"
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider style={{ "--sidebar-width": "14rem" } as React.CSSProperties}>
       <AdminAuthGuard>
-        <div className="flex min-h-screen w-full bg-muted/40">
+        <div className="bg-muted/40 flex min-h-screen w-full">
           <AdminSidebar />
-          <div className="flex flex-1 flex-col min-w-0">
+          <div className="flex min-w-0 flex-1 flex-col">
             <AdminHeader />
-            <main className="flex-1 overflow-auto w-full p-4 lg:p-8">
-              {children}
-            </main>
+            <main className="w-full flex-1 overflow-auto p-4 lg:p-8">{children}</main>
           </div>
         </div>
       </AdminAuthGuard>
     </SidebarProvider>
-  );
+  )
 }

@@ -7,8 +7,6 @@ import {
 
 import { buildApiUrl } from "./base-url"
 
-// ─── Fetch All Categories (Server-Side) ───────────────────────────────────────
-
 export async function fetchAllCategories(): Promise<BackendCategory[]> {
   try {
     const res = await fetch(buildApiUrl("/categories"), {
