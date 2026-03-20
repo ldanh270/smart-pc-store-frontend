@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import type { BackendCategory } from "@/types/category";
 import { generateCategorySlug } from "@/types/category";
+import { Search } from "lucide-react";
 
 interface CategorySidebarProps {
 	allCategories: BackendCategory[];
@@ -15,6 +19,8 @@ interface CategorySidebarProps {
 	setSelectedBrands: (val: string[] | ((prev: string[]) => string[])) => void;
 	selectedPrices: string[];
 	setSelectedPrices: (val: string[] | ((prev: string[]) => string[])) => void;
+	selectedCategories: string[];
+	setSelectedCategories: (val: string[] | ((prev: string[]) => string[])) => void;
 }
 
 export default function CategorySidebar({
@@ -27,10 +33,21 @@ export default function CategorySidebar({
 	setSelectedBrands,
 	selectedPrices,
 	setSelectedPrices,
+	selectedCategories,
+	setSelectedCategories,
 }: CategorySidebarProps) {
+	const [brandSearch, setBrandSearch] = useState("");
+	const [categorySearch, setCategorySearch] = useState("");
+
 	const handleBrandChange = (brand: string, checked: boolean) => {
 		setSelectedBrands((prev) =>
 			checked ? [...prev, brand] : prev.filter((b) => b !== brand)
+		);
+	};
+
+	const handleCategoryChange = (categoryId: string, checked: boolean) => {
+		setSelectedCategories((prev) =>
+			checked ? [...prev, categoryId] : prev.filter((id) => id !== categoryId)
 		);
 	};
 
@@ -39,6 +56,18 @@ export default function CategorySidebar({
 			checked ? [...prev, priceId] : prev.filter((p) => p !== priceId)
 		);
 	};
+
+	const filteredBrands = useMemo(() => {
+		return availableBrands.filter((brand) =>
+			brand?.toLowerCase().includes(brandSearch.toLowerCase())
+		);
+	}, [availableBrands, brandSearch]);
+
+	const filteredCategories = useMemo(() => {
+		return allCategories.filter((cat) =>
+			cat.categoryName?.toLowerCase().includes(categorySearch.toLowerCase())
+		);
+	}, [allCategories, categorySearch]);
 
 	const PRICE_RANGES = [
 		{ id: "<100k", label: "Giá dưới 100.000đ" },
@@ -51,7 +80,7 @@ export default function CategorySidebar({
 
 	return (
 		<aside className="w-full shrink-0 flex flex-col gap-8 md:w-62.5">
-      {/* Tìm theo */}
+			{/* Tìm theo */}
 			<section className="pt-5">
 				<h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-foreground">
 					Tìm theo
@@ -73,28 +102,91 @@ export default function CategorySidebar({
 						</label>
 					</div>
 
+					{/* Danh mục sản phẩm */}
+					<div className="flex flex-col gap-3">
+						<h4 className="text-sm font-semibold text-foreground">
+							Danh mục sản phẩm
+						</h4>
+						
+						{/* Category Search Input */}
+						{allCategories.length > 8 && (
+							<div className="relative mb-1">
+								<Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+								<Input
+									placeholder="Tìm danh mục..."
+									className="h-8 pl-8 text-xs focus-visible:ring-primary/30"
+									value={categorySearch}
+									onChange={(e) => setCategorySearch(e.target.value)}
+								/>
+							</div>
+						)}
+
+						<ScrollArea className={`${allCategories.length > 8 ? "h-48" : "h-auto max-h-48"} pr-3`}>
+							<div className="flex flex-col gap-2.5">
+								{filteredCategories.length > 0 ? (
+									filteredCategories.map((cat) => (
+										<label
+											key={cat.id}
+											className="flex items-center gap-2 cursor-pointer text-sm text-muted-foreground hover:text-foreground line-clamp-1"
+											title={cat.categoryName}
+										>
+											<Checkbox
+												id={`cat-${cat.id}`}
+												checked={selectedCategories.includes(cat.id)}
+												onCheckedChange={(checked) => handleCategoryChange(cat.id, checked as boolean)}
+											/>
+											{cat.categoryName}
+										</label>
+									))
+								) : (
+									<span className="text-xs text-muted-foreground italic">Không tìm thấy</span>
+								)}
+							</div>
+						</ScrollArea>
+					</div>
+
 					{/* Thương hiệu */}
 					{availableBrands.length > 0 && (
-						<div>
-							<h4 className="mb-3 text-sm font-semibold text-foreground">
+						<div className="flex flex-col gap-3">
+							<h4 className="text-sm font-semibold text-foreground">
 								Thương hiệu
 							</h4>
-							<div className="flex flex-col gap-2.5">
-								{availableBrands.map((brand) => (
-									<label
-										key={brand}
-										className="flex items-center gap-2 cursor-pointer text-sm text-muted-foreground hover:text-foreground line-clamp-1"
-										title={brand}
-									>
-										<Checkbox
-											id={`brand-${brand}`}
-											checked={selectedBrands.includes(brand)}
-											onCheckedChange={(checked) => handleBrandChange(brand, checked as boolean)}
-										/>
-										{brand}
-									</label>
-								))}
-							</div>
+							
+							{/* Brand Search Input - only show if many brands */}
+							{availableBrands.length > 8 && (
+								<div className="relative mb-1">
+									<Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+									<Input
+										placeholder="Tìm hãng..."
+										className="h-8 pl-8 text-xs focus-visible:ring-primary/30"
+										value={brandSearch}
+										onChange={(e) => setBrandSearch(e.target.value)}
+									/>
+								</div>
+							)}
+
+							<ScrollArea className={`${availableBrands.length > 8 ? "h-48" : "h-auto max-h-48"} pr-3`}>
+								<div className="flex flex-col gap-2.5">
+									{filteredBrands.length > 0 ? (
+										filteredBrands.map((brand) => (
+											<label
+												key={brand}
+												className="flex items-center gap-2 cursor-pointer text-sm text-muted-foreground hover:text-foreground line-clamp-1"
+												title={brand}
+											>
+												<Checkbox
+													id={`brand-${brand}`}
+													checked={selectedBrands.includes(brand)}
+													onCheckedChange={(checked) => handleBrandChange(brand, checked as boolean)}
+												/>
+												{brand}
+											</label>
+										))
+									) : (
+										<span className="text-xs text-muted-foreground italic">Không tìm thấy</span>
+									)}
+								</div>
+							</ScrollArea>
 						</div>
 					)}
 
@@ -122,10 +214,10 @@ export default function CategorySidebar({
 				</div>
 			</section>
 
-			{/* Danh mục */}
+			{/* Links */}
 			<section>
 				<h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-foreground">
-					Danh mục
+					Liên kết
 				</h3>
 				<ul className="flex flex-col gap-3 text-sm text-muted-foreground">
 					<li>
@@ -133,28 +225,20 @@ export default function CategorySidebar({
 							Trang chủ
 						</Link>
 					</li>
-					{allCategories.map((cat) => {
-						const slug = generateCategorySlug(cat.categoryName);
-						const isActive = slug === currentCategorySlug;
-						return (
-							<li key={cat.id}>
-								<Link
-									href={`/danh-muc/${slug}`}
-									className={`hover:text-primary transition-colors block ${
-										isActive ? "font-medium text-primary" : ""
-									}`}
-								>
-									{cat.categoryName}
-								</Link>
-							</li>
-						);
-					})}
 					<li>
 						<Link
-							href="/bai-viet"
-							className="hover:text-primary transition-colors block mt-2 pt-2 border-t border-border"
+							href="/ve-chung-toi"
+							className="hover:text-primary transition-colors block"
 						>
-							Bài viết
+							Về chúng tôi
+						</Link>
+					</li>
+					<li>
+						<Link
+							href="/san-pham"
+							className="hover:text-primary transition-colors block"
+						>
+							Tất cả sản phẩm
 						</Link>
 					</li>
 				</ul>
