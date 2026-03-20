@@ -1,25 +1,8 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Loader2, User, Mail, Phone, MapPin, Lock, Eye, EyeOff, ShieldCheck, CalendarDays } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import OrderHistoryTab from "./OrderHistoryTab";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Form,
   FormControl,
@@ -27,11 +10,33 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Textarea } from "@/components/ui/textarea"
+import { profileService } from "@/services/profileService"
+import type { User as UserType } from "@/types/user"
 
-import { profileService } from "@/services/profileService";
-import type { User as UserType } from "@/types/user";
-import { toast } from "sonner";
+import { useEffect, useState } from "react"
+
+import { zodResolver } from "@hookform/resolvers/zod"
+import {
+  CalendarDays,
+  Eye,
+  EyeOff,
+  Loader2,
+  Lock,
+  Mail,
+  MapPin,
+  Phone,
+  ShieldCheck,
+  User,
+} from "lucide-react"
+import { useForm } from "react-hook-form"
+import { toast } from "sonner"
+import { z } from "zod"
 
 // ── Schemas ──────────────────────────────────────────────────────────────────
 
@@ -40,42 +45,40 @@ const infoSchema = z.object({
   email: z.string().email("Email không hợp lệ"),
   phone: z.string().optional(),
   address: z.string().optional(),
-});
+})
 
 const passwordSchema = z
   .object({
     currentPassword: z.string().min(1, "Vui lòng nhập mật khẩu hiện tại"),
-    newPassword: z
-      .string()
-      .min(6, "Mật khẩu mới phải có ít nhất 6 ký tự"),
+    newPassword: z.string().min(6, "Mật khẩu mới phải có ít nhất 6 ký tự"),
     confirmPassword: z.string().min(1, "Vui lòng xác nhận mật khẩu mới"),
   })
   .refine((d) => d.newPassword === d.confirmPassword, {
     message: "Mật khẩu xác nhận không khớp",
     path: ["confirmPassword"],
-  });
+  })
 
-type InfoFormValues = z.infer<typeof infoSchema>;
-type PasswordFormValues = z.infer<typeof passwordSchema>;
+type InfoFormValues = z.infer<typeof infoSchema>
+type PasswordFormValues = z.infer<typeof passwordSchema>
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function formatDate(dateStr?: string) {
-  if (!dateStr) return "—";
+  if (!dateStr) return "—"
   return new Date(dateStr).toLocaleDateString("vi-VN", {
     year: "numeric",
     month: "long",
     day: "numeric",
-  });
+  })
 }
 
 function RoleBadge({ role }: { role?: string }) {
-  const isAdmin = role?.toLowerCase() === "admin";
+  const isAdmin = role?.toLowerCase() === "admin"
   return (
     <Badge variant={isAdmin ? "default" : "secondary"} className="text-xs">
       {isAdmin ? "Admin" : "User"}
     </Badge>
-  );
+  )
 }
 
 // ── PasswordField helper ──────────────────────────────────────────────────────
@@ -84,131 +87,172 @@ function PasswordInput({
   placeholder,
   ...props
 }: React.ComponentProps<typeof Input> & { placeholder?: string }) {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(false)
   return (
     <div className="relative">
-      <Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+      <Lock className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
       <Input
         type={visible ? "text" : "password"}
         placeholder={placeholder ?? "••••••••"}
-        className="pl-10 pr-10"
+        className="pr-10 pl-10"
         {...props}
       />
       <button
         type="button"
         onClick={() => setVisible((v) => !v)}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+        className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
         aria-label={visible ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
       >
         {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
       </button>
     </div>
-  );
+  )
 }
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function ProfileClient() {
-  const [profile, setProfile] = useState<UserType | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [infoSubmitting, setInfoSubmitting] = useState(false);
-  const [pwSubmitting, setPwSubmitting] = useState(false);
+  const [profile, setProfile] = useState<UserType | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [infoSubmitting, setInfoSubmitting] = useState(false)
+  const [pwSubmitting, setPwSubmitting] = useState(false)
 
   const infoForm = useForm<InfoFormValues>({
     resolver: zodResolver(infoSchema),
     defaultValues: { displayName: "", email: "", phone: "", address: "" },
-  });
+  })
 
   const passwordForm = useForm<PasswordFormValues>({
     resolver: zodResolver(passwordSchema),
     defaultValues: { currentPassword: "", newPassword: "", confirmPassword: "" },
-  });
+  })
 
   // ── Fetch profile ────────────────────────────────────────────────────────
   useEffect(() => {
     profileService
       .getProfile()
       .then((data) => {
-        setProfile(data);
+        setProfile(data)
         infoForm.reset({
           displayName: data.displayName ?? "",
           email: data.email ?? "",
           phone: data.phone ?? "",
           address: data.address ?? "",
-        });
+        })
       })
       .catch(() => {
-        toast.error("Không thể tải thông tin tài khoản");
+        toast.error("Không thể tải thông tin tài khoản")
       })
-      .finally(() => setLoading(false));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+      .finally(() => setLoading(false))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // ── Submit: update info ───────────────────────────────────────────────────
   async function onInfoSubmit(values: InfoFormValues) {
-    if (!profile) return;
-    setInfoSubmitting(true);
+    if (!profile) return
+    setInfoSubmitting(true)
     try {
-      const changedData: Partial<InfoFormValues> = {};
-      
+      const changedData: Partial<InfoFormValues> = {}
+
       if (values.displayName !== (profile.displayName ?? "")) {
-        changedData.displayName = values.displayName;
+        changedData.displayName = values.displayName
       }
       if (values.email !== (profile.email ?? "")) {
-        changedData.email = values.email;
+        changedData.email = values.email
       }
       if (values.phone !== (profile.phone ?? "")) {
-        changedData.phone = values.phone;
+        changedData.phone = values.phone
       }
       if (values.address !== (profile.address ?? "")) {
-        changedData.address = values.address;
+        changedData.address = values.address
       }
 
       if (Object.keys(changedData).length === 0) {
-        setInfoSubmitting(false);
-        return;
+        setInfoSubmitting(false)
+        return
       }
 
-      const updated = await profileService.updateProfile(changedData);
-      setProfile((prev) => (prev ? { ...prev, ...updated } : updated));
+      const updated = await profileService.updateProfile(changedData)
+      setProfile((prev) => (prev ? { ...prev, ...updated } : updated))
       infoForm.reset({
         displayName: updated.displayName ?? "",
         email: updated.email ?? "",
         phone: updated.phone ?? "",
         address: updated.address ?? "",
-      });
-      toast.success("Cập nhật thông tin thành công");
+      })
+      toast.success("Cập nhật thông tin thành công")
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const err = error as any;
-      toast.error(err?.response?.data?.message || "Lỗi khi cập nhật thông tin");
+      const err = error as any
+      toast.error(err?.response?.data?.message || "Lỗi khi cập nhật thông tin")
     } finally {
-      setInfoSubmitting(false);
+      setInfoSubmitting(false)
     }
   }
 
   // ── Submit: change password ───────────────────────────────────────────────
   async function onPasswordSubmit(values: PasswordFormValues) {
-    setPwSubmitting(true);
+    setPwSubmitting(true)
     try {
       await profileService.changePassword({
         currentPassword: values.currentPassword,
         newPassword: values.newPassword,
-      });
-      toast.success("Đổi mật khẩu thành công");
-      passwordForm.reset();
+      })
+      toast.success("Đổi mật khẩu thành công")
+      passwordForm.reset()
     } finally {
-      setPwSubmitting(false);
+      setPwSubmitting(false)
     }
   }
 
   // ── Loading state ────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="size-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+      <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mb-8 flex items-center gap-4">
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-48" />
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-5 w-16 rounded-full" />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="bg-muted grid grid-cols-2 gap-2 rounded-lg p-1">
+            <Skeleton className="h-8 w-full rounded-md" />
+            <Skeleton className="h-8 w-full rounded-md" />
+          </div>
+
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="mt-2 h-4 w-64" />
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="h-3 w-20" />
+                    <Skeleton className="h-5 w-32" />
+                  </div>
+                ))}
+              </div>
+              <Separator />
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-10 w-full rounded-md" />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    )
   }
 
   return (
@@ -216,10 +260,10 @@ export default function ProfileClient() {
       {/* ── Header ── */}
       <div className="mb-8 flex items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold text-foreground">
+          <h1 className="text-foreground text-xl font-bold">
             {profile?.displayName || profile?.username}
           </h1>
-          <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="text-muted-foreground mt-1 flex items-center gap-2 text-sm">
             <span>@{profile?.username}</span>
             <RoleBadge role={profile?.role} />
           </div>
@@ -228,16 +272,9 @@ export default function ProfileClient() {
 
       {/* ── Tabs ── */}
       <Tabs defaultValue="info">
-        <TabsList className="mb-6 w-full flex">
-          <TabsTrigger value="info" className="flex-1">
-            Thông tin tài khoản
-          </TabsTrigger>
-          <TabsTrigger value="history" className="flex-1">
-            Lịch sử đơn hàng
-          </TabsTrigger>
-          <TabsTrigger value="password" className="flex-1">
-            Đổi mật khẩu
-          </TabsTrigger>
+        <TabsList className="mb-6 grid w-2xl grid-cols-2">
+          <TabsTrigger value="info">Thông tin tài khoản</TabsTrigger>
+          <TabsTrigger value="password">Đổi mật khẩu</TabsTrigger>
         </TabsList>
 
         {/* ── Tab: Info ── */}
@@ -253,42 +290,40 @@ export default function ProfileClient() {
               {/* Read-only fields */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                     Tên đăng nhập
                   </p>
-                  <p className="flex items-center gap-2 text-sm font-medium text-foreground">
-                    <User className="size-4 text-muted-foreground" />
+                  <p className="text-foreground flex items-center gap-2 text-sm font-medium">
+                    <User className="text-muted-foreground size-4" />
                     {profile?.username}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                     Ngày tạo
                   </p>
-                  <p className="flex items-center gap-2 text-sm font-medium text-foreground">
-                    <CalendarDays className="size-4 text-muted-foreground" />
+                  <p className="text-foreground flex items-center gap-2 text-sm font-medium">
+                    <CalendarDays className="text-muted-foreground size-4" />
                     {formatDate(profile?.createdAt)}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                     Vai trò
                   </p>
-                  <p className="flex items-center gap-2 text-sm font-medium text-foreground">
-                    <ShieldCheck className="size-4 text-muted-foreground" />
+                  <p className="text-foreground flex items-center gap-2 text-sm font-medium">
+                    <ShieldCheck className="text-muted-foreground size-4" />
                     <RoleBadge role={profile?.role} />
                   </p>
                 </div>
                 {profile?.status && (
                   <div className="space-y-1">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                       Trạng thái
                     </p>
-                    <p className="text-sm font-medium text-foreground">
+                    <p className="text-foreground text-sm font-medium">
                       <Badge
-                        variant={
-                          profile.status === "Active" ? "default" : "destructive"
-                        }
+                        variant={profile.status === "Active" ? "default" : "destructive"}
                         className="text-xs"
                       >
                         {profile.status}
@@ -302,10 +337,7 @@ export default function ProfileClient() {
 
               {/* Editable form */}
               <Form {...infoForm}>
-                <form
-                  onSubmit={infoForm.handleSubmit(onInfoSubmit)}
-                  className="space-y-4"
-                >
+                <form onSubmit={infoForm.handleSubmit(onInfoSubmit)} className="space-y-4">
                   <FormField
                     control={infoForm.control}
                     name="displayName"
@@ -314,12 +346,8 @@ export default function ProfileClient() {
                         <FormLabel>Tên hiển thị</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <User className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                            <Input
-                              placeholder="Nhập tên hiển thị"
-                              className="pl-10"
-                              {...field}
-                            />
+                            <User className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                            <Input placeholder="Nhập tên hiển thị" className="pl-10" {...field} />
                           </div>
                         </FormControl>
                         <FormMessage />
@@ -335,7 +363,7 @@ export default function ProfileClient() {
                         <FormLabel>Email</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                            <Mail className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                             <Input
                               type="email"
                               placeholder="Nhập email"
@@ -358,7 +386,7 @@ export default function ProfileClient() {
                           <FormLabel>Số điện thoại</FormLabel>
                           <FormControl>
                             <div className="relative">
-                              <Phone className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                              <Phone className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                               <Input
                                 type="tel"
                                 placeholder="Nhập số điện thoại"
@@ -398,13 +426,8 @@ export default function ProfileClient() {
                   />
 
                   <div className="flex justify-end">
-                    <Button 
-                      type="submit" 
-                      disabled={infoSubmitting || !infoForm.formState.isDirty}
-                    >
-                      {infoSubmitting && (
-                        <Loader2 className="mr-2 size-4 animate-spin" />
-                      )}
+                    <Button type="submit" disabled={infoSubmitting || !infoForm.formState.isDirty}>
+                      {infoSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
                       Lưu thay đổi
                     </Button>
                   </div>
@@ -425,10 +448,7 @@ export default function ProfileClient() {
             </CardHeader>
             <CardContent>
               <Form {...passwordForm}>
-                <form
-                  onSubmit={passwordForm.handleSubmit(onPasswordSubmit)}
-                  className="space-y-4"
-                >
+                <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
                   <FormField
                     control={passwordForm.control}
                     name="currentPassword"
@@ -436,10 +456,7 @@ export default function ProfileClient() {
                       <FormItem>
                         <FormLabel>Mật khẩu hiện tại</FormLabel>
                         <FormControl>
-                          <PasswordInput
-                            placeholder="Nhập mật khẩu hiện tại"
-                            {...field}
-                          />
+                          <PasswordInput placeholder="Nhập mật khẩu hiện tại" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -453,10 +470,7 @@ export default function ProfileClient() {
                       <FormItem>
                         <FormLabel>Mật khẩu mới</FormLabel>
                         <FormControl>
-                          <PasswordInput
-                            placeholder="Nhập mật khẩu mới"
-                            {...field}
-                          />
+                          <PasswordInput placeholder="Nhập mật khẩu mới" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -470,10 +484,7 @@ export default function ProfileClient() {
                       <FormItem>
                         <FormLabel>Xác nhận mật khẩu mới</FormLabel>
                         <FormControl>
-                          <PasswordInput
-                            placeholder="Nhập lại mật khẩu mới"
-                            {...field}
-                          />
+                          <PasswordInput placeholder="Nhập lại mật khẩu mới" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -482,9 +493,7 @@ export default function ProfileClient() {
 
                   <div className="flex justify-end">
                     <Button type="submit" disabled={pwSubmitting}>
-                      {pwSubmitting && (
-                        <Loader2 className="mr-2 size-4 animate-spin" />
-                      )}
+                      {pwSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
                       Đổi mật khẩu
                     </Button>
                   </div>
@@ -493,12 +502,7 @@ export default function ProfileClient() {
             </CardContent>
           </Card>
         </TabsContent>
-
-        {/* ── Tab: History ── */}
-        <TabsContent value="history">
-          <OrderHistoryTab />
-        </TabsContent>
       </Tabs>
     </main>
-  );
+  )
 }

@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils"
 import { useAuthStore } from "@/stores/useAuthStore"
 
-import { Zap } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 
 import AuthButtons from "./AuthButtons"
@@ -24,15 +24,16 @@ export default function TopBar({ initialCategories = [] }: TopBarProps) {
       <Link href="/" className="group flex shrink-0 items-center gap-2.5">
         <div
           className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-300",
-            "bg-primary/10 group-hover:bg-primary/20 group-hover:scale-110",
+            "flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-300",
+            "group-hover:scale-110",
           )}
         >
-          <Zap className="text-primary size-4.5" fill="currentColor" />
+          <Image src="/logo.png" alt="Logo" width={40} height={40} />
         </div>
         <span className="text-xl font-bold tracking-tight">
           <span className="text-foreground">Smart</span>
-          <span className="text-foreground"> PC</span>
+          <span className="text-primary"> PC</span>
+          <span className="text-foreground"> Store</span>
         </span>
       </Link>
 
