@@ -3,6 +3,7 @@
 export interface BackendProduct {
 	id: string;
 	productName: string;
+	slug: string; // From backend
 	description: string | null;
 	imageUrl: string | null;
 	currentPrice: number;
@@ -20,6 +21,7 @@ export interface BackendProduct {
 export interface AdminProduct {
 	id: string;
 	productName: string;
+	slug: string;
 	description: string | null;
 	imageUrl: string | null;
 	currentPrice: number;
@@ -87,16 +89,32 @@ export interface Product {
 	quantity?: number;
 }
 
+// ─── Utils ──────────────────────────────────────────────────────────────────
+
+export function slugify(text: string): string {
+	return text
+		.toString()
+		.toLowerCase()
+		.trim()
+		.normalize("NFD") // Separate accents
+		.replace(/[\u0300-\u036f]/g, "") // Remove accents
+		.replace(/[đĐ]/g, "d")
+		.replace(/[^a-z0-9\s-]/g, "") // Remove non-alphanumeric
+		.replace(/[\s-]+/g, "-") // Replace spaces/hyphens with a single hyphen
+		.replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+}
+
 // ─── Mapper ─────────────────────────────────────────────────────────────────
 
 export function mapBackendProduct(bp: BackendProduct): Product {
+	const name = bp.productName || "Sản phẩm không tên";
 	return {
 		id: bp.id,
-		name: bp.productName,
-		slug: bp.id,
+		name: name,
+		slug: bp.slug || bp.id, // Direct slug from backend
 		price: bp.currentPrice,
 		image: bp.imageUrl || "/products/placeholder.svg",
-		category: bp.categoryName ?? "",
+		category: bp.categoryName ?? "Linh kiện",
 		description: bp.description || "",
 		stockStatus: bp.stockStatus,
 		quantity: bp.quantity,

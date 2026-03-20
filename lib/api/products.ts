@@ -81,22 +81,22 @@ export async function fetchProducts(
 
 // ─── Fetch Single Product (Server-Side) ─────────────────────────────────────
 
-export async function fetchProductById(
-	id: string
+export async function fetchProductBySlug(
+	slug: string
 ): Promise<BackendProduct | null> {
 	try {
-		const res = await fetch(buildApiUrl(`/products/${id}`), {
+		const res = await fetch(buildApiUrl(`/products/${slug}`), {
 			next: { revalidate: 60 },
 		});
 
 		if (!res.ok) {
-			console.error(`Failed to fetch product ${id}: ${res.status}`);
+			console.error(`Failed to fetch product ${slug}: ${res.status}`);
 			return null;
 		}
 
 		const contentType = res.headers.get("content-type");
 		if (!contentType || !contentType.includes("application/json")) {
-			console.error(`Expected JSON but got ${contentType}. URL: ${buildApiUrl(`/products/${id}`)}`);
+			console.error(`Expected JSON but got ${contentType}. URL: ${buildApiUrl(`/products/${slug}`)}`);
 			return null;
 		}
 

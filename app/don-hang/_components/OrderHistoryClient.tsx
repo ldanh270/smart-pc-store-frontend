@@ -29,6 +29,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { orderService } from "@/services/orderService";
 import { MyOrder, OrderDetailView, OrderStatus } from "@/types/order";
 import { cn, formatPrice } from "@/lib/utils";
+import { slugify } from "@/types/product";
 
 // ─── Status helpers ───────────────────────────────────────────────────────────
 
@@ -260,7 +261,7 @@ function OrderDetailDialog({
                     >
                       <div className="min-w-0 flex-1">
                         <Link
-                          href={`/san-pham/${item.productId}`}
+                          href={`/san-pham/${slugify(item.productName)}-${item.productId}`}
                           className="flex items-center gap-1 text-sm font-medium text-foreground transition-colors hover:text-primary"
                         >
                           <span className="line-clamp-1">{item.productName}</span>

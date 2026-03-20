@@ -1,4 +1,4 @@
-import { fetchProductById } from "@/lib/api/products"
+import { fetchProductBySlug } from "@/lib/api/products"
 
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
@@ -6,12 +6,12 @@ import { notFound } from "next/navigation"
 import ProductDetailClient from "./_components/ProductDetailClient"
 
 interface ProductPageProps {
-  params: Promise<{ id: string }>
+  params: Promise<{ slug: string }>
 }
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
-  const { id } = await params
-  const product = await fetchProductById(id)
+  const { slug } = await params
+  const product = await fetchProductBySlug(slug)
 
   if (!product) {
     return { title: "Sản phẩm không tồn tại | Smart PC Store" }
@@ -24,8 +24,8 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 }
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
-  const { id } = await params
-  const product = await fetchProductById(id)
+  const { slug } = await params
+  const product = await fetchProductBySlug(slug)
 
   if (!product) {
     notFound()
