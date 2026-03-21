@@ -8,6 +8,8 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { MOCK_REVENUE_CHART } from "@/configs/mock-admin-data"
+import { cn } from "@/lib/utils"
+import { DashboardOverview } from "@/types/dashboard"
 
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
@@ -31,14 +33,19 @@ function formatVND(value: number): string {
 
 // ─── Stats Summary ──────────────────────────────────────────────────────────
 
-const totalRevenue = MOCK_REVENUE_CHART.reduce((s, d) => s + d.revenue, 0)
 const totalOrders = MOCK_REVENUE_CHART.reduce((s, d) => s + d.orders, 0)
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
-export default function RevenueBarChart() {
+export default function RevenueBarChart({
+  className,
+  data,
+}: {
+  className?: string
+  data: DashboardOverview | null
+}) {
   return (
-    <Card className="border-border/50">
+    <Card className={cn("border-border/50", className)}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -47,7 +54,9 @@ export default function RevenueBarChart() {
           </div>
           <div className="flex gap-6 text-right">
             <div>
-              <p className="font-mono text-2xl font-bold">{formatVND(totalRevenue)}</p>
+              <p className="font-mono text-2xl font-bold">
+                {data ? formatVND(data.totalRevenue) : "0đ"}
+              </p>
               <p className="text-muted-foreground text-xs">Doanh thu</p>
             </div>
             <div>

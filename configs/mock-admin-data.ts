@@ -1,15 +1,3 @@
-export type OrderStatus = "pending" | "processing" | "shipped" | "delivered" | "cancelled"
-
-export interface Order {
-  id: number
-  customerName: string
-  email: string
-  total: number
-  status: OrderStatus
-  itemCount: number
-  createdAt: string
-}
-
 export const MOCK_REVENUE_CHART = [
   { date: "24/02", revenue: 18_500_000, orders: 42 },
   { date: "25/02", revenue: 22_300_000, orders: 51 },
@@ -18,54 +6,6 @@ export const MOCK_REVENUE_CHART = [
   { date: "28/02", revenue: 21_200_000, orders: 48 },
   { date: "01/03", revenue: 28_400_000, orders: 64 },
   { date: "02/03", revenue: 21_000_000, orders: 34 },
-]
-
-export const MOCK_ORDERS: Order[] = [
-  {
-    id: 1001,
-    customerName: "John Doe",
-    email: "john@gmail.com",
-    total: 25_990_000,
-    status: "delivered",
-    itemCount: 3,
-    createdAt: "2026-03-02",
-  },
-  {
-    id: 1002,
-    customerName: "Trần Thị B",
-    email: "tranthib@yahoo.com",
-    total: 45_500_000,
-    status: "shipped",
-    itemCount: 2,
-    createdAt: "2026-03-01",
-  },
-  {
-    id: 1003,
-    customerName: "Lê Văn C",
-    email: "levanc@hotmail.com",
-    total: 12_300_000,
-    status: "processing",
-    itemCount: 1,
-    createdAt: "2026-03-01",
-  },
-  {
-    id: 1004,
-    customerName: "Phạm Thị D",
-    email: "phamthid@gmail.com",
-    total: 8_790_000,
-    status: "pending",
-    itemCount: 4,
-    createdAt: "2026-02-28",
-  },
-  {
-    id: 1005,
-    customerName: "Hoàng Văn E",
-    email: "hoangvane@gmail.com",
-    total: 67_200_000,
-    status: "cancelled",
-    itemCount: 5,
-    createdAt: "2026-02-27",
-  },
 ]
 
 export interface AdminProduct {

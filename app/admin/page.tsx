@@ -4,7 +4,6 @@ import CategoryDonutChart from "@/components/admin/dashboard/CategoryDonutChart"
 import RevenueChart from "@/components/admin/dashboard/RevenueChart"
 import StatCard from "@/components/admin/dashboard/StatCard"
 import TopProducts from "@/components/admin/dashboard/TopProducts"
-import VisitorAreaChart from "@/components/admin/dashboard/VisitorAreaChart"
 import { Skeleton } from "@/components/ui/skeleton"
 import { dashboardService } from "@/services/dashboardService"
 import type { DashboardOverview } from "@/types/dashboard"
@@ -107,18 +106,11 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Charts Row */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <RevenueChart />
-        <VisitorAreaChart />
-      </div>
-
-      {/* Details Row */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <div className="h-full lg:col-span-1">
-          <CategoryDonutChart />
-        </div>
-        <div className="h-full lg:col-span-2">
-          <TopProducts />
+      <div className="grid h-fit gap-4 md:grid-cols-10">
+        <RevenueChart data={data} className="col-span-7 h-fit w-full" />
+        <div className="col-span-3 flex h-full flex-col gap-4">
+          <CategoryDonutChart className="h-full w-full" />
+          <TopProducts className="h-full w-full" />
         </div>
       </div>
     </div>

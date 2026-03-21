@@ -1,14 +1,15 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { MOCK_ADMIN_PRODUCTS } from "@/configs/mock-admin-data"
+import { cn } from "@/lib/utils"
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
-export default function TopProducts() {
+export default function TopProducts({ className }: { className?: string }) {
   const topProducts = MOCK_ADMIN_PRODUCTS.slice(0, 5)
 
   return (
-    <Card className="border-border/50 flex h-full flex-col">
+    <Card className={cn("border-border/50 flex h-full flex-col", className)}>
       <CardHeader>
         <CardTitle className="text-base font-semibold">Sản Phẩm Bán Chạy</CardTitle>
         <CardDescription>Top sản phẩm có doanh thu cao nhất</CardDescription>
