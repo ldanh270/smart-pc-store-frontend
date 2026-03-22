@@ -117,12 +117,12 @@ export default function UserTable() {
                   </TableCell>
                   <TableCell className="text-center">
                     <Badge
-                      variant={user.status === "Active" ? "outline" : "destructive"}
+                      variant={user.status === "ACTIVE" ? "outline" : "destructive"}
                       className={
-                        user.status === "Active" ? "border-emerald-500/50 text-emerald-600" : ""
+                        user.status === "ACTIVE" ? "border-emerald-500/50 text-emerald-600" : ""
                       }
                     >
-                      {user.status ?? "Active"}
+                      {user.status ?? "ACTIVE"}
                     </Badge>
                   </TableCell>
                   <TableCell>

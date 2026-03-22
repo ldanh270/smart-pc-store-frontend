@@ -9,25 +9,23 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { useAuthStore } from "@/stores/useAuthStore"
 
-import { Bell, LogOut, Search, Store } from "lucide-react"
+import { LogOut, Store } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 // ─── Route Label Map ────────────────────────────────────────────────────────
 
 const ROUTE_LABELS: Record<string, string> = {
-  admin: "Dashboard",
-  users: "Người Dùng",
-  products: "Sản Phẩm",
-  categories: "Danh Mục",
-  orders: "Đơn Hàng",
-  suppliers: "Nhà Cung Cấp",
+  "quan-ly": "Dashboard",
+  "nguoi-dung": "Người Dùng",
+  "san-pham": "Sản Phẩm",
+  "danh-muc": "Danh Mục",
+  "don-hang": "Đơn Hàng",
+  "nha-cung-cap": "Nhà Cung Cấp",
   "nhap-hang": "Nhập Hàng",
 }
 
@@ -76,21 +74,21 @@ export default function AdminHeader() {
       <div className="flex-1" />
 
       {/* Search */}
-      <div className="relative hidden md:block">
+      {/* <div className="relative hidden md:block">
         <Search className="text-muted-foreground absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2" />
         <Input placeholder="Tìm kiếm..." className="bg-muted/50 h-8 w-50 pl-8 text-sm lg:w-65" />
-      </div>
+      </div> */}
 
       {/* Notifications */}
-      <Button variant="ghost" size="icon" className="size-8">
+      {/* <Button variant="ghost" size="icon" className="size-8">
         <Bell className="size-4" />
-      </Button>
+      </Button> */}
 
       <Separator orientation="vertical" className="h-4" />
 
       {/* User Dropdown */}
       <div className="group relative">
-        <button className="hover:bg-accent flex items-center gap-2 rounded-lg px-1.5 py-1 transition-colors">
+        <button className="hover:bg-accent flex cursor-pointer items-center gap-2 rounded-lg px-1.5 py-1 transition-colors">
           <Avatar className="border-border/50 size-7 border">
             <AvatarFallback className="bg-primary/20 text-primary text-xs font-semibold">
               {user?.name?.charAt(0).toUpperCase() ?? "A"}
@@ -127,7 +125,7 @@ export default function AdminHeader() {
               await logout()
               window.location.href = "/dang-nhap"
             }}
-            className="text-destructive hover:bg-destructive/10 flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors"
+            className="text-destructive hover:bg-destructive/10 flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors"
           >
             <LogOut className="size-4 shrink-0" />
             Đăng Xuất

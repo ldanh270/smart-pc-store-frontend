@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { cn } from "@/lib/utils"
 
 import {
   LayoutDashboard,
@@ -22,8 +23,8 @@ import {
   Tags,
   Truck,
   Users,
-  Zap,
 } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -83,18 +84,19 @@ export default function AdminSidebar() {
   return (
     <Sidebar collapsible="icon" variant="sidebar">
       {/* Brand */}
-      {/* Brand */}
       <SidebarHeader className="border-border flex h-14 flex-row items-center justify-start border-b p-0 px-4 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
-        <Link
-          href="/quan-ly"
-          className="flex w-full items-center justify-start gap-2.5 group-data-[collapsible=icon]:justify-center"
-        >
-          <div className="bg-primary/10 flex size-8 shrink-0 items-center justify-center rounded-lg">
-            <Zap className="text-primary size-4.5" fill="currentColor" />
+        <Link href="/quan-ly" className="group/link flex shrink items-center gap-2.5">
+          <div
+            className={cn(
+              "flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-300",
+              "group-hover/link:scale-110",
+            )}
+          >
+            <Image src="/logo.png" alt="Logo" width={40} height={40} />
           </div>
-          <span className="text-lg font-bold tracking-tight group-data-[collapsible=icon]:hidden">
-            <span className="text-foreground">Smart</span>
-            <span className="text-foreground"> PC</span>
+          <span className="text-xl font-bold group-data-[collapsible=icon]:hidden">
+            <span className="text-foreground">Admin</span>
+            <span className="text-primary"> Panel</span>
           </span>
         </Link>
       </SidebarHeader>

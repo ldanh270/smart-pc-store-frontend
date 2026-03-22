@@ -43,7 +43,7 @@ const createUserSchema = z.object({
   email: z.string().email("Email không hợp lệ"),
   phone: z.string().optional(),
   address: z.string().optional(),
-  status: z.string().default("Active"),
+  status: z.string().default("ACTIVE"),
   role: z.string().default("user"),
 })
 
@@ -99,7 +99,7 @@ export default function UserFormDialog({
       email: "",
       phone: "",
       address: "",
-      status: "Active",
+      status: "ACTIVE",
       role: "user",
     },
   })
@@ -114,7 +114,7 @@ export default function UserFormDialog({
         email: user.email ?? "",
         phone: user.phone ?? "",
         address: user.address ?? "",
-        status: user.status ?? "Active",
+        status: user.status ?? "ACTIVE",
         role: user.role ?? "user",
       })
     } else if (open && !user) {
@@ -125,7 +125,7 @@ export default function UserFormDialog({
         email: "",
         phone: "",
         address: "",
-        status: "Active",
+        status: "ACTIVE",
         role: "user",
       })
     }
@@ -151,7 +151,7 @@ export default function UserFormDialog({
       if (values.password) {
         changed.password = values.password
       }
-      if (values.status && values.status !== (user.status ?? "Active")) {
+      if (values.status && values.status !== (user.status ?? "ACTIVE")) {
         changed.status = values.status
       }
       if (values.role && values.role !== user.role) {
@@ -313,7 +313,7 @@ export default function UserFormDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Active">Active</SelectItem>
+                        <SelectItem value="ACTIVE">ACTIVE</SelectItem>
                         <SelectItem value="Blocked">Blocked</SelectItem>
                       </SelectContent>
                     </Select>
