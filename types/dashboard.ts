@@ -13,3 +13,17 @@ export interface DashboardOverview {
   productsSold: number
   productsSoldChangePercent: number
 }
+
+export interface RevenueDailyItem {
+  date: string
+  revenue: number
+  orders: number
+}
+
+export interface RevenueDailyResponse {
+  days: number
+  timezone: string
+  totalRevenue: number
+  totalOrders: number
+  items: RevenueDailyItem[]
+}

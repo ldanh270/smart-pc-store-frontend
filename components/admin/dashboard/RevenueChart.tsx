@@ -1,5 +1,3 @@
-"use client"
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   type ChartConfig,
@@ -7,9 +5,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { MOCK_REVENUE_CHART } from "@/configs/mock-admin-data"
 import { cn } from "@/lib/utils"
-import { DashboardOverview } from "@/types/dashboard"
+import { RevenueDailyResponse } from "@/types/dashboard"
 
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
@@ -31,10 +28,6 @@ function formatVND(value: number): string {
   return value.toLocaleString("vi-VN")
 }
 
-// ─── Stats Summary ──────────────────────────────────────────────────────────
-
-const totalOrders = MOCK_REVENUE_CHART.reduce((s, d) => s + d.orders, 0)
-
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function RevenueBarChart({
@@ -42,8 +35,19 @@ export default function RevenueBarChart({
   data,
 }: {
   className?: string
-  data: DashboardOverview | null
+  data: RevenueDailyResponse | null
 }) {
+  // Format date from YYYY-MM-DD to DD/MM
+  const chartData =
+    data?.items.map((item) => {
+      const parts = item.date.split("-")
+      const formattedDate = `${parts[2]}/${parts[1]}`
+      return {
+        ...item,
+        formattedDate,
+      }
+    }) ?? []
+
   return (
     <Card className={cn("border-border/50", className)}>
       <CardHeader>
@@ -60,7 +64,9 @@ export default function RevenueBarChart({
               <p className="text-muted-foreground text-xs">Doanh thu</p>
             </div>
             <div>
-              <p className="font-mono text-2xl font-bold">{totalOrders.toLocaleString()}</p>
+              <p className="font-mono text-2xl font-bold">
+                {data?.totalOrders.toLocaleString() ?? "0"}
+              </p>
               <p className="text-muted-foreground text-xs">Đơn hàng</p>
             </div>
           </div>
@@ -69,7 +75,7 @@ export default function RevenueBarChart({
       <CardContent>
         <ChartContainer config={chartConfig}>
           <BarChart
-            data={MOCK_REVENUE_CHART}
+            data={chartData}
             margin={{
               top: 5,
               right: 5,
@@ -79,7 +85,7 @@ export default function RevenueBarChart({
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/30" />
             <XAxis
-              dataKey="date"
+              dataKey="formattedDate"
               tickLine={false}
               axisLine={false}
               tickMargin={8}

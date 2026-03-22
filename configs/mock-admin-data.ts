@@ -1,13 +1,3 @@
-export const MOCK_REVENUE_CHART = [
-  { date: "24/02", revenue: 18_500_000, orders: 42 },
-  { date: "25/02", revenue: 22_300_000, orders: 51 },
-  { date: "26/02", revenue: 19_800_000, orders: 45 },
-  { date: "27/02", revenue: 25_600_000, orders: 58 },
-  { date: "28/02", revenue: 21_200_000, orders: 48 },
-  { date: "01/03", revenue: 28_400_000, orders: 64 },
-  { date: "02/03", revenue: 21_000_000, orders: 34 },
-]
-
 export interface AdminProduct {
   id: number
   productName: string

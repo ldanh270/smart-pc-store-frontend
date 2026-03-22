@@ -1,5 +1,5 @@
 import api from "@/lib/axios"
-import type { CategoryStat, DashboardOverview } from "@/types/dashboard"
+import type { CategoryStat, DashboardOverview, RevenueDailyResponse } from "@/types/dashboard"
 
 export const dashboardService = {
   getOverview: async (): Promise<DashboardOverview> => {
@@ -9,6 +9,11 @@ export const dashboardService = {
 
   getCategoryStats: async (): Promise<CategoryStat[]> => {
     const response = await api.get("/dashboard/category-stats")
+    return response.data?.data ?? response.data
+  },
+
+  getRevenueDaily: async (): Promise<RevenueDailyResponse> => {
+    const response = await api.get("/dashboard/revenue-daily")
     return response.data?.data ?? response.data
   },
 }

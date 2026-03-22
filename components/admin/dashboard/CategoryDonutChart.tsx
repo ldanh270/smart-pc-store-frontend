@@ -1,5 +1,3 @@
-"use client"
-
 import {
   Card,
   CardContent,
@@ -15,10 +13,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { cn } from "@/lib/utils"
-import { dashboardService } from "@/services/dashboardService"
-import type { CategoryStat } from "@/types/dashboard"
-
-import { useEffect, useState } from "react"
+import { useDashboardStore } from "@/stores/useDashboardStore"
 
 import { Cell, Label, Pie, PieChart } from "recharts"
 
@@ -35,27 +30,12 @@ const COLORS = [
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function CategoryDonutChart({ className }: { className?: string }) {
-  const [data, setData] = useState<(CategoryStat & { fill: string })[]>([])
-  const [loading, setLoading] = useState(true)
+  const { categoryStats, loading } = useDashboardStore()
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const stats = await dashboardService.getCategoryStats()
-        const formattedData = stats.map((item, index) => ({
-          ...item,
-          fill: COLORS[index % COLORS.length],
-        }))
-        setData(formattedData)
-      } catch (error) {
-        console.error("Failed to fetch category stats:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchData()
-  }, [])
+  const data = categoryStats.map((item, index) => ({
+    ...item,
+    fill: COLORS[index % COLORS.length],
+  }))
 
   const totalProducts = data.reduce((s, d) => s + d.value, 0)
 
@@ -68,7 +48,7 @@ export default function CategoryDonutChart({ className }: { className?: string }
     return acc
   }, {} as ChartConfig)
 
-  if (loading) {
+  if (loading && data.length === 0) {
     return (
       <Card className="border-border/50 flex h-full flex-col">
         <CardHeader>

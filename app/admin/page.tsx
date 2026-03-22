@@ -5,31 +5,18 @@ import RevenueChart from "@/components/admin/dashboard/RevenueChart"
 import StatCard from "@/components/admin/dashboard/StatCard"
 import TopProducts from "@/components/admin/dashboard/TopProducts"
 import { Skeleton } from "@/components/ui/skeleton"
-import { dashboardService } from "@/services/dashboardService"
-import type { DashboardOverview } from "@/types/dashboard"
+import { useDashboardStore } from "@/stores/useDashboardStore"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 
 import { DollarSign, Package, ShoppingCart, Users } from "lucide-react"
 
 export default function AdminDashboardPage() {
-  const [data, setData] = useState<DashboardOverview | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { overview, revenueDaily, loading, fetchAll } = useDashboardStore()
 
   useEffect(() => {
-    const fetchOverview = async () => {
-      try {
-        const overview = await dashboardService.getOverview()
-        setData(overview)
-      } catch (error) {
-        console.error("Failed to fetch dashboard overview:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchOverview()
-  }, [])
+    fetchAll()
+  }, [fetchAll])
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -42,7 +29,7 @@ export default function AdminDashboardPage() {
     return new Intl.NumberFormat("vi-VN").format(value)
   }
 
-  if (loading) {
+  if (loading && !overview) {
     return (
       <div className="space-y-6">
         <div>
@@ -73,33 +60,33 @@ export default function AdminDashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Tổng Doanh Thu"
-          value={data ? formatCurrency(data.totalRevenue) : "0đ"}
+          value={overview ? formatCurrency(overview.totalRevenue) : "0đ"}
           icon={DollarSign}
-          trend={data?.revenueChangePercent ?? 0}
+          trend={overview?.revenueChangePercent ?? 0}
           trendLabel="so với tháng trước"
           description="Đã thanh toán thành công"
         />
         <StatCard
           label="Đơn Hàng Mới"
-          value={data ? `+${formatNumber(data.newOrders)}` : "0"}
+          value={overview ? `+${formatNumber(overview.newOrders)}` : "0"}
           icon={ShoppingCart}
-          trend={data?.ordersChangePercent ?? 0}
+          trend={overview?.ordersChangePercent ?? 0}
           trendLabel="so với tháng trước"
           description="Đơn hàng mới trong tháng"
         />
         <StatCard
           label="Khách Hàng Mới"
-          value={data ? `+${formatNumber(data.newCustomers)}` : "0"}
+          value={overview ? `+${formatNumber(overview.newCustomers)}` : "0"}
           icon={Users}
-          trend={data?.customersChangePercent ?? 0}
+          trend={overview?.customersChangePercent ?? 0}
           trendLabel="so với tháng trước"
           description="Tài khoản đăng ký mới"
         />
         <StatCard
           label="Sản Phẩm Đã Bán"
-          value={data ? formatNumber(data.productsSold) : "0"}
+          value={overview ? formatNumber(overview.productsSold) : "0"}
           icon={Package}
-          trend={data?.productsSoldChangePercent ?? 0}
+          trend={overview?.productsSoldChangePercent ?? 0}
           trendLabel="so với tháng trước"
           description="Tổng số lượng sản phẩm"
         />
@@ -107,7 +94,7 @@ export default function AdminDashboardPage() {
 
       {/* Charts Row */}
       <div className="grid h-fit gap-4 md:grid-cols-10">
-        <RevenueChart data={data} className="col-span-7 h-fit w-full" />
+        <RevenueChart data={revenueDaily} className="col-span-7 h-fit w-full" />
         <div className="col-span-3 flex h-full flex-col gap-4">
           <CategoryDonutChart className="h-full w-full" />
           <TopProducts className="h-full w-full" />
