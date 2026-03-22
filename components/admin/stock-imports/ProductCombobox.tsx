@@ -11,19 +11,22 @@ import {
 } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
-import type { AdminProduct } from "@/types/product"
 
 import * as React from "react"
 
 import { Check, ChevronsUpDown } from "lucide-react"
 
 interface ProductComboboxProps {
-  products: AdminProduct[]
+  products: {
+    id: string
+    productName: string
+  }[]
   value: string
   onChange: (value: string) => void
+  disabled?: boolean
 }
 
-export function ProductCombobox({ products, value, onChange }: ProductComboboxProps) {
+export function ProductCombobox({ products, value, onChange, disabled = false }: ProductComboboxProps) {
   const [open, setOpen] = React.useState(false)
 
   const selectedProduct = React.useMemo(() => {
@@ -31,12 +34,19 @@ export function ProductCombobox({ products, value, onChange }: ProductComboboxPr
   }, [products, value])
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (disabled) return
+        setOpen(nextOpen)
+      }}
+    >
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           role="combobox"
           aria-expanded={open}
+          disabled={disabled}
           className="w-full justify-between px-3 font-normal"
         >
           <span className="truncate">

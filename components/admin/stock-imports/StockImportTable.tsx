@@ -26,11 +26,19 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useStockImportStore } from "@/stores/useStockImportStore"
-import type { StockImport, StockImportStatus } from "@/types/stockImport"
+import { stockImportService } from "@/services/stockImportService"
+import type {
+  PurchaseOrderType,
+  StockImport,
+  StockImportAdjustDto,
+  StockImportStatus,
+} from "@/types/stockImport"
 
 import { useEffect, useState } from "react"
+import { toast } from "sonner"
 
 import {
+  ClipboardEdit,
   Eye,
   Loader2,
   MoreHorizontal,
@@ -69,6 +77,27 @@ const STATUS_CONFIG: Record<
   },
 }
 
+const TYPE_CONFIG: Record<
+  PurchaseOrderType,
+  { label: string; variant: "outline" | "secondary"; className: string }
+> = {
+  NORMAL: {
+    label: "Thông thường",
+    variant: "outline",
+    className: "border-blue-500/50 text-blue-600",
+  },
+  ADJUSTMENT: {
+    label: "Điều chỉnh",
+    variant: "outline",
+    className: "border-orange-500/50 text-orange-600",
+  },
+  IMPORT: {
+    label: "Nhập hàng",
+    variant: "outline",
+    className: "border-purple-500/50 text-purple-600",
+  },
+}
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function StockImportTable() {
@@ -80,12 +109,16 @@ export default function StockImportTable() {
     updateStockImport,
     deleteStockImport,
     updateStatus,
+    adjustStockImport,
   } = useStockImportStore()
 
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [editingImport, setEditingImport] = useState<StockImport | null>(null)
+  const [adjustingImport, setAdjustingImport] = useState<StockImport | null>(null)
   const [viewingImport, setViewingImport] = useState<StockImport | null>(null)
   const [deletingImport, setDeletingImport] = useState<StockImport | null>(null)
+  const [loadingActionId, setLoadingActionId] = useState<string | null>(null)
+  
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<StockImportStatus | "ALL">("ALL")
 
@@ -93,15 +126,60 @@ export default function StockImportTable() {
     fetchStockImports()
   }, [fetchStockImports])
 
+  async function handleOpenEdit(imp: StockImport) {
+    setLoadingActionId(imp.id)
+    try {
+      const detail = await stockImportService.getStockImport(imp.id)
+      setEditingImport(detail)
+    } catch {
+      toast.error("Không thể lấy chi tiết phiếu nhập")
+    } finally {
+      setLoadingActionId(null)
+    }
+  }
+
+  async function handleOpenAdjust(imp: StockImport) {
+    setLoadingActionId(imp.id)
+    try {
+      const detail = await stockImportService.getStockImport(imp.id)
+      setAdjustingImport(detail)
+    } catch {
+      toast.error("Không thể lấy chi tiết phiếu nhập")
+    } finally {
+      setLoadingActionId(null)
+    }
+  }
+
+  async function handleOpenViewDetail(imp: StockImport) {
+    setLoadingActionId(imp.id)
+    try {
+      const detail = await stockImportService.getStockImport(imp.id)
+      setViewingImport(detail)
+    } catch {
+      toast.error("Không thể lấy chi tiết phiếu nhập")
+    } finally {
+      setLoadingActionId(null)
+    }
+  }
+
   async function handleCreate(data: Parameters<typeof createStockImport>[0]) {
     const success = await createStockImport(data)
     if (success) setIsCreateOpen(false)
+    return success
   }
 
   async function handleEdit(data: Parameters<typeof createStockImport>[0]) {
-    if (!editingImport) return
+    if (!editingImport) return false
     const success = await updateStockImport(editingImport.id, data)
     if (success) setEditingImport(null)
+    return success
+  }
+
+  async function handleAdjust(data: StockImportAdjustDto) {
+    if (!adjustingImport) return false
+    const success = await adjustStockImport(adjustingImport.id, data)
+    if (success) setAdjustingImport(null)
+    return success
   }
 
   async function handleDelete() {
@@ -171,7 +249,8 @@ export default function StockImportTable() {
             <TableRow>
               <TableHead className="w-36">Mã Phiếu</TableHead>
               <TableHead>Nhà Cung Cấp</TableHead>
-              <TableHead>Tổng Tiền</TableHead>
+              <TableHead className="text-right">Tổng Tiền</TableHead>
+              <TableHead className="text-center">Loại</TableHead>
               <TableHead className="text-center">Trạng Thái</TableHead>
               <TableHead className="hidden lg:table-cell">Ngày Tạo</TableHead>
               <TableHead className="w-16" />
@@ -194,6 +273,10 @@ export default function StockImportTable() {
             ) : (
               filtered.map((imp) => {
                 const cfg = STATUS_CONFIG[imp.status]
+                const typeCfg = TYPE_CONFIG[imp.type || "NORMAL"]
+                const isNegative = imp.totalAmount < 0
+                const isItemLoading = loadingActionId === imp.id
+
                 return (
                   <TableRow key={imp.id}>
                     <TableCell className="font-mono text-sm font-semibold">
@@ -202,8 +285,13 @@ export default function StockImportTable() {
                     <TableCell>
                       <p className="font-medium">{imp.supplierName}</p>
                     </TableCell>
-                    <TableCell className="text-primary font-semibold">
+                    <TableCell className={`text-right font-semibold ${isNegative ? "text-red-600" : "text-primary"}`}>
                       {imp.totalAmount.toLocaleString("vi-VN")}₫
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant={typeCfg.variant} className={typeCfg.className}>
+                        {typeCfg.label}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-center">
                       <Badge variant={cfg.variant} className={cfg.className}>
@@ -216,18 +304,28 @@ export default function StockImportTable() {
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="size-8">
-                            <MoreHorizontal className="size-4" />
+                          <Button variant="ghost" size="icon" className="size-8" disabled={isItemLoading}>
+                            {isItemLoading ? (
+                              <Loader2 className="size-4 animate-spin" />
+                            ) : (
+                              <MoreHorizontal className="size-4" />
+                            )}
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => setViewingImport(imp)}>
+                          <DropdownMenuItem onClick={() => handleOpenViewDetail(imp)}>
                             <Eye className="mr-2 size-4" />
                             Xem Chi Tiết
                           </DropdownMenuItem>
+                          {imp.type !== "ADJUSTMENT" && (
+                            <DropdownMenuItem onClick={() => handleOpenAdjust(imp)}>
+                              <ClipboardEdit className="mr-2 size-4 text-orange-600" />
+                              Điều Chỉnh (Adjust)
+                            </DropdownMenuItem>
+                          )}
                           {imp.status === "PENDING" && (
                             <>
-                              <DropdownMenuItem onClick={() => setEditingImport(imp)}>
+                              <DropdownMenuItem onClick={() => handleOpenEdit(imp)}>
                                 <Pencil className="mr-2 size-4" />
                                 Chỉnh Sửa
                               </DropdownMenuItem>
@@ -288,6 +386,16 @@ export default function StockImportTable() {
         }}
         stockImport={editingImport ?? undefined}
         onSubmit={handleEdit}
+      />
+
+      <StockImportFormDialog
+        open={!!adjustingImport}
+        onOpenChange={(open) => {
+          if (!open) setAdjustingImport(null)
+        }}
+        stockImport={adjustingImport ?? undefined}
+        isAdjustment={true}
+        onSubmit={handleAdjust}
       />
 
       <StockImportDetailDialog

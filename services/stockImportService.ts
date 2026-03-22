@@ -3,6 +3,7 @@ import type { ApiResponse } from "@/types/product"
 import type {
   BackendPurchaseOrder,
   BackendPurchaseOrderDetail,
+  StockImportAdjustDto,
   StockImport,
   StockImportCreateDto,
   StockImportQueryParams,
@@ -11,8 +12,9 @@ import type {
 
 export const stockImportService = {
   getStockImports: async (params?: StockImportQueryParams): Promise<StockImport[]> => {
-    // Call the new real endpoint
-    const response = await api.get("/purchase-orders", { params })
+    // Add timestamp to bypass cache if needed
+    const queryParams = { ...params, _t: Date.now() }
+    const response = await api.get("/purchase-orders", { params: queryParams })
     const data = response.data?.data ?? response.data
 
     // Explicitly type and map the backend response
@@ -25,10 +27,11 @@ export const stockImportService = {
       return {
         id: bo.id,
         importCode: `PO-${shortCode}`,
-        supplierId: bo.supplierId,
-        supplierName: bo.supplierName,
+        supplierId: bo.supplierId || "N/A",
+        supplierName: bo.supplierName || "N/A",
         status: "COMPLETED", // Default status, as API doesn't provide it
         totalAmount: bo.totalAmount,
+        type: bo.type || "NORMAL",
         items: [], // API list doesn't return items
         createdAt: bo.orderDate, // Map orderDate to createdAt
         updatedAt: bo.orderDate, // Map orderDate to updatedAt
@@ -46,11 +49,12 @@ export const stockImportService = {
     return {
       id: boDetail.id,
       importCode: `PO-${shortCode}`,
-      supplierId: boDetail.supplierId,
-      supplierName: boDetail.supplierName,
+      supplierId: boDetail.supplierId || "N/A",
+      supplierName: boDetail.supplierName || "N/A",
       status: "COMPLETED",
       totalAmount: boDetail.totalAmount,
-      items: boDetail.items.map((item) => ({
+      type: boDetail.type || "NORMAL",
+      items: (boDetail.items || []).map((item) => ({
         id: item.id,
         productId: item.productId,
         productName: item.productName,
@@ -64,21 +68,72 @@ export const stockImportService = {
   },
 
   createStockImport: async (data: StockImportCreateDto): Promise<StockImport> => {
-    const response = await api.post<ApiResponse<StockImport>>("/purchase-orders/create", data)
-    return response.data.data
+    // Đảm bảo dùng đúng endpoint /purchase-orders/create
+    const response = await api.post("/purchase-orders/create", data)
+    const boDetail = (response.data?.data ?? response.data) as BackendPurchaseOrderDetail
+
+    const shortCode = boDetail.id ? boDetail.id.substring(0, 8).toUpperCase() : "UNKNOWN"
+
+    return {
+      id: boDetail.id,
+      importCode: `PO-${shortCode}`,
+      supplierId: boDetail.supplierId || "N/A",
+      supplierName: boDetail.supplierName || "N/A",
+      status: "COMPLETED",
+      totalAmount: boDetail.totalAmount,
+      type: boDetail.type || "NORMAL",
+      items: (boDetail.items || []).map((item) => ({
+        id: item.id,
+        productId: item.productId,
+        productName: item.productName,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        totalPrice: item.lineTotal,
+      })),
+      createdAt: boDetail.orderDate,
+      updatedAt: boDetail.orderDate,
+    }
+  },
+
+  adjustStockImport: async (id: string, data: StockImportAdjustDto): Promise<StockImport> => {
+    // Chỉ gửi mảng items theo đúng yêu cầu backend
+    const response = await api.post(`/purchase-orders/${id}/adjust`, data)
+    const boDetail = (response.data?.data ?? response.data) as BackendPurchaseOrderDetail
+
+    const shortCode = boDetail.id ? boDetail.id.substring(0, 8).toUpperCase() : "UNKNOWN"
+
+    return {
+      id: boDetail.id,
+      importCode: `PO-${shortCode}`,
+      supplierId: boDetail.supplierId || "N/A",
+      supplierName: boDetail.supplierName || "N/A",
+      status: "COMPLETED",
+      totalAmount: boDetail.totalAmount,
+      type: boDetail.type || "ADJUSTMENT",
+      items: (boDetail.items || []).map((item) => ({
+        id: item.id,
+        productId: item.productId,
+        productName: item.productName,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        totalPrice: item.lineTotal,
+      })),
+      createdAt: boDetail.orderDate,
+      updatedAt: boDetail.orderDate,
+    }
   },
 
   updateStockImport: async (id: string, data: StockImportUpdateDto): Promise<StockImport> => {
-    const response = await api.put<ApiResponse<StockImport>>(`/stock-imports/${id}`, data)
+    const response = await api.put<ApiResponse<StockImport>>(`/purchase-orders/${id}`, data)
     return response.data.data
   },
 
   deleteStockImport: async (id: string): Promise<void> => {
-    await api.delete(`/stock-imports/${id}`)
+    await api.delete(`/purchase-orders/${id}`)
   },
 
   updateStatus: async (id: string, status: string): Promise<StockImport> => {
-    const response = await api.patch<ApiResponse<StockImport>>(`/stock-imports/${id}/status`, {
+    const response = await api.patch<ApiResponse<StockImport>>(`/purchase-orders/${id}/status`, {
       status,
     })
     return response.data.data

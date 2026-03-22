@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
 import { stockImportService } from "@/services/stockImportService"
-import type { StockImport, StockImportStatus } from "@/types/stockImport"
+import type { PurchaseOrderType, StockImport, StockImportStatus } from "@/types/stockImport"
 
 import { useEffect, useState } from "react"
 
@@ -39,6 +39,21 @@ const STATUS_CONFIG: Record<StockImportStatus, { label: string; className: strin
   },
 }
 
+const TYPE_CONFIG: Record<PurchaseOrderType, { label: string; className: string }> = {
+  NORMAL: {
+    label: "Thông thường",
+    className: "border-blue-500/50 text-blue-600",
+  },
+  ADJUSTMENT: {
+    label: "Điều chỉnh",
+    className: "border-orange-500/50 text-orange-600",
+  },
+  IMPORT: {
+    label: "Nhập hàng",
+    className: "border-purple-500/50 text-purple-600",
+  },
+}
+
 export default function StockImportDetailDialog({
   open,
   onOpenChange,
@@ -50,6 +65,14 @@ export default function StockImportDetailDialog({
   useEffect(() => {
     let isMounted = true
     if (open && initialStockImport?.id) {
+      if (initialStockImport.items.length > 0) {
+        setStockImport(initialStockImport)
+        setLoading(false)
+        return () => {
+          isMounted = false
+        }
+      }
+
       const fetchDetail = async () => {
         try {
           const detail = await stockImportService.getStockImport(initialStockImport.id)
@@ -81,12 +104,20 @@ export default function StockImportDetailDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
+          <DialogTitle className="flex flex-wrap items-center gap-3">
             Chi Tiết Phiếu Nhập Hàng
             {!loading && stockImport && (
-              <Badge variant="outline" className={statusCfg.className}>
-                {statusCfg.label}
-              </Badge>
+              <div className="flex gap-2">
+                <Badge
+                  variant="outline"
+                  className={TYPE_CONFIG[stockImport.type || "NORMAL"].className}
+                >
+                  {TYPE_CONFIG[stockImport.type || "NORMAL"].label}
+                </Badge>
+                <Badge variant="outline" className={statusCfg.className}>
+                  {statusCfg.label}
+                </Badge>
+              </div>
             )}
           </DialogTitle>
           {!loading && stockImport && (
@@ -119,7 +150,7 @@ export default function StockImportDetailDialog({
               </div>
               <div className="space-y-1">
                 <p className="text-muted-foreground text-xs">Tổng Tiền</p>
-                <p className="text-primary text-lg font-bold">
+                <p className={`text-lg font-bold ${stockImport.totalAmount < 0 ? "text-red-600" : "text-primary"}`}>
                   {stockImport.totalAmount.toLocaleString("vi-VN")}₫
                 </p>
               </div>
@@ -143,7 +174,7 @@ export default function StockImportDetailDialog({
                       <th className="text-muted-foreground px-3 py-2 text-left font-medium">
                         Sản Phẩm
                       </th>
-                      <th className="text-muted-foreground px-3 py-2 text-right font-medium">SL</th>
+                      <th className="text-muted-foreground px-3 py-2 text-center font-medium">SL</th>
                       <th className="text-muted-foreground px-3 py-2 text-right font-medium">
                         Đơn Giá
                       </th>
@@ -156,11 +187,11 @@ export default function StockImportDetailDialog({
                     {stockImport.items.map((item, idx) => (
                       <tr key={idx} className="border-border border-t">
                         <td className="px-3 py-2">{item.productName}</td>
-                        <td className="px-3 py-2 text-right">{item.quantity}</td>
+                        <td className="px-3 py-2 text-center">{item.quantity}</td>
                         <td className="px-3 py-2 text-right">
                           {item.unitPrice.toLocaleString("vi-VN")}₫
                         </td>
-                        <td className="px-3 py-2 text-right font-medium">
+                        <td className={`px-3 py-2 text-right font-medium ${item.totalPrice < 0 ? "text-red-600" : ""}`}>
                           {item.totalPrice.toLocaleString("vi-VN")}₫
                         </td>
                       </tr>
@@ -171,7 +202,7 @@ export default function StockImportDetailDialog({
                       <td colSpan={3} className="px-3 py-2 text-right font-semibold">
                         Tổng Cộng:
                       </td>
-                      <td className="text-primary px-3 py-2 text-right font-bold">
+                      <td className={`px-3 py-2 text-right font-bold ${stockImport.totalAmount < 0 ? "text-red-600" : "text-primary"}`}>
                         {stockImport.totalAmount.toLocaleString("vi-VN")}₫
                       </td>
                     </tr>

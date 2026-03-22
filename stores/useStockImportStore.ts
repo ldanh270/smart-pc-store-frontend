@@ -1,6 +1,7 @@
 import { stockImportService } from "@/services/stockImportService"
 import type {
   StockImport,
+  StockImportAdjustDto,
   StockImportCreateDto,
   StockImportQueryParams,
   StockImportUpdateDto,
@@ -18,6 +19,7 @@ interface StockImportStore {
   updateStockImport: (id: string, data: StockImportUpdateDto) => Promise<boolean>
   deleteStockImport: (id: string) => Promise<boolean>
   updateStatus: (id: string, status: string) => Promise<boolean>
+  adjustStockImport: (id: string, data: StockImportAdjustDto) => Promise<boolean>
 }
 
 export const useStockImportStore = create<StockImportStore>((set, get) => ({
@@ -39,12 +41,30 @@ export const useStockImportStore = create<StockImportStore>((set, get) => ({
   createStockImport: async (data) => {
     try {
       set({ loading: true })
-      await stockImportService.createStockImport(data)
+      const result = await stockImportService.createStockImport(data)
+      console.log("Create success:", result)
       toast.success("Tạo phiếu nhập hàng thành công!")
       await get().fetchStockImports()
       return true
-    } catch {
+    } catch (error) {
+      console.error("Create failed:", error)
       toast.error("Tạo phiếu nhập hàng thất bại!")
+      return false
+    } finally {
+      set({ loading: false })
+    }
+  },
+
+  adjustStockImport: async (id, items) => {
+    try {
+      set({ loading: true })
+      await stockImportService.adjustStockImport(id, items)
+      toast.success("Tạo phiếu điều chỉnh thành công!")
+      await get().fetchStockImports()
+      return true
+    } catch (error) {
+      console.error("Adjust failed:", error)
+      toast.error("Tạo phiếu điều chỉnh thất bại!")
       return false
     } finally {
       set({ loading: false })

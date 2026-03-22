@@ -1,11 +1,13 @@
 export type StockImportStatus = "PENDING" | "COMPLETED" | "CANCELLED"
+export type PurchaseOrderType = "NORMAL" | "ADJUSTMENT" | "IMPORT"
 
 export interface BackendPurchaseOrder {
   id: string
-  supplierId: string
-  supplierName: string
+  supplierId?: string
+  supplierName?: string
   orderDate: string
   totalAmount: number
+  type?: PurchaseOrderType
 }
 
 export interface BackendPurchaseOrderDetail extends BackendPurchaseOrder {
@@ -35,6 +37,7 @@ export interface StockImport {
   supplierName: string
   status: StockImportStatus
   totalAmount: number
+  type: PurchaseOrderType
   notes?: string
   items: StockImportItem[]
   createdAt: string
@@ -44,7 +47,16 @@ export interface StockImport {
 export interface StockImportCreateDto {
   supplierId: string
   note?: string
+  type?: PurchaseOrderType
   expectedDeliveryDate: string
+  items: {
+    productId: string
+    quantity: number
+    unitPrice: number
+  }[]
+}
+
+export interface StockImportAdjustDto {
   items: {
     productId: string
     quantity: number
