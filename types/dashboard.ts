@@ -27,3 +27,12 @@ export interface RevenueDailyResponse {
   totalOrders: number
   items: RevenueDailyItem[]
 }
+
+export interface TopProduct {
+  id: string
+  productName: string
+  slug: string
+  imageUrl?: string
+  currentPrice: number
+  totalSold: number
+}

@@ -36,18 +36,20 @@ interface AdminMenuItem {
 }
 
 const MAIN_MENU: AdminMenuItem[] = [
-  { label: "Tổng Quan", href: "/admin", icon: LayoutDashboard },
-  { label: "Đơn Hàng", href: "/admin/orders", icon: ShoppingCart },
+  { label: "Tổng Quan", href: "/quan-ly", icon: LayoutDashboard },
+  { label: "Đơn Hàng", href: "/quan-ly/don-hang", icon: ShoppingCart },
 ]
 
 const CATALOG_MENU: AdminMenuItem[] = [
-  { label: "Sản Phẩm", href: "/admin/products", icon: Package },
-  { label: "Danh Mục", href: "/admin/categories", icon: Tags },
-  { label: "Nhà Cung Cấp", href: "/admin/suppliers", icon: Truck },
-  { label: "Nhập Hàng", href: "/admin/nhap-hang", icon: PackagePlus },
+  { label: "Sản Phẩm", href: "/quan-ly/san-pham", icon: Package },
+  { label: "Danh Mục", href: "/quan-ly/danh-muc", icon: Tags },
+  { label: "Nhà Cung Cấp", href: "/quan-ly/nha-cung-cap", icon: Truck },
+  { label: "Nhập Hàng", href: "/quan-ly/nhap-hang", icon: PackagePlus },
 ]
 
-const SYSTEM_MENU: AdminMenuItem[] = [{ label: "Người Dùng", href: "/admin/users", icon: Users }]
+const SYSTEM_MENU: AdminMenuItem[] = [
+  { label: "Người Dùng", href: "/quan-ly/nguoi-dung", icon: Users },
+]
 
 // ─── Menu Renderer ──────────────────────────────────────────────────────────
 
@@ -56,7 +58,7 @@ function MenuGroup({ items, pathname }: { items: AdminMenuItem[]; pathname: stri
     <SidebarMenu>
       {items.map((item) => {
         const isActive =
-          pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href))
+          pathname === item.href || (item.href !== "/quan-ly" && pathname.startsWith(item.href))
 
         return (
           <SidebarMenuItem key={item.href}>
@@ -84,7 +86,7 @@ export default function AdminSidebar() {
       {/* Brand */}
       <SidebarHeader className="border-border flex h-14 flex-row items-center justify-start border-b p-0 px-4 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
         <Link
-          href="/admin"
+          href="/quan-ly"
           className="flex w-full items-center justify-start gap-2.5 group-data-[collapsible=icon]:justify-center"
         >
           <div className="bg-primary/10 flex size-8 shrink-0 items-center justify-center rounded-lg">

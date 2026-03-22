@@ -27,6 +27,8 @@ const ROUTE_LABELS: Record<string, string> = {
   products: "Sản Phẩm",
   categories: "Danh Mục",
   orders: "Đơn Hàng",
+  suppliers: "Nhà Cung Cấp",
+  "nhap-hang": "Nhập Hàng",
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────

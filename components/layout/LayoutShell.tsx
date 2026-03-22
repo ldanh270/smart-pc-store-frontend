@@ -14,7 +14,7 @@ interface LayoutShellProps {
 
 export default function LayoutShell({ children, initialCategories = [] }: LayoutShellProps) {
   const pathname = usePathname()
-  const isAdmin = pathname.startsWith("/admin")
+  const isAdmin = pathname.startsWith("/quan-ly")
 
   if (isAdmin) {
     return <>{children}</>

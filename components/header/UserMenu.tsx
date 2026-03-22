@@ -15,7 +15,7 @@ export default function UserMenu() {
   const menuItems = [
     { href: "/tai-khoan", icon: Settings, label: "Tài khoản" },
     { href: "/don-hang", icon: Package, label: "Đơn hàng của tôi" },
-    ...(isAdmin ? [{ href: "/admin", icon: LayoutDashboard, label: "Quản lý" }] : []),
+    ...(isAdmin ? [{ href: "/quan-ly", icon: LayoutDashboard, label: "Quản lý" }] : []),
   ]
 
   // Avatar initials

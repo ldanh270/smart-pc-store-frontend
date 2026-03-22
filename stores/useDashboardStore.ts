@@ -1,5 +1,5 @@
 import { dashboardService } from "@/services/dashboardService"
-import type { CategoryStat, DashboardOverview, RevenueDailyResponse } from "@/types/dashboard"
+import type { CategoryStat, DashboardOverview, RevenueDailyResponse, TopProduct } from "@/types/dashboard"
 
 import { create } from "zustand"
 
@@ -7,11 +7,13 @@ interface DashboardStore {
   overview: DashboardOverview | null
   categoryStats: CategoryStat[]
   revenueDaily: RevenueDailyResponse | null
+  topProducts: TopProduct[]
   loading: boolean
 
   fetchOverview: () => Promise<void>
   fetchCategoryStats: () => Promise<void>
   fetchRevenueDaily: () => Promise<void>
+  fetchTopProducts: () => Promise<void>
   fetchAll: () => Promise<void>
 }
 
@@ -19,6 +21,7 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
   overview: null,
   categoryStats: [],
   revenueDaily: null,
+  topProducts: [],
   loading: false,
 
   fetchOverview: async () => {
@@ -57,6 +60,18 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
     }
   },
 
+  fetchTopProducts: async () => {
+    try {
+      set({ loading: true })
+      const data = await dashboardService.getTopProducts()
+      set({ topProducts: data })
+    } catch (error) {
+      console.error("Failed to fetch top products:", error)
+    } finally {
+      set({ loading: false })
+    }
+  },
+
   fetchAll: async () => {
     try {
       set({ loading: true })
@@ -64,6 +79,7 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
         get().fetchOverview(),
         get().fetchCategoryStats(),
         get().fetchRevenueDaily(),
+        get().fetchTopProducts(),
       ])
     } catch (error) {
       console.error("Failed to fetch all dashboard data:", error)
