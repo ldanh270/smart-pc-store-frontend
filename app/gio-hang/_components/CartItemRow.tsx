@@ -5,6 +5,7 @@ import { useCartStore } from "@/stores/useCartStore"
 import { CartItem } from "@/types/cart"
 
 import { Minus, Plus, Trash2 } from "lucide-react"
+import { toast } from "sonner"
 
 interface CartItemRowProps {
   item: CartItem
@@ -22,7 +23,10 @@ export default function CartItemRow({ item }: CartItemRowProps) {
   }
 
   function handleIncrease() {
-    if (isMaxQuantity) return
+    if (isMaxQuantity) {
+      toast.error("Không đủ hàng trong kho")
+      return
+    }
     updateQuantity(item.cartItemId, item.quantity + 1)
   }
 
@@ -70,7 +74,6 @@ export default function CartItemRow({ item }: CartItemRowProps) {
               size="icon"
               className="size-8 rounded-none rounded-r-md"
               onClick={handleIncrease}
-              disabled={isMaxQuantity}
               aria-label="Tăng số lượng"
             >
               <Plus className="size-3.5" />
