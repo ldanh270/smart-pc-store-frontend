@@ -1,7 +1,8 @@
 import { stockImportService } from "@/services/stockImportService"
 import type {
+  PurchaseOrderStatus,
   StockImport,
-  StockImportAdjustDto,
+  StockImportCancelDto,
   StockImportCreateDto,
   StockImportQueryParams,
   StockImportUpdateDto,
@@ -17,9 +18,13 @@ interface StockImportStore {
   fetchStockImports: (params?: StockImportQueryParams) => Promise<void>
   createStockImport: (data: StockImportCreateDto) => Promise<boolean>
   updateStockImport: (id: string, data: StockImportUpdateDto) => Promise<boolean>
-  deleteStockImport: (id: string) => Promise<boolean>
-  updateStatus: (id: string, status: string) => Promise<boolean>
-  adjustStockImport: (id: string, data: StockImportAdjustDto) => Promise<boolean>
+  receivePurchaseOrder: (id: string) => Promise<boolean>
+  cancelPurchaseOrder: (id: string, dto: StockImportCancelDto) => Promise<boolean>
+}
+
+/** Replace a single record in the list by id */
+function replaceById(list: StockImport[], updated: StockImport): StockImport[] {
+  return list.map((imp) => (imp.id === updated.id ? updated : imp))
 }
 
 export const useStockImportStore = create<StockImportStore>((set, get) => ({
@@ -32,87 +37,88 @@ export const useStockImportStore = create<StockImportStore>((set, get) => ({
       const data = await stockImportService.getStockImports(params)
       set({ stockImports: data })
     } catch (error) {
-      console.error("Failed to fetch stock imports:", error)
+      console.error("Failed to fetch purchase orders:", error)
     } finally {
       set({ loading: false })
     }
   },
 
   createStockImport: async (data) => {
+    set({ loading: true })
     try {
-      set({ loading: true })
       const result = await stockImportService.createStockImport(data)
-      console.log("Create success:", result)
-      toast.success("Tạo phiếu nhập hàng thành công!")
-      await get().fetchStockImports()
+      set((state) => ({
+        loading: false,
+        stockImports: [result, ...state.stockImports],
+      }))
+      await get().fetchStockImports() // Auto-reload to ensure server consistency
+      toast.success("Tạo phiếu đặt hàng thành công! (Trạng thái: Nháp)")
       return true
     } catch (error) {
       console.error("Create failed:", error)
-      toast.error("Tạo phiếu nhập hàng thất bại!")
-      return false
-    } finally {
       set({ loading: false })
-    }
-  },
-
-  adjustStockImport: async (id, items) => {
-    try {
-      set({ loading: true })
-      await stockImportService.adjustStockImport(id, items)
-      toast.success("Tạo phiếu điều chỉnh thành công!")
-      await get().fetchStockImports()
-      return true
-    } catch (error) {
-      console.error("Adjust failed:", error)
-      toast.error("Tạo phiếu điều chỉnh thất bại!")
+      toast.error("Tạo phiếu đặt hàng thất bại!")
       return false
-    } finally {
-      set({ loading: false })
     }
   },
 
   updateStockImport: async (id, data) => {
+    set({ loading: true })
     try {
-      set({ loading: true })
-      await stockImportService.updateStockImport(id, data)
-      toast.success("Cập nhật phiếu nhập hàng thành công!")
-      await get().fetchStockImports()
+      const result = await stockImportService.updateStockImport(id, data)
+      set((state) => ({
+        loading: false,
+        stockImports: replaceById(state.stockImports, result),
+      }))
+      await get().fetchStockImports() // Auto-reload
+      toast.success("Cập nhật phiếu đặt hàng thành công!")
       return true
-    } catch {
-      toast.error("Cập nhật phiếu nhập hàng thất bại!")
-      return false
-    } finally {
+    } catch (error: unknown) {
       set({ loading: false })
+      const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message
+      toast.error(msg || "Cập nhật phiếu đặt hàng thất bại!")
+      return false
     }
   },
 
-  deleteStockImport: async (id) => {
+  receivePurchaseOrder: async (id) => {
+    set({ loading: true })
     try {
-      set({ loading: true })
-      await stockImportService.deleteStockImport(id)
-      toast.success("Xóa phiếu nhập hàng thành công!")
-      await get().fetchStockImports()
+      const result = await stockImportService.receivePurchaseOrder(id)
+      set((state) => ({
+        loading: false,
+        stockImports: replaceById(state.stockImports, result),
+      }))
+      await get().fetchStockImports() // Auto-reload
+      toast.success("Nhập kho thành công! Tồn kho đã được cập nhật.")
       return true
-    } catch {
-      toast.error("Xóa phiếu nhập hàng thất bại!")
-      return false
-    } finally {
+    } catch (error: unknown) {
       set({ loading: false })
+      const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message
+      toast.error(msg || "Nhập kho thất bại!")
+      return false
     }
   },
 
-  updateStatus: async (id, status) => {
+  cancelPurchaseOrder: async (id, dto) => {
+    set({ loading: true })
     try {
-      set({ loading: true })
-      await stockImportService.updateStatus(id, status)
-      toast.success("Cập nhật trạng thái thành công!")
-      await get().fetchStockImports()
+      const result = await stockImportService.cancelPurchaseOrder(id, dto)
+      set((state) => ({
+        loading: false,
+        stockImports: replaceById(state.stockImports, result),
+      }))
+      await get().fetchStockImports() // Auto-reload
+      toast.success("Hủy phiếu đặt hàng thành công!")
       return true
-    } catch {
-      toast.error("Cập nhật trạng thái thất bại!")
-      return false
-    } finally {
+    } catch (error: unknown) {
       set({ loading: false })
+      const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message
+      toast.error(msg || "Hủy phiếu thất bại!")
+      return false
     }
   },
 }))
+
+/** @deprecated use PurchaseOrderStatus */
+export type { PurchaseOrderStatus as StockImportStatus }
