@@ -1,141 +1,103 @@
 import api from "@/lib/axios"
-import type { ApiResponse } from "@/types/product"
 import type {
   BackendPurchaseOrder,
   BackendPurchaseOrderDetail,
-  StockImportAdjustDto,
+  PurchaseOrderStatus,
   StockImport,
+  StockImportCancelDto,
   StockImportCreateDto,
   StockImportQueryParams,
   StockImportUpdateDto,
 } from "@/types/stockImport"
 
+// ─── Mapper ──────────────────────────────────────────────────────────────────
+
+function mapDetail(boDetail: BackendPurchaseOrderDetail): StockImport {
+  const shortCode = boDetail.id ? boDetail.id.substring(0, 8).toUpperCase() : "UNKNOWN"
+  return {
+    id: boDetail.id,
+    importCode: `PO-${shortCode}`,
+    supplierId: boDetail.supplierId || "N/A",
+    supplierName: boDetail.supplierName || "N/A",
+    expectedDeliveryDate: boDetail.expectedDeliveryDate,
+    status: (boDetail.status as PurchaseOrderStatus) ?? "DRAFT",
+    totalAmount: boDetail.totalAmount ?? 0,
+    type: boDetail.type || "NORMAL",
+    note: boDetail.note,
+    items: (boDetail.items || []).map((item) => ({
+      id: item.id,
+      productId: item.productId,
+      productName: item.productName,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      totalPrice: item.lineTotal,
+    })),
+    createdAt: boDetail.createdAt || boDetail.orderDate,
+    orderDate: boDetail.orderDate,
+  }
+}
+
+function mapList(bo: BackendPurchaseOrder): StockImport {
+  const shortCode = bo.id ? bo.id.substring(0, 8).toUpperCase() : "UNKNOWN"
+  return {
+    id: bo.id,
+    importCode: `PO-${shortCode}`,
+    supplierId: bo.supplierId || "N/A",
+    supplierName: bo.supplierName || "N/A",
+    expectedDeliveryDate: bo.expectedDeliveryDate,
+    status: (bo.status as PurchaseOrderStatus) ?? "DRAFT",
+    totalAmount: bo.totalAmount ?? 0,
+    type: bo.type || "NORMAL",
+    note: bo.note,
+    items: [],
+    createdAt: bo.createdAt || bo.orderDate,
+    orderDate: bo.orderDate,
+  }
+}
+
+// ─── Service ─────────────────────────────────────────────────────────────────
+
 export const stockImportService = {
+  /** GET /purchase-orders */
   getStockImports: async (params?: StockImportQueryParams): Promise<StockImport[]> => {
-    // Add timestamp to bypass cache if needed
-    const queryParams = { ...params, _t: Date.now() }
-    const response = await api.get("/purchase-orders", { params: queryParams })
+    const response = await api.get("/purchase-orders", { params })
     const data = response.data?.data ?? response.data
-
-    // Explicitly type and map the backend response
-    const backendOrders: BackendPurchaseOrder[] = Array.isArray(data) ? data : []
-
-    return backendOrders.map((bo) => {
-      // Generate a short PO code from the UUID: e.g. PO-B216B421
-      const shortCode = bo.id ? bo.id.substring(0, 8).toUpperCase() : "UNKNOWN"
-
-      return {
-        id: bo.id,
-        importCode: `PO-${shortCode}`,
-        supplierId: bo.supplierId || "N/A",
-        supplierName: bo.supplierName || "N/A",
-        status: "COMPLETED", // Default status, as API doesn't provide it
-        totalAmount: bo.totalAmount,
-        type: bo.type || "NORMAL",
-        items: [], // API list doesn't return items
-        createdAt: bo.orderDate, // Map orderDate to createdAt
-        updatedAt: bo.orderDate, // Map orderDate to updatedAt
-      }
-    })
+    const list: BackendPurchaseOrder[] = Array.isArray(data) ? data : []
+    return list.map(mapList)
   },
 
+  /** GET /purchase-orders/:id */
   getStockImport: async (id: string): Promise<StockImport> => {
     const response = await api.get(`/purchase-orders/${id}`)
     const data = response.data?.data ?? response.data
-    const boDetail = data as BackendPurchaseOrderDetail
-
-    const shortCode = boDetail.id ? boDetail.id.substring(0, 8).toUpperCase() : "UNKNOWN"
-
-    return {
-      id: boDetail.id,
-      importCode: `PO-${shortCode}`,
-      supplierId: boDetail.supplierId || "N/A",
-      supplierName: boDetail.supplierName || "N/A",
-      status: "COMPLETED",
-      totalAmount: boDetail.totalAmount,
-      type: boDetail.type || "NORMAL",
-      items: (boDetail.items || []).map((item) => ({
-        id: item.id,
-        productId: item.productId,
-        productName: item.productName,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        totalPrice: item.lineTotal,
-      })),
-      createdAt: boDetail.orderDate,
-      updatedAt: boDetail.orderDate,
-    }
+    return mapDetail(data as BackendPurchaseOrderDetail)
   },
 
+  /** POST /purchase-orders/create → status = DRAFT */
   createStockImport: async (data: StockImportCreateDto): Promise<StockImport> => {
-    // Đảm bảo dùng đúng endpoint /purchase-orders/create
     const response = await api.post("/purchase-orders/create", data)
-    const boDetail = (response.data?.data ?? response.data) as BackendPurchaseOrderDetail
-
-    const shortCode = boDetail.id ? boDetail.id.substring(0, 8).toUpperCase() : "UNKNOWN"
-
-    return {
-      id: boDetail.id,
-      importCode: `PO-${shortCode}`,
-      supplierId: boDetail.supplierId || "N/A",
-      supplierName: boDetail.supplierName || "N/A",
-      status: "COMPLETED",
-      totalAmount: boDetail.totalAmount,
-      type: boDetail.type || "NORMAL",
-      items: (boDetail.items || []).map((item) => ({
-        id: item.id,
-        productId: item.productId,
-        productName: item.productName,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        totalPrice: item.lineTotal,
-      })),
-      createdAt: boDetail.orderDate,
-      updatedAt: boDetail.orderDate,
-    }
+    const body = response.data?.data ?? response.data
+    return mapDetail(body as BackendPurchaseOrderDetail)
   },
 
-  adjustStockImport: async (id: string, data: StockImportAdjustDto): Promise<StockImport> => {
-    // Chỉ gửi mảng items theo đúng yêu cầu backend
-    const response = await api.post(`/purchase-orders/${id}/adjust`, data)
-    const boDetail = (response.data?.data ?? response.data) as BackendPurchaseOrderDetail
-
-    const shortCode = boDetail.id ? boDetail.id.substring(0, 8).toUpperCase() : "UNKNOWN"
-
-    return {
-      id: boDetail.id,
-      importCode: `PO-${shortCode}`,
-      supplierId: boDetail.supplierId || "N/A",
-      supplierName: boDetail.supplierName || "N/A",
-      status: "COMPLETED",
-      totalAmount: boDetail.totalAmount,
-      type: boDetail.type || "ADJUSTMENT",
-      items: (boDetail.items || []).map((item) => ({
-        id: item.id,
-        productId: item.productId,
-        productName: item.productName,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        totalPrice: item.lineTotal,
-      })),
-      createdAt: boDetail.orderDate,
-      updatedAt: boDetail.orderDate,
-    }
-  },
-
+  /** PUT /purchase-orders/:id — only allowed when status = DRAFT */
   updateStockImport: async (id: string, data: StockImportUpdateDto): Promise<StockImport> => {
-    const response = await api.put<ApiResponse<StockImport>>(`/purchase-orders/${id}`, data)
-    return response.data.data
+    const response = await api.put(`/purchase-orders/${id}`, data)
+    const body = response.data?.data ?? response.data
+    return mapDetail(body as BackendPurchaseOrderDetail)
   },
 
-  deleteStockImport: async (id: string): Promise<void> => {
-    await api.delete(`/purchase-orders/${id}`)
+  /** POST /purchase-orders/:id/receive — DRAFT → RECEIVED, updates stock */
+  receivePurchaseOrder: async (id: string): Promise<StockImport> => {
+    const response = await api.post(`/purchase-orders/${id}/receive`, {})
+    const body = response.data?.data ?? response.data
+    return mapDetail(body as BackendPurchaseOrderDetail)
   },
 
-  updateStatus: async (id: string, status: string): Promise<StockImport> => {
-    const response = await api.patch<ApiResponse<StockImport>>(`/purchase-orders/${id}/status`, {
-      status,
-    })
-    return response.data.data
+  /** PUT /purchase-orders/:id/cancel — DRAFT → CANCELLED */
+  cancelPurchaseOrder: async (id: string, dto: StockImportCancelDto): Promise<StockImport> => {
+    const response = await api.put(`/purchase-orders/${id}/cancel`, dto)
+    const body = response.data?.data ?? response.data
+    return mapDetail(body as BackendPurchaseOrderDetail)
   },
 }
