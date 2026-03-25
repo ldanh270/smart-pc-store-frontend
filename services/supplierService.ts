@@ -5,7 +5,7 @@ import type { BackendSupplier, Supplier, SupplierCreateDto } from "@/types/suppl
 
 export const supplierService = {
   getSuppliers: async (): Promise<Supplier[]> => {
-    const response = await api.get("/suppliers")
+    const response = await api.get("/suppliers", { params: { page: 1, size: 100 } })
     const data = response.data?.data ?? response.data
     const backendSuppliers: BackendSupplier[] = Array.isArray(data) ? data : []
 
