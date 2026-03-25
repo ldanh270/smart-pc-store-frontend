@@ -12,9 +12,24 @@ export const productService = {
    */
   getProducts: async (params?: ProductQueryParams): Promise<AdminProduct[]> => {
     const response = await api.get("/products", { params })
-    // Handle both ApiResponse<T[]> wrapper and direct array response
-    const data = response.data?.data ?? response.data
-    return Array.isArray(data) ? data : []
+    const json = response.data
+
+    // Handle all common response shapes (consistent with lib/api/products.ts):
+    // { data: [...] }            — wrapped array
+    // { data: { content: [...] } }  — wrapped paginated (Spring)
+    // { content: [...] }          — Spring Page without wrapper
+    // [...]                       — direct array
+    const data = Array.isArray(json.data)
+      ? json.data
+      : Array.isArray(json.data?.content)
+        ? json.data.content
+        : Array.isArray(json.content)
+          ? json.content
+          : Array.isArray(json)
+            ? json
+            : []
+
+    return data
   },
 
   /**
