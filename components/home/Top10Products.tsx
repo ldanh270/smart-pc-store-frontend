@@ -25,8 +25,16 @@ interface Top10ProductsProps {
  * Now using primary colors from globals.css.
  */
 function TopProductCard({ product }: { product: Product }) {
-  // Mock some data that isn't in the DB but is in the user's reference image
-  const mockSold = `${(Math.random() * 5 + 1).toFixed(1)}m sold`
+  // Deterministic mock data to avoid React hydration mismatches between Server and Client
+  const getStaticMockSold = (id: string) => {
+    let hash = 0
+    for (let i = 0; i < id.length; i++) {
+        hash = id.charCodeAt(i) + ((hash << 5) - hash)
+    }
+    return ((Math.abs(hash) % 50) / 10 + 1).toFixed(1)
+  }
+  
+  const mockSold = `${getStaticMockSold(product.id || product.name || "1")}m sold`
 
   return (
     <Link
