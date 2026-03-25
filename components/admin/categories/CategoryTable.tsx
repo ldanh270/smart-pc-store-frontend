@@ -11,6 +11,13 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
+import {
   Table,
   TableBody,
   TableCell,
@@ -43,9 +50,39 @@ export default function CategoryTable() {
 
   // ─── Filtered Data ──────────────────────────────────────────────────
 
-  const filteredCategories = categories.filter((cat) =>
-    cat.name?.toLowerCase().includes(searchQuery.toLowerCase()),
+  const filteredCategories = categories.filter((cat) => {
+    const q = searchQuery.toLowerCase()
+    const mask = `DM-${cat.id.substring(0, 8).toUpperCase()}`.toLowerCase()
+    return cat.name?.toLowerCase().includes(q) || mask.includes(q)
+  })
+
+  // ─── Pagination ──────────────────────────────────────────────────────
+
+  const PAGE_SIZE = 10
+  const [currentPage, setCurrentPage] = useState(1)
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery])
+
+  const totalPages = Math.max(1, Math.ceil(filteredCategories.length / PAGE_SIZE))
+  const safePage = Math.min(currentPage, totalPages)
+  const paginatedCategories = filteredCategories.slice(
+    (safePage - 1) * PAGE_SIZE,
+    safePage * PAGE_SIZE,
   )
+
+  const hasNextPage = safePage < totalPages
+
+  function handlePreviousPage(e: React.MouseEvent) {
+    e.preventDefault()
+    if (safePage > 1) setCurrentPage((p) => p - 1)
+  }
+
+  function handleNextPage(e: React.MouseEvent) {
+    e.preventDefault()
+    if (hasNextPage) setCurrentPage((p) => p + 1)
+  }
 
   // ─── Handlers ────────────────────────────────────────────────────────
 
@@ -150,7 +187,7 @@ export default function CategoryTable() {
                   <p className="text-muted-foreground mt-2 text-sm">Đang tải danh mục...</p>
                 </TableCell>
               </TableRow>
-            ) : filteredCategories.length === 0 ? (
+            ) : paginatedCategories.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-muted-foreground py-12 text-center">
                   {searchQuery
@@ -159,9 +196,11 @@ export default function CategoryTable() {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredCategories.map((category) => (
+              paginatedCategories.map((category) => (
                 <TableRow key={category.id}>
-                  <TableCell className="font-mono text-sm">{category.id}</TableCell>
+                  <TableCell className="font-mono text-sm">
+                    DM-{category.id.substring(0, 8).toUpperCase()}
+                  </TableCell>
                   <TableCell>
                     <p className="font-medium">{category.name}</p>
                   </TableCell>
@@ -205,6 +244,31 @@ export default function CategoryTable() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {!loading && filteredCategories.length > 0 && (
+        <div className="flex items-center justify-between px-2">
+          <p className="text-muted-foreground text-sm">Đang hiển thị trang {safePage}</p>
+          <Pagination className="mx-0 w-auto">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={handlePreviousPage}
+                  className={safePage <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={handleNextPage}
+                  className={!hasNextPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
 
       {/* Dialogs */}
       <CategoryFormDialog
