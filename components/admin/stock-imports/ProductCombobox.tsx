@@ -36,6 +36,7 @@ export function ProductCombobox({ products, value, onChange, disabled = false }:
   return (
     <Popover
       open={open}
+      modal={true}
       onOpenChange={(nextOpen) => {
         if (disabled) return
         setOpen(nextOpen)
