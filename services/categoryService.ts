@@ -12,7 +12,7 @@ export const categoryService = {
    * GET /categories
    */
   getCategories: async (): Promise<Category[]> => {
-    const response = await api.get("/categories")
+    const response = await api.get("/categories", { params: { page: 1, size: 100 } })
     const json = response.data
     const arrayData = Array.isArray(json.data)
       ? json.data
