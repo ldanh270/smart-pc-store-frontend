@@ -7,7 +7,7 @@ import { toast } from "sonner"
 const api = axios.create({
   baseURL: getApiBaseUrl(),
   withCredentials: true,
-  timeout: 15_000,
+  timeout: 30_000,
 })
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
