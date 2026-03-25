@@ -69,7 +69,9 @@ export default function ProductTable() {
 
   useEffect(() => {
     const debounce = setTimeout(() => {
-      fetchProducts({ name: searchQuery || undefined, page: 1, size: 20 })
+      // Strip "SP-" prefix if searching by product ID
+      const query = searchQuery?.trim().replace(/^SP-/i, "")
+      fetchProducts({ q: query || undefined, page: 1, size: 20 })
     }, 300)
     return () => clearTimeout(debounce)
   }, [searchQuery, fetchProducts])
@@ -156,6 +158,27 @@ export default function ProductTable() {
         </div>
       </div>
 
+      {/* Stats Bar */}
+      <div className="text-muted-foreground flex gap-4 text-sm">
+        <span>
+          Tổng (trang này): <span className="text-foreground font-semibold">{products.length}</span> sản phẩm
+        </span>
+        <span>•</span>
+        <span>
+          Đang bán:{" "}
+          <span className="font-semibold text-emerald-600">
+            {products.filter((p) => p.status).length}
+          </span>
+        </span>
+        <span>•</span>
+        <span>
+          Ẩn:{" "}
+          <span className="text-destructive font-semibold">
+            {products.filter((p) => !p.status).length}
+          </span>
+        </span>
+      </div>
+
       {/* Table */}
       <div className="border-border rounded-lg border">
         <Table>
@@ -189,7 +212,9 @@ export default function ProductTable() {
             ) : (
               products.map((product) => (
                 <TableRow key={product.id}>
-                  <TableCell className="font-mono text-sm">{product.id}</TableCell>
+                  <TableCell className="font-mono text-sm">
+                    SP-{product.id.substring(0, 8).toUpperCase()}
+                  </TableCell>
                   <TableCell>
                     <div className="bg-muted relative size-10 overflow-hidden rounded-md">
                       <Image
