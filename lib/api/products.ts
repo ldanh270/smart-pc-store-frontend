@@ -3,7 +3,7 @@ import { type BackendProduct, type Product, mapBackendProduct } from "@/types/pr
 import { buildApiUrl } from "./base-url"
 
 interface FetchProductsParams {
-  name?: string
+  q?: string
   categoryId?: string
   status?: boolean
   minPrice?: number
@@ -17,7 +17,7 @@ export async function fetchProducts(params?: FetchProductsParams): Promise<Produ
   const url = new URL(buildApiUrl("/products"))
 
   if (params) {
-    if (params.name) url.searchParams.set("name", params.name)
+    if (params.q) url.searchParams.set("q", params.q)
     if (params.categoryId !== undefined)
       url.searchParams.set("categoryId", String(params.categoryId))
     if (params.status !== undefined) url.searchParams.set("status", String(params.status))
